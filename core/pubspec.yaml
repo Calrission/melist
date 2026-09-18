@@ -1,0 +1,12 @@
+name: melist_core
+description: Shared models and logic for MELIST.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.12.0
+
+resolution: workspace
+
+dev_dependencies:
+  lints: ^6.0.0

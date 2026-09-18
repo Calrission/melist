@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:melist/domain/models/user_data_model.dart';
+import 'package:melist_core/melist_core.dart';
 
 abstract class ITelegramRepository {
   Future<void> initialize();
