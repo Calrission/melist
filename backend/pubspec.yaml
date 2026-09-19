@@ -10,6 +10,7 @@ resolution: workspace
 
 dependencies:
   dart_frog: ^1.1.0
+  crypto: ^3.0.7
   melist_core:
   shelf_cors_headers: ^0.1.5
 
