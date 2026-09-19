@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
@@ -17,7 +18,8 @@ import 'package:melist_backend/melist_backend.dart';
         'items': wishlistSchema,
       },
     ),
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -43,7 +45,8 @@ import 'package:melist_backend/melist_backend.dart';
       schema: wishlistSchema,
     ),
     badRequestResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -69,18 +72,11 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     noContentResponse,
     badRequestResponse,
-    ...protectedStubResponses,
+    notFoundResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context) async {
-  final rejected = rejectUnlessMethod(
-    context,
-    {HttpMethod.get, HttpMethod.post, HttpMethod.patch, HttpMethod.delete},
-  );
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context) {
+  return handleWishlistsCollection(context);
 }

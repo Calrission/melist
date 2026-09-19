@@ -28,9 +28,17 @@ Handler middleware(Handler handler) {
         }),
       )
       .use(
+        provider<WishlistService>(
+          (context) => WishlistService.fromDatabase(
+            context.read<Database>(),
+          ),
+        ),
+      )
+      .use(
         swaggerMiddleware(
           title: 'MELIST API',
           projectRoot: '.',
+          transformJson: applyOpenApiSpec,
         ),
       );
 }

@@ -17,11 +17,13 @@ dart test --reporter expanded               # подробный вывод
 test/
 ├── routes/                 # хендлеры: test/routes/<путь как в routes/>_test.dart
 │   ├── auth/validate_test.dart
+│   ├── auth/debug_test.dart
 │   └── api/
 │       ├── _middleware_test.dart
 │       └── wishlists/index_test.dart
 ├── src/                    # unit-тесты lib/src/**
 │   ├── auth/init_data_validator_test.dart
+│   ├── auth/debug_auth_test.dart
 │   ├── config/app_config_test.dart
 │   └── data/               # database_config_test, database_test, migrator_test
 ├── integration/            # реальная PostgreSQL, тег integration, skip без TEST_DATABASE_URL

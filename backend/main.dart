@@ -16,8 +16,11 @@ import 'package:melist_backend/melist_backend.dart';
 ///
 /// The resulting singletons are injected with `provider` above the whole
 /// router, so `routes/**` read them via `context.read<T>()`.
+/// When `DEBUG_AUTH=true`, the debug user is upserted and a fixed Bearer
+/// string is accepted under `/api/**`.
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   final config = AppConfig.load();
+  final debugAuth = DebugAuth.fromConfig(config);
   final database = Database.fromUrl(config.databaseUrl);
 
   try {
@@ -29,6 +32,14 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
       log: (message) => stdout.writeln('[migrations] $message'),
     ).migrate();
     stdout.writeln('[migrations] $report');
+
+    if (debugAuth.enabled) {
+      await UserRepository(database).ensure(debugAuth.user);
+      stdout.writeln(
+        'Debug auth enabled: user ${debugAuth.user.id} '
+        '(${debugAuth.user.username}), Bearer ${debugAuth.token}',
+      );
+    }
   } on Object catch (error) {
     await database.close(force: true);
     stderr.writeln('Database startup failed: $error');
@@ -38,7 +49,8 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   final server = await serve(
     handler
         .use(provider<AppConfig>((_) => config))
-        .use(provider<Database>((_) => database)),
+        .use(provider<Database>((_) => database))
+        .use(provider<DebugAuth>((_) => debugAuth)),
     ip,
     port,
   );

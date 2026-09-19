@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
+import 'package:melist_backend/src/http/app_exception.dart';
 
 /// Unified error payload: `{ "error": "<message>" }`.
 Response errorResponse(int statusCode, String message) {
@@ -12,6 +13,27 @@ Response errorResponse(int statusCode, String message) {
 
 Response badRequest(String message) {
   return errorResponse(HttpStatus.badRequest, message);
+}
+
+Response forbidden([String message = 'Forbidden']) {
+  return errorResponse(HttpStatus.forbidden, message);
+}
+
+Response notFound([String message = 'Not found']) {
+  return errorResponse(HttpStatus.notFound, message);
+}
+
+Response created(Object body) {
+  return Response.json(statusCode: HttpStatus.created, body: body);
+}
+
+Response noContent() {
+  return Response(statusCode: HttpStatus.noContent);
+}
+
+/// Maps [AppException] onto `{ "error": "..." }` with the matching status.
+Response appError(AppException error) {
+  return errorResponse(error.statusCode, error.message);
 }
 
 Response methodNotAllowed() {

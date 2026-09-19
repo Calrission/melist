@@ -35,6 +35,9 @@ void main() {
 
     when(() => context.request).thenReturn(request);
     when(() => context.read<JwtService>()).thenReturn(jwtService);
+    when(() => context.read<DebugAuth>()).thenReturn(
+      const DebugAuth.disabled(),
+    );
     when(() => context.provide<AuthUser>(any())).thenReturn(context);
     return context;
   }
@@ -87,6 +90,46 @@ void main() {
       expect(provided.id, equals(279058397));
       expect(provided.username, equals('vdkfrost'));
       expect(provided.firstName, equals('Vladislav'));
+    });
+
+    test('accepts the debug token when DEBUG_AUTH is enabled', () async {
+      const debug = DebugAuth.enabled();
+      final context = contextWith(
+        authorization: 'Bearer ${debug.token}',
+      );
+      when(() => context.read<DebugAuth>()).thenReturn(debug);
+
+      final response = await protectedHandler()(context);
+
+      expect(response.statusCode, equals(HttpStatus.ok));
+
+      final captured = verify(
+        () => context.provide<AuthUser>(captureAny()),
+      ).captured;
+      final provided = (captured.single as AuthUser Function())();
+
+      expect(provided.id, equals(DebugAuth.defaultUserId));
+      expect(provided.username, equals(DebugAuth.defaultUsername));
+    });
+
+    test('still accepts a signed JWT when debug auth is enabled', () async {
+      final token = jwtService.issueAccessToken(user);
+      final context = contextWith(authorization: 'Bearer $token');
+      when(() => context.read<DebugAuth>()).thenReturn(
+        const DebugAuth.enabled(),
+      );
+
+      final response = await protectedHandler()(context);
+
+      expect(response.statusCode, equals(HttpStatus.ok));
+    });
+
+    test('rejects the default debug token when debug auth is off', () async {
+      final response = await protectedHandler()(
+        contextWith(authorization: 'Bearer ${DebugAuth.defaultToken}'),
+      );
+
+      expect(response.statusCode, equals(HttpStatus.unauthorized));
     });
   });
 }

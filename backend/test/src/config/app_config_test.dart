@@ -55,6 +55,65 @@ DATABASE_URL=postgres://file@localhost/melist
       expect(config.botToken, equals('env-bot'));
     });
 
+    test('debug auth is off unless DEBUG_AUTH is set', () {
+      final config = AppConfig.load(files: [envFile], environment: const {});
+
+      expect(config.debugAuth, isFalse);
+      expect(config.debugToken, isNull);
+      expect(config.debugUserId, equals(1));
+    });
+
+    test('reads optional debug auth settings', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+DEBUG_AUTH=true
+DEBUG_TOKEN=local-admin
+DEBUG_USER_ID=42
+''');
+
+      final config = AppConfig.load(files: [envFile], environment: const {});
+
+      expect(config.debugAuth, isTrue);
+      expect(config.debugToken, equals('local-admin'));
+      expect(config.debugUserId, equals(42));
+    });
+
+    test('treats 1 and yes as DEBUG_AUTH enabled', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+DEBUG_AUTH=yes
+''');
+
+      expect(
+        AppConfig.load(files: [envFile], environment: const {}).debugAuth,
+        isTrue,
+      );
+    });
+
+    test('fails when DEBUG_USER_ID is not a positive integer', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+DEBUG_USER_ID=0
+''');
+
+      expect(
+        () => AppConfig.load(files: [envFile], environment: const {}),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('DEBUG_USER_ID'),
+          ),
+        ),
+      );
+    });
+
     test('fails when a required variable is missing or empty', () {
       File(envFile).writeAsStringSync('BOT_TOKEN=x\nJWT_SECRET=\n');
 

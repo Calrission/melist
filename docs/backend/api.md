@@ -7,7 +7,7 @@
 ## Общие правила
 
 - Публичные роуты: `/`, `/health`, `/auth/*`, `/docs`, `/openapi.json`.
-- Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`).
+- Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
 - Ошибки всегда в формате `{ "error": "<сообщение>" }`.
 - Коды: `200` ok, `201` создано, `204` удалено без тела, `400` невалидное тело, `401` нет/плохой токен, `403` чужой ресурс, `404` не найдено, `405` метод не поддерживается, `501` ещё не реализовано.
 - Массовые операции и сортировка выполняются методами на коллекции (`PATCH`/`DELETE /api/wishlists`), а не отдельными статическими путями рядом с `[id]` — в Dart Frog динамический сегмент может перехватить такой путь.
@@ -49,6 +49,22 @@ sequenceDiagram
 Тот же контракт. Refresh-токена нет: клиент повторно присылает `initData`, пока его `auth_date` не старше 24 часов. Реализация общая — `authenticateWithInitData` в `backend/lib/src/auth/authenticate.dart`.
 
 JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1 час.
+
+### `GET /auth/debug`
+
+Только при `DEBUG_AUTH=true`. Возвращает фиксированный Bearer, чтобы в Swagger и curl не проходить Telegram `initData`.
+
+Ответ `200`:
+
+```json
+{
+  "accessToken": "dev-admin",
+  "tokenType": "Bearer",
+  "user": { "id": 1, "firstName": "Debug", "lastName": "Admin", "username": "debug_admin" }
+}
+```
+
+Дальше: `Authorization: Bearer dev-admin` на `/api/**`. Пользователь с `DEBUG_USER_ID` создаётся на старте сервера. `404` — флаг выключен. На проде не включать.
 
 ## Профиль
 
@@ -218,4 +234,4 @@ Query: `query` — поиск по названию (17.1); `mine=true` — то
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/auth/validate`, `/auth/refresh`. Все `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Контракты выше — целевые и уже описаны в `@Route`, поэтому видны в Swagger.
+Работают: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`). `PATCH /api/wishlists` (сортировка, 5.1) и остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`.

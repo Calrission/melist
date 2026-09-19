@@ -66,7 +66,7 @@ Future<Response> onRequest(RequestContext context) async {
 
 ## 6. Конфигурация и секреты
 
-- Все секреты через `AppConfig` из `.env` / переменных окружения; в коде нет литералов токенов. Приоритет: переменная окружения процесса перекрывает значение из `.env` — файл для локальной разработки, окружение для контейнеров и CI.
+- Все секреты через `AppConfig` из `.env` / переменных окружения; в коде нет литералов токенов. Приоритет: переменная окружения процесса перекрывает значение из `.env` — файл для локальной разработки, окружение для контейнеров и CI. `DEBUG_AUTH` — только локальный обход Telegram; в production должен оставаться `false`.
 - `AppConfig.load()` вызывается в `main.dart` и падает на старте при отсутствии обязательных переменных — лучше упасть сразу, чем отдавать `500` под нагрузкой.
 - `.env` в `.gitignore`, актуальный шаблон — `.example_env`. Новую переменную добавляйте в оба места и в [README.md](README.md).
 
@@ -74,6 +74,7 @@ Future<Response> onRequest(RequestContext context) async {
 
 - Каждый эндпоинт помечен `@Route(...)` из `dart_frog_swagger`: `method`, `path`, `summary`, `description`, `tags`, `requestBody`, `responses`.
 - Общие схемы (ошибка, JWT, пагинация) держите в `lib/src/openapi/*_docs.dart` и переиспользуйте, чтобы Swagger был согласован.
+- Bearer и path-параметры для Swagger UI добавляются через `transformJson: applyOpenApiSpec` в `routes/_middleware.dart` (`@Route` не умеет `security` и `parameters`).
 - После изменения аннотаций перегенерируйте спецификацию: `dart run dart_frog_swagger`. Файл `build/openapi.json` не коммитится.
 
 ## 8. Код-стайл

@@ -1,3 +1,6 @@
 BOT_TOKEN=
 JWT_SECRET=
 DATABASE_URL=postgres://melist:melist@localhost:5432/melist?sslmode=disable
+DEBUG_AUTH=false
+DEBUG_TOKEN=dev-admin
+DEBUG_USER_ID=1

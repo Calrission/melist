@@ -26,14 +26,15 @@ API для MELIST на [Dart Frog](https://dart-frog.dev) с PostgreSQL. Пак�
 
 ```
 backend/
-├── main.dart                   # точка входа: AppConfig, подключение к БД, миграции, provider<AppConfig|Database>
+├── main.dart                   # точка входа: AppConfig, БД, миграции, provider<AppConfig|Database|DebugAuth>
 ├── routes/                     # эндпоинты (файл = путь)
 │   ├── _middleware.dart        # логи, CORS, провайдеры per-request сервисов, Swagger UI
 │   ├── index.dart              # GET /
 │   ├── health.dart             # GET /health
 │   ├── auth/
 │   │   ├── validate.dart       # POST /auth/validate  (initData -> JWT)
-│   │   └── refresh.dart        # POST /auth/refresh   (initData -> новый JWT)
+│   │   ├── refresh.dart        # POST /auth/refresh   (initData -> новый JWT)
+│   │   └── debug.dart          # GET  /auth/debug     (локальный Bearer, DEBUG_AUTH)
 │   └── api/                    # защищённые роуты (Bearer JWT)
 │       ├── _middleware.dart    # bearerAuthentication -> AuthUser в контексте
 │       ├── me/ users/ wishlists/ wishes/ favorites/ shared/
@@ -41,7 +42,7 @@ backend/
 ├── lib/
 │   ├── melist_backend.dart     # публичный экспорт
 │   └── src/
-│       ├── auth/               # InitDataValidator, JwtService, AuthUser, authenticate
+│       ├── auth/               # InitDataValidator, JwtService, AuthUser, DebugAuth
 │       ├── config/             # AppConfig (.env)
 │       ├── data/               # Database (пул PostgreSQL), DatabaseConfig, Migrator, далее репозитории
 │       │   └── migrations/     # mNNNN_<name>.dart — SQL-миграции, список allMigrations
@@ -68,6 +69,9 @@ backend/
 BOT_TOKEN=          # токен Telegram-бота, для проверки initData
 JWT_SECRET=         # секрет подписи access JWT
 DATABASE_URL=       # postgres://user:pass@host:5432/melist?sslmode=disable
+DEBUG_AUTH=false    # true — локальный логин без Telegram; в проде не включать
+DEBUG_TOKEN=dev-admin
+DEBUG_USER_ID=1
 ```
 
 `AppConfig.load()` читает `.env`, затем поверх накладывает переменные окружения процесса — **окружение важнее файла**. Так одна и та же сборка работает локально с `.env` и в Docker/CI без него, где значения приходят через `environment:` или `-e`. Падает на старте, если `BOT_TOKEN`, `JWT_SECRET` или `DATABASE_URL` пусты. Секреты в код не попадают: см. `lib/src/config/app_config.dart`.
@@ -145,14 +149,18 @@ dart build/bin/server.dart
 
 Swagger UI: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`. Если `build/openapi.json` отсутствует, `/docs` покажет подсказку с командой генерации.
 
+Кнопка **Authorize** принимает access JWT или `DEBUG_TOKEN` (без префикса `Bearer`). Защищены только `/api/**`; `/auth/*` остаются открытыми. Path-параметры (`id`, `token`, …) появляются в Try it out сами.
+
 CLI Dart Frog ставится один раз: `dart pub global activate dart_frog_cli`.
 
 ## Аутентификация
 
 Пароля у пользователя нет. Клиент присылает сырую строку `WebApp.initData`, сервер проверяет HMAC-SHA256 токеном бота и выдаёт access JWT (`sub` = Telegram user id). Дальше все запросы к `/api/**` идут с заголовком `Authorization: Bearer <jwt>`. Детали и формат ответов — [api.md](api.md).
 
+Для локальной разработки без Mini App: `DEBUG_AUTH=true` в `.env`. На старте создаётся пользователь `debug_admin` (`DEBUG_USER_ID`, по умолчанию `1`), а строка `DEBUG_TOKEN` (по умолчанию `dev-admin`) принимается как Bearer на `/api/**`. Это не JWT: `iat`/`exp` не меняются. Токен можно взять из `GET /auth/debug` или сразу вставить в Swagger Authorize. Если флаг выключен, магическая строка даёт `401`, эндпоинт — `404`. На проде флаг не включать.
+
 ## Состояние
 
-Реализовано: `/`, `/health`, `/auth/validate`, `/auth/refresh`, Bearer-middleware для `/api/**`, Swagger, класс `Database` (пул PostgreSQL, проверяется на старте в `main.dart`, доступен через `context.read<Database>()`), автоматические миграции (`0001_init` создаёт всю схему из [data-model.md](data-model.md)).
+Реализовано: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`).
 
-Все `/api/**` эндпоинты созданы как заглушки: проверяют метод и JWT, возвращают `501 { "error": "Not implemented" }`. Репозитории и SQL-запросы для них ещё не написаны.
+Остальные `/api/**` — заглушки (`501`). `PATCH /api/wishlists` (сортировка) пока тоже.

@@ -73,3 +73,44 @@ const authInitDataResponses = <ApiResponse>[
     description: 'Method not allowed.',
   ),
 ];
+
+const debugAuthResponses = <ApiResponse>[
+  ApiResponse(
+    statusCode: 200,
+    description: 'Fixed local Bearer token. Not a signed JWT.',
+    schema: {
+      'type': 'object',
+      'properties': {
+        'accessToken': {'type': 'string', 'example': 'dev-admin'},
+        'tokenType': {'type': 'string', 'example': 'Bearer'},
+        'user': {
+          'type': 'object',
+          'properties': {
+            'id': {'type': 'integer', 'example': 1},
+            'firstName': {'type': 'string', 'example': 'Debug'},
+            'lastName': {'type': 'string', 'example': 'Admin'},
+            'username': {'type': 'string', 'example': 'debug_admin'},
+          },
+        },
+      },
+      'required': ['accessToken', 'tokenType', 'user'],
+    },
+  ),
+  ApiResponse(
+    statusCode: 404,
+    description: 'DEBUG_AUTH is not enabled.',
+    schema: {
+      'type': 'object',
+      'properties': {
+        'error': {
+          'type': 'string',
+          'example': 'Debug auth is disabled',
+        },
+      },
+    },
+  ),
+  ApiResponse(
+    statusCode: 405,
+    description: 'Method not allowed.',
+  ),
+];
