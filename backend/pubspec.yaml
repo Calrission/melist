@@ -11,6 +11,7 @@ resolution: workspace
 dependencies:
   crypto: ^3.0.7
   dart_frog: ^1.1.0
+  dart_frog_auth: ^1.2.2
   dart_frog_swagger: ^1.1.0
   dart_jsonwebtoken: ^3.1.1
   dotenv: ^4.2.0
@@ -19,5 +20,6 @@ dependencies:
 
 dev_dependencies:
   dart_frog_lint: ^0.1.0
+  dart_frog_test: ^0.1.0
   mocktail: ^1.0.0
   test: ^1.0.0

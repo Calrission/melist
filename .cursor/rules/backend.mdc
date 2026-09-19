@@ -1,0 +1,38 @@
+---
+description: Правила работы над backend MELIST (Dart Frog + PostgreSQL) со ссылками на документацию в docs/backend
+globs: backend/**
+alwaysApply: false
+---
+
+# Backend MELIST
+
+Перед изменениями прочитай нужный документ:
+
+- [docs/backend/README.md](../../docs/backend/README.md) — стек, структура `backend/`, env, команды
+- [docs/backend/api.md](../../docs/backend/api.md) — все эндпоинты, контракты, привязка к функционалу
+- [docs/backend/data-model.md](../../docs/backend/data-model.md) — схема PostgreSQL и правила доступа
+- [docs/backend/best-practices.md](../../docs/backend/best-practices.md) — соглашения Dart Frog
+- [docs/backend/testing.md](../../docs/backend/testing.md) — как писать и запускать тесты
+- [docs/README.md](../../docs/README.md) — продукт и нумерация функционала
+
+## Правила
+
+- `routes/` — только транспорт: проверка метода, разбор тела, вызов сервиса. Логика, валидация, БД — в `lib/src/**`.
+- Каждый эндпоинт помечен `@Route(...)` из `dart_frog_swagger` (по одной аннотации на метод). Общие схемы — `lib/src/openapi/common_docs.dart`. После правок: `dart run dart_frog_swagger`.
+- Всё под `routes/api/**` защищено Bearer JWT (`routes/api/_middleware.dart`). Пользователь — только `context.read<AuthUser>()`; `userId` из тела не принимать.
+- Ошибки в формате `{ "error": "..." }` через хелперы из `lib/src/http/responses.dart`; неверный метод — `405`, невалидное тело — `400`, чужой ресурс — `403`.
+- Не создавать статический файл рядом с `[id].dart` в одном каталоге; массовые операции и сортировка — методами на коллекции (`PATCH`/`DELETE /api/wishlists`).
+- Секреты только через `AppConfig` из `.env`; новую переменную добавлять в `.example_env` и `docs/backend/README.md`.
+- Порядок `provider` в `_middleware.dart`: зависимость объявляется ниже того, кто её читает.
+- Новый роут = тест в `test/routes/<тот же путь>_test.dart` (405, успех, 401 для `/api`, 400). Новый сервис = тест в `test/src/`. Предпочитать `dart_frog_test` (`TestRequestContext`, `isOk`, `expectJsonBody`).
+- Заглушки возвращают `notImplemented()` (501). Реализуя эндпоинт, обнови статус в `docs/backend/api.md`.
+
+## Команды (из `backend/`)
+
+```powershell
+dart_frog dev                 # http://localhost:8080, Swagger на /docs
+dart run dart_frog_swagger    # build/openapi.json
+dart analyze; dart test
+```
+
+Зависимости — `flutter pub get` из корня workspace.

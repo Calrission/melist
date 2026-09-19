@@ -1,4 +1,7 @@
+export 'src/auth/auth_user.dart';
 export 'src/auth/authenticate.dart';
 export 'src/auth/init_data_validator.dart';
 export 'src/auth/jwt_service.dart';
 export 'src/config/app_config.dart';
+export 'src/http/responses.dart';
+export 'src/openapi/common_docs.dart';
