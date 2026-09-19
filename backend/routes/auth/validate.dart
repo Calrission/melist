@@ -1,39 +1,28 @@
-import 'dart:convert';
+import 'dart:io';
 
-import 'package:crypto/crypto.dart'; // добавьте в pubspec.yaml
 import 'package:dart_frog/dart_frog.dart';
+import 'package:dart_frog_swagger/dart_frog_swagger.dart';
+import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/openapi/auth_docs.dart';
 
-// Токен бота (лучше брать из .env)
-const botToken = 'YOUR_BOT_TOKEN';
-
+@Route(
+  method: HttpMethod.post,
+  path: '/auth/validate',
+  summary: 'Issue a JWT from Telegram initData',
+  description:
+      'Validates Mini App initData HMAC and returns an access token.',
+  tags: ['Auth'],
+  requestBody: initDataRequestBody,
+  responses: authInitDataResponses,
+)
 Future<Response> onRequest(RequestContext context) async {
-  final body = await context.request.json() as Map<String, dynamic>;
-  final initData = body['initData'] as String;
-
-  final isValid = _validateInitData(initData, botToken);
-  if (!isValid) {
-    return Response.json(statusCode: 401, body: {'error': 'Invalid initData'});
+  if (context.request.method != HttpMethod.post) {
+    return Response(statusCode: HttpStatus.methodNotAllowed);
   }
 
-  // Здесь можно создать сессию или вернуть JWT
-  return Response.json(body: {'ok': true});
-}
-
-bool _validateInitData(String initData, String botToken) {
-  final params = Uri.splitQueryString(initData);
-  final hash = params.remove('hash');
-  if (hash == null) return false;
-
-  final dataCheckString = params.entries
-      .map((e) => '${e.key}=${e.value}')
-      .toList()
-    ..sort();
-  final checkString = dataCheckString.join('\n');
-
-  final secretKey = Hmac(sha256, utf8.encode('WebAppData'))
-      .convert(utf8.encode(botToken)).bytes;
-  final signature = Hmac(sha256, secretKey)
-      .convert(utf8.encode(checkString)).toString();
-
-  return signature == hash;
+  return authenticateWithInitData(
+    request: context.request,
+    validator: context.read<InitDataValidator>(),
+    jwtService: context.read<JwtService>(),
+  );
 }
