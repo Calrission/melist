@@ -12,7 +12,7 @@ sealed class InitDataValidation {
 final class InitDataSuccess extends InitDataValidation {
   const InitDataSuccess(this.user);
 
-  final UserDataModel user;
+  final UserModel user;
 }
 
 final class InitDataFailure extends InitDataValidation {
@@ -75,14 +75,14 @@ class InitDataValidator {
     }
 
     final user = _parseUser(params['user']);
-    if (user == null || user.id == null) {
+    if (user == null) {
       return const InitDataFailure(InitDataFailureReason.invalid);
     }
 
     return InitDataSuccess(user);
   }
 
-  UserDataModel? _parseUser(String? rawUser) {
+  UserModel? _parseUser(String? rawUser) {
     if (rawUser == null || rawUser.isEmpty) {
       return null;
     }
@@ -94,8 +94,13 @@ class InitDataValidator {
       }
 
       final user = Map<String, dynamic>.from(decoded);
-      return UserDataModel(
-        id: (user['id'] as num?)?.toInt(),
+      final id = (user['id'] as num?)?.toInt();
+      if (id == null) {
+        return null;
+      }
+
+      return UserModel(
+        id: id,
         firstName: user['first_name'] as String?,
         lastName: user['last_name'] as String?,
         username: user['username'] as String?,

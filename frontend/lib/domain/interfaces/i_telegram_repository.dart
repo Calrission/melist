@@ -3,7 +3,7 @@ import 'package:melist_core/melist_core.dart';
 
 abstract class ITelegramRepository {
   Future<void> initialize();
-  UserDataModel getUserData();
+  UserModel getUserData();
   Brightness getBrightness();
   bool get isAvailable;
 }
@@ -18,8 +18,8 @@ class MockTelegramRepository implements ITelegramRepository {
   }
 
   @override
-  UserDataModel getUserData() {
-    return UserDataModel(
+  UserModel getUserData() {
+    return UserModel(
       id: 0,
       firstName: 'Test',
       lastName: 'Test',

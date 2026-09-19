@@ -1,0 +1,3 @@
+tags:
+  integration:
+    description: Needs a real PostgreSQL via TEST_DATABASE_URL; skipped otherwise.

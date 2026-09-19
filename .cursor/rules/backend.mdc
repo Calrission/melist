@@ -22,7 +22,10 @@ alwaysApply: false
 - Всё под `routes/api/**` защищено Bearer JWT (`routes/api/_middleware.dart`). Пользователь — только `context.read<AuthUser>()`; `userId` из тела не принимать.
 - Ошибки в формате `{ "error": "..." }` через хелперы из `lib/src/http/responses.dart`; неверный метод — `405`, невалидное тело — `400`, чужой ресурс — `403`.
 - Не создавать статический файл рядом с `[id].dart` в одном каталоге; массовые операции и сортировка — методами на коллекции (`PATCH`/`DELETE /api/wishlists`).
+- БД только через `context.read<Database>()` (`lib/src/data/database.dart`); SQL — в репозиториях `lib/src/data/*_repository.dart`, принимающих `DbExecutor`. Только параметры `@name`, без интерполяции; связанные изменения — в `db.transaction`. `package:postgres` в `routes/` не импортировать.
+- Схема меняется только миграцией: новый `lib/src/data/migrations/mNNNN_<name>.dart` + запись в `allMigrations` + правка SQL в `docs/backend/data-model.md`. Применённые миграции не редактировать. После новой миграции — `dart test test/integration` с `TEST_DATABASE_URL`.
 - Секреты только через `AppConfig` из `.env`; новую переменную добавлять в `.example_env` и `docs/backend/README.md`.
+- `AppConfig` и `Database` создаются и проверяются в `backend/main.dart` (`run`) до старта сервера и отдаются через `provider` там же; в `routes/_middleware.dart` — только per-request сервисы. Не возвращать ленивую инициализацию БД.
 - Порядок `provider` в `_middleware.dart`: зависимость объявляется ниже того, кто её читает.
 - Новый роут = тест в `test/routes/<тот же путь>_test.dart` (405, успех, 401 для `/api`, 400). Новый сервис = тест в `test/src/`. Предпочитать `dart_frog_test` (`TestRequestContext`, `isOk`, `expectJsonBody`).
 - Заглушки возвращают `notImplemented()` (501). Реализуя эндпоинт, обнови статус в `docs/backend/api.md`.

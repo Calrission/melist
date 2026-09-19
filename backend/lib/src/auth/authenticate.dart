@@ -57,7 +57,7 @@ Future<String?> _readInitData(Request request) async {
   }
 }
 
-Map<String, Object?> _userJson(UserDataModel user) {
+Map<String, Object?> _userJson(UserModel user) {
   return {
     'id': user.id,
     'firstName': user.firstName,

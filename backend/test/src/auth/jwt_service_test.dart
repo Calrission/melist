@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   const service = JwtService(secret: 'test-secret');
 
-  final user = UserDataModel(
+  const user = UserModel(
     id: 279058397,
     firstName: 'Vladislav',
     lastName: 'Kibenko',

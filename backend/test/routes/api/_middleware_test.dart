@@ -12,12 +12,11 @@ class _MockRequestContext extends Mock implements RequestContext {}
 
 void main() {
   const jwtService = JwtService(secret: 'test-secret');
-  final user = UserDataModel(
+  const user = UserModel(
     id: 279058397,
     firstName: 'Vladislav',
     lastName: 'Kibenko',
     username: 'vdkfrost',
-    avatarUrl: null,
   );
 
   setUpAll(() {

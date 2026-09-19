@@ -19,14 +19,14 @@ class RealTelegramRepository implements ITelegramRepository {
   }
 
   @override
-  UserDataModel getUserData() {
+  UserModel getUserData() {
     final user = _webApp.initDataUnsafe.user;
-    return UserDataModel(
-      id: user?.id,
+    return UserModel(
+      id: user?.id ?? 0,
       firstName: user?.firstName,
       lastName: user?.lastName,
       username: user?.username,
-      avatarUrl: user?.photoUrl
+      avatarUrl: user?.photoUrl,
     );
   }
 

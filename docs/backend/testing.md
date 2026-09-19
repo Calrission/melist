@@ -21,9 +21,14 @@ test/
 │       ├── _middleware_test.dart
 │       └── wishlists/index_test.dart
 ├── src/                    # unit-тесты lib/src/**
-│   └── auth/init_data_validator_test.dart
+│   ├── auth/init_data_validator_test.dart
+│   ├── config/app_config_test.dart
+│   └── data/               # database_config_test, database_test, migrator_test
+├── integration/            # реальная PostgreSQL, тег integration, skip без TEST_DATABASE_URL
+│   └── migrator_integration_test.dart
 └── helpers/                # общие фабрики тестовых данных (не *_test.dart)
-    └── init_data.dart
+    ├── init_data.dart
+    └── fake_pool.dart      # FakePool / FakeTxSession / makeResult для Database
 ```
 
 Правило: новый роут — новый `*_test.dart` рядом в `test/routes/`; новый сервис — тест в `test/src/`.
@@ -33,7 +38,8 @@ test/
 1. **Сервисы в `lib/`** (основной объём): чистые unit-тесты без HTTP. Пример — `test/src/auth/init_data_validator_test.dart`: валидная подпись, битый hash, просроченный `auth_date`.
 2. **Хендлеры в `routes/`**: коды ответов, формат тела, `405` на неверный метод, `400` на плохое тело. Зависимости подменяются через `context.read<T>()`.
 3. **Middleware**: пропускает/отклоняет запрос и кладёт нужное в контекст.
-4. Интеграционные тесты с реальной PostgreSQL — после подключения БД: отдельная тестовая база, `setUp`/`tearDown` очищают данные.
+4. **Работа с БД**: `Database` и `Migrator` тестируются без сервера — через `FakePool` из `test/helpers/fake_pool.dart`. Репозитории: подмените `DbExecutor` фейком, который записывает SQL и параметры и отдаёт заготовленные строки.
+5. **Интеграционные с реальной PostgreSQL** (`test/integration/`): помечены `@Tags(['integration'])`, читают `TEST_DATABASE_URL`, без него — skip, поэтому `dart test` зелёный офлайн. Тест сам создаёт временную базу `melist_migrator_test_<ts>`, прогоняет миграции и удаляет её — dev-база не затрагивается. Запуск: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration`. Обязателен после любой новой миграции.
 
 ## Хендлер с `mocktail`
 
@@ -126,6 +132,26 @@ when(() => context.provide<AuthUser>(any())).thenReturn(context);
 
 Либо проверяйте провайдеры интеграционно — через `dart_frog dev` и реальный запрос.
 
+## База данных без сервера
+
+`Database` принимает готовый `Pool`, поэтому в тестах подставляется `FakePool` из `test/helpers/fake_pool.dart`: он записывает каждый `execute` в `calls` (запрос, параметры, `ignoreRows`), отвечает через `onExecute`, а `runTx` вызывает колбэк с `FakeTxSession` (`pool.tx`) и выставляет `rolledBack` при исключении. `Result` собирается хелпером `makeResult`:
+
+```dart
+final pool = FakePool();
+final db = Database(pool);
+
+pool.onExecute = (query, params) => makeResult(
+  rows: [[1, 'Birthday']],        // columns по умолчанию ['id', 'name']
+);
+final rows = await db.query('SELECT ...');
+
+expect(pool.sqlTexts, contains('SELECT ...'));   // параметризованные запросы видны как '<Sql>'
+```
+
+Запросы без параметров приходят в фейк строкой, с параметрами — объектом `Sql` (драйвер не отдаёт его текст), поэтому проверяйте `calls[i].parameters`. Пример разветвления ответа по тексту запроса — `test/src/data/migrator_test.dart` (`schemaHas`).
+
+Роут, использующий БД, тестируйте через `TestRequestContext(...).provide<Database>(Database(fakePool))` или, лучше, подменяйте репозиторий целиком — тогда SQL проверяется один раз в тесте репозитория, а роут — только на коды и формат ответа.
+
 ## Тестовые данные
 
 - Подписанный `initData` собирается хелпером `signInitData(...)` из `test/helpers/init_data.dart` с фиксированным тестовым `BOT_TOKEN`; там же `hashOverride` для негативных кейсов.
@@ -138,3 +164,4 @@ when(() => context.provide<AuthUser>(any())).thenReturn(context);
 - `dart test` — зелёный.
 - Для нового эндпоинта: тест на `405`, на успешный ответ, на `401` (если под `/api`), на `400` при невалидном теле.
 - Если менялись `@Route` — `dart run dart_frog_swagger` и проверка `/docs`.
+- Если добавлена миграция — `dart test test/integration` с `TEST_DATABASE_URL` и обновлённый `docs/backend/data-model.md`.

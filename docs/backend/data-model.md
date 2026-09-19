@@ -1,13 +1,89 @@
 # Модель данных (PostgreSQL)
 
-Статус: **план**. База ещё не подключена к коду; этот документ фиксирует схему, под которую пишутся эндпоинты из [api.md](api.md).
+Статус: **схема создаётся автоматически**. Класс `Database`, пул и миграции реализованы; описанные ниже таблицы создаются миграцией `0001_init` при старте backend. Этот документ — источник истины для схемы, под которую пишутся эндпоинты из [api.md](api.md); при изменении схемы правьте его вместе с новой миграцией.
 
 ## Подключение
 
-- Пакет: [`postgres`](https://pub.dev/packages/postgres) `^3.x` (`Connection` / `Pool`).
-- Переменная окружения `DATABASE_URL=postgres://user:pass@host:5432/melist` в `backend/.env`, читается через `AppConfig`.
-- Пул соединений создаётся один раз и отдаётся в роуты через `provider<Pool>` в `backend/routes/_middleware.dart`; репозитории в `backend/lib/src/data/` получают его через `context.read<Pool>()`.
-- Миграции: нумерованные SQL-файлы в `backend/migrations/` (`0001_init.sql`, …), применяются скриптом `dart run bin/migrate.dart` или внешним инструментом (например, `dbmate`). Таблица `schema_migrations` хранит применённые версии.
+- Пакет: [`postgres`](https://pub.dev/packages/postgres) `^3.5` (`Pool`).
+- Переменная окружения `DATABASE_URL=postgres://user:pass@host:5432/melist?sslmode=disable` в `backend/.env`, читается через `AppConfig.databaseUrl`; формат и параметры — [README.md](README.md#database_url).
+- `backend/lib/src/data/database.dart` — класс `Database`: обёртка над `Pool`. Создаётся один раз на процесс в `backend/main.dart`, там же `await database.connect()` — сервер не стартует, если БД недоступна или пароль неверен. В роуты попадает через `provider<Database>` над всем роутером; в роутах и репозиториях — `context.read<Database>()`.
+- `backend/lib/src/data/database_config.dart` — `DatabaseConfig.parse(url)`: разбор `DATABASE_URL` в `Endpoint` + `PoolSettings`, валидация с понятными ошибками.
+- Репозитории (`WishlistRepository`, `WishRepository`, …) живут в `backend/lib/src/data/` и принимают `DbExecutor` — общий интерфейс `Database` и транзакции, чтобы один и тот же код работал внутри и вне `transaction`.
+- Миграции применяются автоматически при старте — см. [Миграции](#миграции).
+
+## Миграции
+
+Схема версионируется встроенными в бинарник миграциями; отдельный шаг «накатить БД» не нужен — `main.dart` делает это до открытия порта.
+
+**Как устроено**
+
+- `backend/lib/src/data/migration.dart` — `Migration(version, name, sql)`: SQL-скрипт как Dart-константа (не файл на диске, чтобы `dart_frog build` и Docker-образ ничего не теряли).
+- `backend/lib/src/data/migrations/mNNNN_<name>.dart` — по файлу на миграцию; `m0001_init.dart` — таблицы из этого документа.
+- `backend/lib/src/data/migrations/migrations.dart` — список `allMigrations` в порядке версий.
+- `backend/lib/src/data/migrator.dart` — `Migrator(database).migrate()`:
+  1. открывает одну транзакцию и берёт `pg_advisory_xact_lock(7264051)` — несколько инстансов, стартующих одновременно, не применят миграцию дважды;
+  2. `CREATE TABLE IF NOT EXISTS schema_migrations (version, name, applied_at)`;
+  3. читает применённые версии, выполняет отсутствующие по возрастанию (`executeScript`, simple protocol — многострочный DDL) и записывает каждую в `schema_migrations`;
+  4. commit. Ошибка в любой миграции — rollback всего и исключение: сервер не стартует, схема остаётся в прежнем состоянии (DDL в PostgreSQL транзакционен).
+- В логе при старте: `[migrations] applying 0001_init` → `[migrations] applied 0001_init (now at version 1)`, при повторном запуске — `[migrations] schema up to date (version 1)`. Если в `schema_migrations` есть версии, неизвестные этой сборке (БД мигрирована более новым кодом), пишется предупреждение, старт продолжается.
+
+**Как добавить миграцию**
+
+1. Создать `lib/src/data/migrations/m0002_<name>.dart` с `Migration(version: 2, name: '<name>', sql: r'''...''')`. Имя — `snake_case`. Использовать `IF NOT EXISTS` / `DO $$ ... $$` там, где возможно, чтобы скрипт был идемпотентным.
+2. Добавить константу в `allMigrations`.
+3. Обновить SQL в этом документе (он должен отражать итоговую схему).
+4. Прогнать `dart test` (юнит-тесты `Migrator` и проверка списка) и интеграционный тест на живой БД: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration`.
+
+Уже применённую где-либо миграцию не редактировать — только новая версия. `CREATE INDEX CONCURRENTLY` внутри транзакции не работает; для больших таблиц такие индексы создавать вне миграций.
+
+**Права**: `0001_init` выполняет `CREATE EXTENSION IF NOT EXISTS pg_trgm` (поиск 17.1). В docker-compose пользователь `melist` — суперпользователь, проблем нет; в managed PostgreSQL (RDS, Neon, Supabase) `pg_trgm` входит в разрешённые расширения, но пользователю может понадобиться право `CREATE` на базу.
+
+### API `Database`
+
+```dart
+final db = context.read<Database>();
+
+// список строк как Map<String, dynamic>
+final rows = await db.query(
+  'SELECT * FROM wishlists WHERE owner_id = @ownerId ORDER BY position',
+  {'ownerId': user.id},
+);
+
+// одна строка или null
+final wishlist = await db.querySingle(
+  'SELECT * FROM wishlists WHERE id = @id',
+  {'id': id},
+);
+
+// первое значение первой строки
+final total = await db.scalar<int>('SELECT count(*) FROM wishes');
+
+// без результата, возвращает число затронутых строк
+final deleted = await db.execute(
+  'DELETE FROM wishes WHERE id = @id AND owner_id = @ownerId',
+  {'id': id, 'ownerId': user.id},
+);
+
+// транзакция: commit по завершении, rollback + rethrow при исключении
+final newId = await db.transaction((tx) async {
+  final row = await tx.querySingle(
+    'INSERT INTO wishes (owner_id, name) VALUES (@ownerId, @name) RETURNING id',
+    {'ownerId': user.id, 'name': name},
+  );
+  await tx.execute(
+    'INSERT INTO wishlist_wishes (wishlist_id, wish_id) VALUES (@wl, @w)',
+    {'wl': wishlistId, 'w': row!['id']},
+  );
+  return row['id'] as int;
+});
+
+await db.executeScript('CREATE TABLE ...; CREATE INDEX ...;'); // DDL, несколько statement, без параметров
+await db.connect(); // SELECT 1, бросает при ошибке — вызывается в main.dart на старте
+await db.ping();    // то же, но true/false без исключений — для /health
+await db.close();   // при остановке процесса (main.dart, по SIGINT/SIGTERM)
+```
+
+Параметры — именованные `@name`; строковые литералы и комментарии драйвер игнорирует. Если тип не выводится из контекста, укажите его в SQL: `@id:int8`, `@birthday:date`. Ошибки PostgreSQL приходят как `ServerException`, нарушение уникальности — `UniqueViolationException`, внешнего ключа — `ForeignKeyViolationException` (все из `package:postgres`).
 
 ## Схема
 
@@ -175,4 +251,23 @@ CREATE TABLE donations (
 
 ## Соответствие с `melist_core`
 
-Модели `WithListModel` и `WishItemModel` в `core/lib/src/models/` — ранний набросок; при подключении БД их нужно привести к этой схеме (добавить `visibility`, `status`, `color`, `coverUrl`, сделать `price`/`url` nullable) и использовать общие DTO на клиенте и сервере.
+Модели в `core/lib/src/models/` — общие DTO для клиента и сервера. JSON — camelCase (как в [api.md](api.md)), строки БД — `fromRow` со `snake_case`.
+
+| Таблица / тип | Dart |
+|---|---|
+| `users` | `UserModel` |
+| `wishlists` | `WishlistModel` (`items` — желания карточки, не колонка) |
+| `wishes` | `WishModel` |
+| `favorites` | `FavoriteModel` |
+| `wishlist_subscriptions` | `WishlistSubscriptionModel` |
+| `user_subscriptions` | `UserSubscriptionModel` |
+| `entitlements` | `EntitlementModel` |
+| `donations` | `DonationModel` |
+| `wishlist_visibility` | `WishlistVisibility` |
+| `wish_visibility` | `WishVisibility` |
+| `wish_status` | `WishStatus` |
+| `ui_theme` | `UiTheme` |
+| `entitlement_source` | `EntitlementSource` |
+| `donations.status` | `DonationStatus` |
+
+`wishlist_wishes` отдельной моделью не представлен: позиция желания в вишлисте — порядок `WishlistModel.items`. Репозиторий читает join и собирает список через `copyWith(items: ...)`.

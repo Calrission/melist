@@ -10,7 +10,7 @@ class JwtService {
   final String secret;
   final Duration accessTokenTtl;
 
-  String issueAccessToken(UserDataModel user) {
+  String issueAccessToken(UserModel user) {
     final jwt = JWT(
       {
         'firstName': user.firstName,
