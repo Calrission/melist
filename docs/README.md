@@ -16,6 +16,7 @@ melist/
 
 ## Документация
 
+- [Корневой README: структура репозитория и команды запуска](../README.md)
 - [Backend: обзор, запуск, команды](backend/README.md)
 - [Backend: roadmap эндпоинтов](backend/roadmap.md)
 - [Backend: API и эндпоинты](backend/api.md)
