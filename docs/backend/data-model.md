@@ -131,7 +131,7 @@ CREATE TABLE users (
 );
 ```
 
-Запись создаётся/обновляется при `POST /auth/validate` из данных `initData` (upsert).
+Запись создаётся/обновляется при `POST /auth/validate` и `POST /auth/refresh` из данных `initData` (upsert, включая `avatar_url`). `GET /api/me` создаёт строку из JWT, если её ещё нет.
 
 ### `wishlists` (1–7)
 
@@ -246,6 +246,7 @@ CREATE TABLE donations (
 
 - Владелец видит и меняет только свои `wishlists` и `wishes` (`owner_id = AuthUser.id`); иначе `403`.
 - Чужой вишлист читается, если `visibility = 'public'` или запрос идёт по `share_token` (`GET /api/shared/{token}`).
+- `GET /api/users/{id}` отдаёт карточку пользователя и только его публичные вишлисты.
 - Чужое желание читается, если оно в доступном вишлисте и `visibility <> 'private'`.
 - Копирование (4.3, 13) создаёт новую строку `wishes` с `copied_from`, а не ссылку.
 

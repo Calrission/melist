@@ -17,6 +17,7 @@ melist/
 ## Документация
 
 - [Backend: обзор, запуск, команды](backend/README.md)
+- [Backend: roadmap эндпоинтов](backend/roadmap.md)
 - [Backend: API и эндпоинты](backend/api.md)
 - [Backend: модель данных PostgreSQL](backend/data-model.md)
 - [Backend: best practices Dart Frog](backend/best-practices.md)

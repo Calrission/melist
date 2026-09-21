@@ -9,6 +9,7 @@ alwaysApply: false
 Перед изменениями прочитай нужный документ:
 
 - [docs/backend/README.md](../../docs/backend/README.md) — стек, структура `backend/`, env, команды
+- [docs/backend/roadmap.md](../../docs/backend/roadmap.md) — порядок и статус эндпоинтов
 - [docs/backend/api.md](../../docs/backend/api.md) — все эндпоинты, контракты, привязка к функционалу
 - [docs/backend/data-model.md](../../docs/backend/data-model.md) — схема PostgreSQL и правила доступа
 - [docs/backend/best-practices.md](../../docs/backend/best-practices.md) — соглашения Dart Frog
@@ -28,7 +29,7 @@ alwaysApply: false
 - `AppConfig` и `Database` создаются и проверяются в `backend/main.dart` (`run`) до старта сервера и отдаются через `provider` там же; в `routes/_middleware.dart` — только per-request сервисы. Не возвращать ленивую инициализацию БД.
 - Порядок `provider` в `_middleware.dart`: зависимость объявляется ниже того, кто её читает.
 - Новый роут = тест в `test/routes/<тот же путь>_test.dart` (405, успех, 401 для `/api`, 400). Новый сервис = тест в `test/src/`. Предпочитать `dart_frog_test` (`TestRequestContext`, `isOk`, `expectJsonBody`).
-- Заглушки возвращают `notImplemented()` (501). Реализуя эндпоинт, обнови статус в `docs/backend/api.md`.
+- Заглушки возвращают `notImplemented()` (501). Реализуя эндпоинт, обнови статус в `docs/backend/roadmap.md` (готово / следующий шаг) и в `docs/backend/api.md`. Монетизацию (27–29) не трогать, пока её нет в roadmap.
 
 ## Команды (из `backend/`)
 

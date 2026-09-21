@@ -5,6 +5,7 @@ API для MELIST на [Dart Frog](https://dart-frog.dev) с PostgreSQL. Пак�
 Связанные документы:
 
 - [API и эндпоинты](api.md)
+- [Roadmap эндпоинтов](roadmap.md)
 - [Модель данных](data-model.md)
 - [Best practices](best-practices.md)
 - [Тестирование](testing.md)
@@ -47,7 +48,12 @@ backend/
 │       ├── data/               # Database (пул PostgreSQL), DatabaseConfig, Migrator, далее репозитории
 │       │   └── migrations/     # mNNNN_<name>.dart — SQL-миграции, список allMigrations
 │       ├── http/               # общие ответы (notImplemented, ошибки)
-│       └── openapi/            # переиспользуемые схемы для @Route
+│       ├── openapi/            # переиспользуемые схемы для @Route
+│       ├── wishes/             # WishService — CRUD желаний
+│       ├── wishlists/          # WishlistService — CRUD вишлистов
+│       ├── favorites/          # FavoriteService — избранное
+│       ├── profiles/           # ProfileService — свой и чужой профиль
+│       └── subscriptions/      # SubscriptionService — подписки на вишлисты и профили
 ├── test/
 │   ├── routes/                 # зеркало routes/
 │   ├── src/                    # unit-тесты сервисов
@@ -69,6 +75,7 @@ backend/
 BOT_TOKEN=          # токен Telegram-бота, для проверки initData
 JWT_SECRET=         # секрет подписи access JWT
 DATABASE_URL=       # postgres://user:pass@host:5432/melist?sslmode=disable
+BOT_USERNAME=melist_bot  # username бота без @, для ссылок шаринга (7.1)
 DEBUG_AUTH=false    # true — локальный логин без Telegram; в проде не включать
 DEBUG_TOKEN=dev-admin
 DEBUG_USER_ID=1
@@ -161,6 +168,6 @@ CLI Dart Frog ставится один раз: `dart pub global activate dart_f
 
 ## Состояние
 
-Реализовано: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`).
+Реализовано: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
 
-Остальные `/api/**` — заглушки (`501`). `PATCH /api/wishlists` (сортировка) пока тоже.
+Остальные `/api/**` — заглушки (`501`). Порядок доделок — [roadmap.md](roadmap.md).
