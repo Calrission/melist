@@ -19,7 +19,9 @@ void main() {
     pool.tx.onExecute = (query, _) {
       if (query is String && query.contains('FROM schema_migrations')) {
         return makeResult(
-          rows: [for (final v in applied) [v]],
+          rows: [
+            for (final v in applied) [v],
+          ],
           columns: ['version'],
         );
       }
@@ -37,35 +39,44 @@ void main() {
       Migrator(db, migrations: migrations, log: log.add);
 
   group('Migrator.migrate', () {
-    test('creates schema_migrations and applies everything on an empty db',
-        () async {
-      schemaHas([]);
+    test(
+      'creates schema_migrations and applies everything on an empty db',
+      () async {
+        schemaHas([]);
 
-      final report = await migrator([_m1, _m2]).migrate();
+        final report = await migrator([_m1, _m2]).migrate();
 
-      expect(report.applied, equals([_m1, _m2]));
-      expect(report.currentVersion, equals(2));
-      expect(report.wasUpToDate, isFalse);
-      expect(report.unknownVersions, isEmpty);
+        expect(report.applied, equals([_m1, _m2]));
+        expect(report.currentVersion, equals(2));
+        expect(report.wasUpToDate, isFalse);
+        expect(report.unknownVersions, isEmpty);
 
-      final sql = pool.tx.sqlTexts;
-      expect(sql[0], contains('pg_advisory_xact_lock(${Migrator.lockKey})'));
-      expect(sql[1], contains('CREATE TABLE IF NOT EXISTS schema_migrations'));
-      expect(sql[2], contains('SELECT version FROM schema_migrations'));
-      expect(sql[3], equals(_m1.sql));
-      expect(sql[4], equals('<Sql>'), reason: 'INSERT into schema_migrations');
-      expect(sql[5], equals(_m2.sql));
-      expect(sql[6], equals('<Sql>'));
-      expect(sql, hasLength(7));
+        final sql = pool.tx.sqlTexts;
+        expect(sql[0], contains('pg_advisory_xact_lock(${Migrator.lockKey})'));
+        expect(
+          sql[1],
+          contains('CREATE TABLE IF NOT EXISTS schema_migrations'),
+        );
+        expect(sql[2], contains('SELECT version FROM schema_migrations'));
+        expect(sql[3], equals(_m1.sql));
+        expect(
+          sql[4],
+          equals('<Sql>'),
+          reason: 'INSERT into schema_migrations',
+        );
+        expect(sql[5], equals(_m2.sql));
+        expect(sql[6], equals('<Sql>'));
+        expect(sql, hasLength(7));
 
-      expect(
-        pool.tx.calls[4].parameters,
-        equals({'version': 1, 'name': 'init'}),
-      );
-      expect(pool.transactions, equals(1), reason: 'single transaction');
-      expect(pool.calls, isEmpty, reason: 'nothing outside the transaction');
-      expect(log, equals(['applying 0001_init', 'applying 0002_add_b']));
-    });
+        expect(
+          pool.tx.calls[4].parameters,
+          equals({'version': 1, 'name': 'init'}),
+        );
+        expect(pool.transactions, equals(1), reason: 'single transaction');
+        expect(pool.calls, isEmpty, reason: 'nothing outside the transaction');
+        expect(log, equals(['applying 0001_init', 'applying 0002_add_b']));
+      },
+    );
 
     test('applies only pending migrations', () async {
       schemaHas([1]);

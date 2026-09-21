@@ -18,13 +18,21 @@ void main() {
   });
 
   Future<String> shareList(String name, {AuthUser as = owner}) async {
-    final list = await wishlists.create(as, name: name);
+    final list = await wishlists.create(
+      as,
+      name: name,
+      visibility: 'link',
+    );
     return wishlists.share(as, list.id);
   }
 
   group('FavoriteService.add and list', () {
-    test('adds a shared wishlist and hides private wishes', () async {
-      final list = await wishlists.create(owner, name: 'Birthday');
+    test('adds a shared wishlist with every wish', () async {
+      final list = await wishlists.create(
+        owner,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       await wishlists.addWish(
         owner,
         list.id,
@@ -33,7 +41,7 @@ void main() {
       await wishlists.addWish(
         owner,
         list.id,
-        wish: {'name': 'Secret', 'visibility': 'private'},
+        wish: {'name': 'Secret'},
       );
       final token = await wishlists.share(owner, list.id);
 
@@ -41,12 +49,15 @@ void main() {
 
       expect(added.id, list.id);
       expect(added.name, 'Birthday');
-      expect(added.items.map((item) => item.name), ['Camera']);
+      expect(added.items.map((item) => item.name), ['Camera', 'Secret']);
       expect(data.userIds, contains(8));
 
       final listed = await favorites.list(guest);
       expect(listed.single.id, list.id);
-      expect(listed.single.items.map((item) => item.name), ['Camera']);
+      expect(
+        listed.single.items.map((item) => item.name),
+        ['Camera', 'Secret'],
+      );
     });
 
     test('rejects own wishlists, unknown tokens and duplicates', () async {

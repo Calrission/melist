@@ -24,9 +24,9 @@ void main() {
     String token = 'abc',
   }) {
     return TestRequestContext(
-      path: '/api/shared/$token',
-      method: method,
-    )
+        path: '/api/shared/$token',
+        method: method,
+      )
       ..provide<AuthUser>(auth)
       ..provide<WishlistService>(service);
   }
@@ -47,7 +47,11 @@ void main() {
     });
 
     test('GET returns the wishlist by share token', () async {
-      final list = await service.create(user, name: 'Birthday');
+      final list = await service.create(
+        user,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       final token = await service.share(user, list.id);
 
       final response = await handleSharedWishlist(

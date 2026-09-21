@@ -97,7 +97,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 ### `POST /api/wishlists` (1)
 
 ```json
-{ "name": "День рождения", "visibility": "public" | "draft", "color": "#FFB74D", "wishIds": [1, 2] }
+{ "name": "День рождения", "visibility": "public" | "draft" | "link", "color": "#FFB74D", "wishIds": [1, 2] }
 ```
 
 `wishIds` — опционально (1.3). Ответ `201` с созданным вишлистом.
@@ -116,7 +116,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 ### `PATCH /api/wishlists/{id}` (3)
 
-`{ "name"?, "visibility"?, "color"? }`.
+`{ "name"?, "visibility"?: "public" | "draft" | "link", "color"? }`.
 
 ### `DELETE /api/wishlists/{id}` (6.1)
 
@@ -148,13 +148,13 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 ### `GET /api/shared/{token}` (7, 8.1)
 
-Просмотр вишлиста по ссылке-приглашению независимо от видимости. Используется перед добавлением в избранное. Токен — значение `shareToken` или `wl_<shareToken>` из `startapp`. Чужие `private`-желания в `items` не отдаются.
+Просмотр вишлиста по ссылке-приглашению для `public` и `link`. `draft` для не-владельца — `404`. Токен — значение `shareToken` или `wl_<shareToken>` из `startapp`. В `items` все желания списка.
 
 ## Избранное
 
 Файлы: `backend/routes/api/favorites/`.
 
-- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. `private`-желания в `items` скрыты.
+- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. В `items` все желания.
 - `POST /api/favorites` (8.1) — `{ "shareToken": "…" }` → `201`. Свой вишлист — `400`, повтор — `409`.
 - `PATCH /api/favorites` (10) — `{ "order": [wishlistId, …] }` → `204`
 - `DELETE /api/favorites/{wishlistId}` (11) → `204`
@@ -171,7 +171,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 ```json
 { "name": "Наушники", "price": 12000, "url": "https://…", "description": "…", "coverUrl": "https://…",
-  "visibility": "public" | "private" | "link", "status": "draft" | "free" | "reserved" }
+  "status": "draft" | "free" | "reserved" }
 ```
 
 Обязательно только `name`. `201`.
@@ -184,9 +184,9 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 Одно желание.
 
-### `PATCH /api/wishes/{id}` (18, 19, 20)
+### `PATCH /api/wishes/{id}` (18, 20)
 
-Любые поля из `POST`, включая `visibility` (19) и `status` (20).
+Любые поля из `POST`, включая `status` (20).
 
 ### `DELETE /api/wishes/{id}` (21.1)
 

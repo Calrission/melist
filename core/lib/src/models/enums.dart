@@ -3,20 +3,11 @@ import 'model_codec.dart';
 /// Visibility of a wishlist (`wishlist_visibility`).
 enum WishlistVisibility {
   public,
-  draft;
+  draft,
+  link;
 
   static WishlistVisibility fromName(Object? raw) =>
       decodeEnum(WishlistVisibility.values, raw, 'WishlistVisibility');
-}
-
-/// Visibility of a wish (`wish_visibility`).
-enum WishVisibility {
-  public,
-  private,
-  link;
-
-  static WishVisibility fromName(Object? raw) =>
-      decodeEnum(WishVisibility.values, raw, 'WishVisibility');
 }
 
 /// Status of a wish (`wish_status`).

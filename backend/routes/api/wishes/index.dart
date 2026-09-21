@@ -7,7 +7,8 @@ import 'package:melist_backend/src/wishes/wish_handlers.dart';
   method: HttpMethod.get,
   path: '/api/wishes',
   summary: 'List and search wishes',
-  description: 'Own wishes. Query params: query (name search, 17.1), '
+  description:
+      'Own wishes. Query params: query (name search, 17.1), '
       'mine=true (17.2), limit, offset. (16)',
   tags: ['Wishes'],
   responses: [
@@ -37,7 +38,6 @@ import 'package:melist_backend/src/wishes/wish_handlers.dart';
       'name': 'Headphones',
       'price': 12000,
       'url': 'https://example.com/item',
-      'visibility': 'public',
       'status': 'free',
     },
   ),

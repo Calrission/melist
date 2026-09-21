@@ -59,6 +59,9 @@ class FavoriteService {
       if (wishlist.ownerId == user.id) {
         throw const BadRequestException('Cannot favorite your own wishlist');
       }
+      if (wishlist.visibility == WishlistVisibility.draft) {
+        throw const NotFoundException('Wishlist not found');
+      }
       if (await favorites.isFavorited(
         userId: user.id,
         wishlistId: wishlist.id,
@@ -115,12 +118,7 @@ class FavoriteService {
     WishlistRepository? wishlists,
   }) async {
     final items = await (wishlists ?? _wishlists(_db)).listItems(wishlist.id);
-    return wishlist.copyWith(
-      items: [
-        for (final item in items)
-          if (item.visibility != WishVisibility.private) item,
-      ],
-    );
+    return wishlist.copyWith(items: items);
   }
 
   List<int> _uniqueIds(List<int> ids) {

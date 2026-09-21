@@ -36,7 +36,7 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
         'description': {'type': 'string'},
         'visibility': {
           'type': 'string',
-          'enum': ['public', 'draft'],
+          'enum': ['public', 'draft', 'link'],
         },
         'color': {'type': 'string'},
       },

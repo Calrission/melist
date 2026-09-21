@@ -69,7 +69,6 @@ class WishService {
     String? url,
     String? description,
     String? coverUrl,
-    String? visibility,
     String? status,
   }) {
     final parsedName = _requireName(name);
@@ -77,7 +76,6 @@ class WishService {
     final parsedUrl = _optionalText(url);
     final parsedDescription = _optionalText(description);
     final parsedCoverUrl = _optionalText(coverUrl);
-    final parsedVisibility = _visibility(visibility);
     final parsedStatus = _status(status);
 
     return _transaction((tx) async {
@@ -89,7 +87,6 @@ class WishService {
         url: parsedUrl,
         description: parsedDescription,
         coverUrl: parsedCoverUrl,
-        visibility: parsedVisibility,
         status: parsedStatus,
       );
     });
@@ -103,7 +100,6 @@ class WishService {
     Object? url = unset,
     Object? description = unset,
     Object? coverUrl = unset,
-    String? visibility,
     String? status,
   }) async {
     final hasPrice = !identical(price, unset);
@@ -116,15 +112,11 @@ class WishService {
         !hasUrl &&
         !hasDescription &&
         !hasCoverUrl &&
-        visibility == null &&
         status == null) {
       throw const BadRequestException('No fields to update');
     }
 
     final parsedName = name == null ? null : _requireName(name);
-    final parsedVisibility = visibility == null
-        ? null
-        : _visibility(visibility, required: true);
     final parsedStatus = status == null
         ? null
         : _status(status, required: true);
@@ -150,7 +142,6 @@ class WishService {
       clearDescription: descriptionPatch?.clear ?? false,
       coverUrl: coverUrlPatch?.value,
       clearCoverUrl: coverUrlPatch?.clear ?? false,
-      visibility: parsedVisibility,
       status: parsedStatus,
     );
     if (updated != null) {
@@ -266,22 +257,6 @@ class WishService {
       throw const BadRequestException('price must be a non-negative number');
     }
     return _PricePatch(value: parsed);
-  }
-
-  WishVisibility _visibility(String? raw, {bool required = false}) {
-    if (raw == null || raw.trim().isEmpty) {
-      if (required) {
-        throw const BadRequestException('visibility is required');
-      }
-      return WishVisibility.public;
-    }
-    try {
-      return WishVisibility.fromName(raw.trim());
-    } on FormatException {
-      throw const BadRequestException(
-        'visibility must be public, private or link',
-      );
-    }
   }
 
   WishStatus _status(String? raw, {bool required = false}) {

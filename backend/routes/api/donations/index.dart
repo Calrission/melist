@@ -6,7 +6,8 @@ import 'package:melist_backend/melist_backend.dart';
   method: HttpMethod.post,
   path: '/api/donations',
   summary: 'Create donation invoice',
-  description: 'Creates a Telegram Stars invoice link to support the project. '
+  description:
+      'Creates a Telegram Stars invoice link to support the project. '
       'Successful payment grants an entitlement. (28, 29.2)',
   tags: ['Monetization'],
   requestBody: ApiRequestBody(

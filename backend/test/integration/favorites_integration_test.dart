@@ -59,8 +59,12 @@ void main() {
       const owner = AuthUser(id: 42, firstName: 'Ann');
       const guest = AuthUser(id: 43, firstName: 'Bob');
 
-      test('add by share token, reorder, hide private and remove', () async {
-        final first = await wishlists.create(owner, name: 'A');
+      test('add by share token, reorder and remove', () async {
+        final first = await wishlists.create(
+          owner,
+          name: 'A',
+          visibility: 'link',
+        );
         await wishlists.addWish(
           owner,
           first.id,
@@ -69,16 +73,20 @@ void main() {
         await wishlists.addWish(
           owner,
           first.id,
-          wish: {'name': 'Secret', 'visibility': 'private'},
+          wish: {'name': 'Secret'},
         );
         final firstToken = await wishlists.share(owner, first.id);
 
-        final second = await wishlists.create(owner, name: 'B');
+        final second = await wishlists.create(
+          owner,
+          name: 'B',
+          visibility: 'link',
+        );
         final secondToken = await wishlists.share(owner, second.id);
 
         final added = await favorites.add(guest, 'wl_$firstToken');
         expect(added.name, 'A');
-        expect(added.items.map((item) => item.name), ['Camera']);
+        expect(added.items.map((item) => item.name), ['Camera', 'Secret']);
 
         final other = await favorites.add(guest, secondToken);
         await favorites.reorder(guest, [other.id, added.id]);

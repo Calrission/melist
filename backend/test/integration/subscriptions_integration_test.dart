@@ -25,8 +25,7 @@ void main() {
       setUpAll(() async {
         final adminConfig = DatabaseConfig.parse(adminUrl!);
         admin = Database.fromConfig(adminConfig);
-        dbName =
-            'melist_subs_test_${DateTime.now().millisecondsSinceEpoch}';
+        dbName = 'melist_subs_test_${DateTime.now().millisecondsSinceEpoch}';
         await admin.executeScript('CREATE DATABASE $dbName');
 
         final endpoint = adminConfig.endpoint;

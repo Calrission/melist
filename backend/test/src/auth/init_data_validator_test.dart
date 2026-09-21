@@ -19,19 +19,22 @@ void main() {
 
       expect(
         validator().validate(initData),
-        isA<InitDataSuccess>().having(
-          (result) => result.user.id,
-          'user.id',
-          279058397,
-        ).having(
-          (result) => result.user.username,
-          'username',
-          'vdkfrost',
-        ).having(
-          (result) => result.user.avatarUrl,
-          'avatarUrl',
-          'https://t.me/i/userpic/320/test.svg',
-        ),
+        isA<InitDataSuccess>()
+            .having(
+              (result) => result.user.id,
+              'user.id',
+              279058397,
+            )
+            .having(
+              (result) => result.user.username,
+              'username',
+              'vdkfrost',
+            )
+            .having(
+              (result) => result.user.avatarUrl,
+              'avatarUrl',
+              'https://t.me/i/userpic/320/test.svg',
+            ),
       );
     });
 

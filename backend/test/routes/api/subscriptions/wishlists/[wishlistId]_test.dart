@@ -21,9 +21,9 @@ void main() {
 
   TestRequestContext contextFor(HttpMethod method) {
     return TestRequestContext(
-      path: '/api/subscriptions/wishlists/1',
-      method: method,
-    )
+        path: '/api/subscriptions/wishlists/1',
+        method: method,
+      )
       ..provide<AuthUser>(guest)
       ..provide<SubscriptionService>(subscriptions);
   }

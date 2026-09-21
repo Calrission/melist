@@ -25,13 +25,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/favorites',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/favorites',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(guest)
       ..provide<FavoriteService>(favorites);
   }
@@ -57,7 +57,11 @@ void main() {
     });
 
     test('GET returns favorite wishlists', () async {
-      final list = await wishlists.create(owner, name: 'Birthday');
+      final list = await wishlists.create(
+        owner,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       final token = await wishlists.share(owner, list.id);
       await favorites.add(guest, token);
 
@@ -72,7 +76,11 @@ void main() {
     });
 
     test('POST adds a wishlist by share token', () async {
-      final list = await wishlists.create(owner, name: 'Birthday');
+      final list = await wishlists.create(
+        owner,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       final token = await wishlists.share(owner, list.id);
 
       final response = await handleFavoritesCollection(
@@ -86,7 +94,11 @@ void main() {
     });
 
     test('POST responds 409 when already favorited', () async {
-      final list = await wishlists.create(owner, name: 'Birthday');
+      final list = await wishlists.create(
+        owner,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       final token = await wishlists.share(owner, list.id);
       await favorites.add(guest, token);
 
@@ -106,8 +118,16 @@ void main() {
     });
 
     test('PATCH reorders favorites', () async {
-      final firstList = await wishlists.create(owner, name: 'A');
-      final secondList = await wishlists.create(owner, name: 'B');
+      final firstList = await wishlists.create(
+        owner,
+        name: 'A',
+        visibility: 'link',
+      );
+      final secondList = await wishlists.create(
+        owner,
+        name: 'B',
+        visibility: 'link',
+      );
       final first = await favorites.add(
         guest,
         await wishlists.share(owner, firstList.id),

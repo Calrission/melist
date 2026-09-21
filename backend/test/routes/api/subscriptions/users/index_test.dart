@@ -25,13 +25,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/subscriptions/users',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/subscriptions/users',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(guest)
       ..provide<SubscriptionService>(subscriptions);
   }

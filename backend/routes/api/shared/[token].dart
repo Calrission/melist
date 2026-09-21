@@ -7,8 +7,9 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
   method: HttpMethod.get,
   path: '/api/shared/{token}',
   summary: 'View wishlist by share link',
-  description: 'Resolves a share token to a wishlist regardless of its '
-      'visibility. Used before adding to favorites. (7, 8.1)',
+  description:
+      'Resolves a share token to a public or link wishlist. '
+      'Drafts are owner-only. Used before adding to favorites. (7, 8.1)',
   tags: ['Wishlists'],
   responses: [
     ApiResponse(

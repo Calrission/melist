@@ -69,8 +69,7 @@ class DatabaseConfig {
       ),
       sslMode: _parseSslMode(params['sslmode']),
       maxConnections:
-          _parsePositiveInt(params, 'max_connections') ??
-          defaultMaxConnections,
+          _parsePositiveInt(params, 'max_connections') ?? defaultMaxConnections,
       connectTimeout: _parseSeconds(params, 'connect_timeout'),
       queryTimeout: _parseSeconds(params, 'query_timeout'),
       applicationName: params['application_name'] ?? defaultApplicationName,

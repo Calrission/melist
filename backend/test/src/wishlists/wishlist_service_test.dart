@@ -166,13 +166,12 @@ void main() {
       final created = await service.addWish(
         owner,
         list.id,
-        wish: {'name': ' Headphones ', 'price': 12000, 'visibility': 'private'},
+        wish: {'name': ' Headphones ', 'price': 12000},
       );
 
       expect(created.name, 'Headphones');
       expect(created.ownerId, 7);
       expect(created.price, 12000);
-      expect(created.visibility, WishVisibility.private);
       expect(data.userIds, contains(7));
 
       final card = await service.getById(owner, list.id);
@@ -241,12 +240,12 @@ void main() {
       expect(copy.copiedFrom, source.id);
     });
 
-    test('copies own private wish without a public appearance', () async {
+    test('copies own wish without a public appearance', () async {
       final first = await service.create(owner, name: 'A');
       final source = await service.addWish(
         owner,
         first.id,
-        wish: {'name': 'Secret', 'visibility': 'private'},
+        wish: {'name': 'Secret'},
       );
       final second = await service.create(owner, name: 'B');
 
@@ -257,20 +256,9 @@ void main() {
       );
 
       expect(copy.copiedFrom, source.id);
-      expect(copy.visibility, WishVisibility.private);
     });
 
-    test('forbids copying a private or unpublished foreign wish', () async {
-      final publicList = await service.create(
-        stranger,
-        name: 'Public',
-        visibility: 'public',
-      );
-      final privateWish = await service.addWish(
-        stranger,
-        publicList.id,
-        wish: {'name': 'Secret', 'visibility': 'private'},
-      );
+    test('forbids copying an unpublished foreign wish', () async {
       final draftList = await service.create(stranger, name: 'Draft');
       final unpublished = await service.addWish(
         stranger,
@@ -279,10 +267,6 @@ void main() {
       );
       final mine = await service.create(owner, name: 'Mine');
 
-      await expectLater(
-        service.addWish(owner, mine.id, copyFromWishId: privateWish.id),
-        throwsA(isA<ForbiddenException>()),
-      );
       await expectLater(
         service.addWish(owner, mine.id, copyFromWishId: unpublished.id),
         throwsA(isA<ForbiddenException>()),
@@ -451,7 +435,11 @@ void main() {
     });
 
     test('resolves a share token including the wl_ prefix', () async {
-      final list = await service.create(owner, name: 'Draft');
+      final list = await service.create(
+        owner,
+        name: 'Link',
+        visibility: 'link',
+      );
       await service.addWish(
         owner,
         list.id,
@@ -461,12 +449,16 @@ void main() {
 
       final shared = await service.getShared(stranger, 'wl_$token');
       expect(shared.id, list.id);
-      expect(shared.name, 'Draft');
+      expect(shared.name, 'Link');
       expect(shared.items.single.name, 'Book');
     });
 
-    test('hides private wishes from everyone except the owner', () async {
-      final list = await service.create(owner, name: 'Gifts');
+    test('shows every wish on a shared list', () async {
+      final list = await service.create(
+        owner,
+        name: 'Gifts',
+        visibility: 'link',
+      );
       await service.addWish(
         owner,
         list.id,
@@ -475,15 +467,27 @@ void main() {
       await service.addWish(
         owner,
         list.id,
-        wish: {'name': 'Secret', 'visibility': 'private'},
+        wish: {'name': 'Secret'},
       );
       final token = await service.share(owner, list.id);
 
       final guest = await service.getShared(stranger, token);
-      expect(guest.items.map((item) => item.name), ['Public']);
+      expect(guest.items.map((item) => item.name), ['Public', 'Secret']);
 
       final own = await service.getShared(owner, token);
       expect(own.items.map((item) => item.name), ['Public', 'Secret']);
+    });
+
+    test('hides a draft from strangers even with a token', () async {
+      final list = await service.create(owner, name: 'Draft');
+      final token = await service.share(owner, list.id);
+
+      await expectLater(
+        service.getShared(stranger, token),
+        throwsA(isA<NotFoundException>()),
+      );
+      final own = await service.getShared(owner, token);
+      expect(own.id, list.id);
     });
 
     test('rejects sharing a foreign wishlist and unknown tokens', () async {

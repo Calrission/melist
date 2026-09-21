@@ -78,10 +78,7 @@ int parseQueryInt(
 }
 
 void requireMineTrue(String? raw) {
-  if (raw == null ||
-      raw.isEmpty ||
-      raw == 'true' ||
-      raw == '1') {
+  if (raw == null || raw.isEmpty || raw == 'true' || raw == '1') {
     return;
   }
   throw const BadRequestException('mine must be true');

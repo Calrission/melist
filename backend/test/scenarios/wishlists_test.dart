@@ -150,7 +150,7 @@ void main() {
                 HttpMethod.post,
                 '/api/wishlists/$wl/wishes',
                 body: {
-                  'wish': {'name': 'Наушники', 'visibility': 'public'},
+                  'wish': {'name': 'Наушники'},
                 },
               )
               .context,
@@ -560,7 +560,7 @@ void main() {
                 '/api/wishlists/${bList['id']}/wishes',
                 as: ScenarioHarness.b,
                 body: {
-                  'wish': {'name': 'Camera', 'visibility': 'public'},
+                  'wish': {'name': 'Camera'},
                 },
               )
               .context,
@@ -610,7 +610,7 @@ void main() {
       expect((await jsonMap(original))['name'], 'Camera');
     });
 
-    test('11. cannot copy a foreign private wish', () async {
+    test('11. cannot copy a foreign wish that is not public', () async {
       final source = await jsonMap(
         await handleWishesCollection(
           app
@@ -618,7 +618,7 @@ void main() {
                 HttpMethod.post,
                 '/api/wishes',
                 as: ScenarioHarness.b,
-                body: {'name': 'Secret', 'visibility': 'private'},
+                body: {'name': 'Secret'},
               )
               .context,
         ),

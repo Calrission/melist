@@ -23,13 +23,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/wishlists',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/wishlists',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(user)
       ..provide<WishlistService>(service);
   }
@@ -127,7 +127,12 @@ void main() {
       final created = await service.create(user, name: 'A');
 
       final response = await handleWishlistsCollection(
-        contextFor(HttpMethod.delete, body: {'ids': [created.id]}).context,
+        contextFor(
+          HttpMethod.delete,
+          body: {
+            'ids': [created.id],
+          },
+        ).context,
       );
 
       expect(response.statusCode, HttpStatus.noContent);

@@ -53,17 +53,19 @@ void main() {
       expect(response.statusCode, equals(HttpStatus.unauthorized));
     });
 
-    test('responds with 401 when the token is signed with another secret',
-        () async {
-      const otherService = JwtService(secret: 'other-secret');
-      final token = otherService.issueAccessToken(user);
+    test(
+      'responds with 401 when the token is signed with another secret',
+      () async {
+        const otherService = JwtService(secret: 'other-secret');
+        final token = otherService.issueAccessToken(user);
 
-      final response = await protectedHandler()(
-        contextWith(authorization: 'Bearer $token'),
-      );
+        final response = await protectedHandler()(
+          contextWith(authorization: 'Bearer $token'),
+        );
 
-      expect(response.statusCode, equals(HttpStatus.unauthorized));
-    });
+        expect(response.statusCode, equals(HttpStatus.unauthorized));
+      },
+    );
 
     test('responds with 401 when the token is malformed', () async {
       final response = await protectedHandler()(
@@ -73,24 +75,26 @@ void main() {
       expect(response.statusCode, equals(HttpStatus.unauthorized));
     });
 
-    test('passes the request and provides AuthUser for a valid token',
-        () async {
-      final token = jwtService.issueAccessToken(user);
-      final context = contextWith(authorization: 'Bearer $token');
+    test(
+      'passes the request and provides AuthUser for a valid token',
+      () async {
+        final token = jwtService.issueAccessToken(user);
+        final context = contextWith(authorization: 'Bearer $token');
 
-      final response = await protectedHandler()(context);
+        final response = await protectedHandler()(context);
 
-      expect(response.statusCode, equals(HttpStatus.ok));
+        expect(response.statusCode, equals(HttpStatus.ok));
 
-      final captured = verify(
-        () => context.provide<AuthUser>(captureAny()),
-      ).captured;
-      final provided = (captured.single as AuthUser Function())();
+        final captured = verify(
+          () => context.provide<AuthUser>(captureAny()),
+        ).captured;
+        final provided = (captured.single as AuthUser Function())();
 
-      expect(provided.id, equals(279058397));
-      expect(provided.username, equals('vdkfrost'));
-      expect(provided.firstName, equals('Vladislav'));
-    });
+        expect(provided.id, equals(279058397));
+        expect(provided.username, equals('vdkfrost'));
+        expect(provided.firstName, equals('Vladislav'));
+      },
+    );
 
     test('accepts the debug token when DEBUG_AUTH is enabled', () async {
       const debug = DebugAuth.enabled();

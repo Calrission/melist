@@ -23,9 +23,9 @@ void main() {
     AuthUser auth = user,
   }) {
     return TestRequestContext(
-      path: '/api/wishlists/1/wishes/1',
-      method: method,
-    )
+        path: '/api/wishlists/1/wishes/1',
+        method: method,
+      )
       ..provide<AuthUser>(auth)
       ..provide<WishlistService>(service);
   }

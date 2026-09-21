@@ -151,9 +151,13 @@ void main() {
         expect((await wishes.getById(owner, created.id)).name, 'Book');
       });
 
-      test('reorder wishlists and share a draft by token', () async {
+      test('reorder wishlists and share a link list by token', () async {
         const sorter = AuthUser(id: 77, firstName: 'Cara');
-        final first = await wishlists.create(sorter, name: 'A');
+        final first = await wishlists.create(
+          sorter,
+          name: 'A',
+          visibility: 'link',
+        );
         final second = await wishlists.create(sorter, name: 'B');
         await wishlists.reorder(sorter, [second.id, first.id]);
         expect(
@@ -164,7 +168,7 @@ void main() {
         await wishlists.addWish(
           sorter,
           first.id,
-          wish: {'name': 'Secret', 'visibility': 'private'},
+          wish: {'name': 'Secret'},
         );
         await wishlists.addWish(
           sorter,
@@ -178,7 +182,7 @@ void main() {
         const stranger = AuthUser(id: 99, firstName: 'Guest');
         final shared = await wishlists.getShared(stranger, 'wl_$token');
         expect(shared.id, first.id);
-        expect(shared.items.map((item) => item.name), ['Camera']);
+        expect(shared.items.map((item) => item.name), ['Secret', 'Camera']);
       });
     },
   );

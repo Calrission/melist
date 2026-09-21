@@ -13,7 +13,6 @@ position, share_token, created_at, updated_at
 
   static const _wishColumns = '''
 w.id, w.owner_id, w.name, w.price, w.url, w.description, w.cover_url,
-w.visibility::text AS visibility,
 w.status::text AS status,
 w.copied_from, w.created_at, w.updated_at
 ''';

@@ -6,7 +6,8 @@ import 'package:melist_backend/melist_backend.dart';
   method: HttpMethod.post,
   path: '/api/ads/reward',
   summary: 'Confirm rewarded ad view',
-  description: 'Validates the ad provider payload and grants a temporary '
+  description:
+      'Validates the ad provider payload and grants a temporary '
       'entitlement. Ad display itself happens on the client. (27, 29.1)',
   tags: ['Monetization'],
   requestBody: ApiRequestBody(

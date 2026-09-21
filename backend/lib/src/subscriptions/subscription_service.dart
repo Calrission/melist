@@ -23,8 +23,7 @@ class SubscriptionService {
        _transaction = transaction ?? (<R>(action) => action(db)),
        _wishlistSubscriptions =
            wishlistSubscriptions ?? WishlistSubscriptionRepository.new,
-       _userSubscriptions =
-           userSubscriptions ?? UserSubscriptionRepository.new,
+       _userSubscriptions = userSubscriptions ?? UserSubscriptionRepository.new,
        _wishlists = wishlists ?? WishlistRepository.new,
        _users = users ?? UserRepository.new;
 

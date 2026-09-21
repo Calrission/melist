@@ -21,9 +21,9 @@ void main() {
 
   TestRequestContext contextFor(HttpMethod method) {
     return TestRequestContext(
-      path: '/api/favorites/1',
-      method: method,
-    )
+        path: '/api/favorites/1',
+        method: method,
+      )
       ..provide<AuthUser>(guest)
       ..provide<FavoriteService>(favorites);
   }
@@ -45,7 +45,11 @@ void main() {
     });
 
     test('DELETE removes the favorite and keeps the wishlist', () async {
-      final list = await wishlists.create(owner, name: 'Birthday');
+      final list = await wishlists.create(
+        owner,
+        name: 'Birthday',
+        visibility: 'link',
+      );
       final token = await wishlists.share(owner, list.id);
       await favorites.add(guest, token);
 

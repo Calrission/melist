@@ -66,7 +66,7 @@ void main() {
         final report = await Migrator(db).migrate();
 
         expect(report.wasUpToDate, isFalse);
-        expect(report.applied.map((m) => m.id), contains('0001_init'));
+        expect(report.applied.map((m) => m.id), equals(['0001_init']));
         expect(report.currentVersion, equals(allMigrations.last.version));
 
         final tables = await db.query('''
@@ -96,11 +96,35 @@ void main() {
           types.map((r) => r['typname']),
           containsAll([
             'wishlist_visibility',
-            'wish_visibility',
             'wish_status',
             'ui_theme',
             'entitlement_source',
           ]),
+        );
+        expect(
+          types.map((r) => r['typname']),
+          isNot(contains('wish_visibility')),
+        );
+
+        final visibilityLabels = await db.query('''
+          SELECT e.enumlabel
+          FROM pg_enum e
+          JOIN pg_type t ON t.oid = e.enumtypid
+          WHERE t.typname = 'wishlist_visibility'
+          ORDER BY e.enumsortorder
+        ''');
+        expect(
+          visibilityLabels.map((r) => r['enumlabel']),
+          equals(['public', 'draft', 'link']),
+        );
+
+        final wishColumns = await db.query('''
+          SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'wishes'
+        ''');
+        expect(
+          wishColumns.map((r) => r['column_name']),
+          isNot(contains('visibility')),
         );
 
         final versions = await db.query(

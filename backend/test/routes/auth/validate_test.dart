@@ -124,17 +124,23 @@ void main() {
       expect(response.statusCode, equals(HttpStatus.ok));
       expect(body['tokenType'], equals('Bearer'));
       expect(body['expiresIn'], equals(3600));
-      expect(body['user'], equals({
-        'id': 279058397,
-        'firstName': 'Vladislav',
-        'lastName': 'Kibenko',
-        'username': 'vdkfrost',
-        'avatarUrl': 'https://t.me/i/userpic/320/test.svg',
-      }));
+      expect(
+        body['user'],
+        equals({
+          'id': 279058397,
+          'firstName': 'Vladislav',
+          'lastName': 'Kibenko',
+          'username': 'vdkfrost',
+          'avatarUrl': 'https://t.me/i/userpic/320/test.svg',
+        }),
+      );
       expect(jwt.subject, equals('279058397'));
-      expect(usersData.users[279058397]?.avatarUrl, equals(
-        'https://t.me/i/userpic/320/test.svg',
-      ));
+      expect(
+        usersData.users[279058397]?.avatarUrl,
+        equals(
+          'https://t.me/i/userpic/320/test.svg',
+        ),
+      );
     });
   });
 }

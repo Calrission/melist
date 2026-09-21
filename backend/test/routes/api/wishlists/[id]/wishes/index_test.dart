@@ -25,13 +25,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/wishlists/1/wishes',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/wishlists/1/wishes',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(auth)
       ..provide<WishlistService>(service);
   }

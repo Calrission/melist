@@ -74,7 +74,9 @@ const orderRequestBody = ApiRequestBody(
     },
     'required': ['order'],
   },
-  example: {'order': [3, 1, 2]},
+  example: {
+    'order': [3, 1, 2],
+  },
 );
 
 const idsRequestBody = ApiRequestBody(
@@ -90,7 +92,9 @@ const idsRequestBody = ApiRequestBody(
     },
     'required': ['ids'],
   },
-  example: {'ids': [1, 2]},
+  example: {
+    'ids': [1, 2],
+  },
 );
 
 const userSchema = <String, Object?>{
@@ -119,10 +123,6 @@ const wishSchema = <String, Object?>{
     'url': {'type': 'string'},
     'description': {'type': 'string'},
     'coverUrl': {'type': 'string'},
-    'visibility': {
-      'type': 'string',
-      'enum': ['public', 'private', 'link'],
-    },
     'status': {
       'type': 'string',
       'enum': ['draft', 'free', 'reserved'],
@@ -138,10 +138,6 @@ const wishInputSchema = <String, Object?>{
     'url': {'type': 'string'},
     'description': {'type': 'string'},
     'coverUrl': {'type': 'string'},
-    'visibility': {
-      'type': 'string',
-      'enum': ['public', 'private', 'link'],
-    },
     'status': {
       'type': 'string',
       'enum': ['draft', 'free', 'reserved'],
@@ -160,7 +156,7 @@ const wishlistSchema = <String, Object?>{
     'color': {'type': 'string'},
     'visibility': {
       'type': 'string',
-      'enum': ['public', 'draft'],
+      'enum': ['public', 'draft', 'link'],
     },
     'position': {'type': 'integer'},
     'shareToken': {'type': 'string'},
@@ -179,7 +175,7 @@ const wishlistInputSchema = <String, Object?>{
     'color': {'type': 'string'},
     'visibility': {
       'type': 'string',
-      'enum': ['public', 'draft'],
+      'enum': ['public', 'draft', 'link'],
     },
     'wishIds': {
       'type': 'array',

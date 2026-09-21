@@ -43,18 +43,19 @@ class InitDataValidator {
       return const InitDataFailure(InitDataFailureReason.invalid);
     }
 
-    final pairs = params.entries
-        .map((entry) => '${entry.key}=${entry.value}')
-        .toList()
-      ..sort();
+    final pairs =
+        params.entries.map((entry) => '${entry.key}=${entry.value}').toList()
+          ..sort();
     final dataCheckString = pairs.join('\n');
 
-    final secretKey = Hmac(sha256, utf8.encode('WebAppData'))
-        .convert(utf8.encode(botToken))
-        .bytes;
-    final computedHash = Hmac(sha256, secretKey)
-        .convert(utf8.encode(dataCheckString))
-        .toString();
+    final secretKey = Hmac(
+      sha256,
+      utf8.encode('WebAppData'),
+    ).convert(utf8.encode(botToken)).bytes;
+    final computedHash = Hmac(
+      sha256,
+      secretKey,
+    ).convert(utf8.encode(dataCheckString)).toString();
 
     if (!_constantTimeEquals(computedHash, hash)) {
       return const InitDataFailure(InitDataFailureReason.invalid);

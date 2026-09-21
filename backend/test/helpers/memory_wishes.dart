@@ -49,10 +49,9 @@ class MemoryWishRepository implements WishRepository {
     required int offset,
     String? query,
   }) async {
-    var items = data.wishes.values
-        .where((item) => item.ownerId == ownerId)
-        .toList()
-      ..sort((a, b) => b.id.compareTo(a.id));
+    var items =
+        data.wishes.values.where((item) => item.ownerId == ownerId).toList()
+          ..sort((a, b) => b.id.compareTo(a.id));
     if (query != null && query.isNotEmpty) {
       final needle = query.replaceAll('!', '').toLowerCase();
       items = [
@@ -72,7 +71,6 @@ class MemoryWishRepository implements WishRepository {
   Future<WishModel> insert({
     required int ownerId,
     required String name,
-    required WishVisibility visibility,
     required WishStatus status,
     double? price,
     String? url,
@@ -88,7 +86,6 @@ class MemoryWishRepository implements WishRepository {
       url: url,
       description: description,
       coverUrl: coverUrl,
-      visibility: visibility,
       status: status,
       copiedFrom: copiedFrom,
     );
@@ -109,7 +106,6 @@ class MemoryWishRepository implements WishRepository {
     bool clearDescription = false,
     String? coverUrl,
     bool clearCoverUrl = false,
-    WishVisibility? visibility,
     WishStatus? status,
   }) async {
     final current = data.wishes[id];
@@ -126,7 +122,6 @@ class MemoryWishRepository implements WishRepository {
           ? null
           : (description ?? current.description),
       coverUrl: clearCoverUrl ? null : (coverUrl ?? current.coverUrl),
-      visibility: visibility ?? current.visibility,
       status: status ?? current.status,
       copiedFrom: current.copiedFrom,
       createdAt: current.createdAt,
@@ -170,7 +165,6 @@ class MemoryWishRepository implements WishRepository {
     return insert(
       ownerId: current.ownerId,
       name: current.name,
-      visibility: current.visibility,
       status: current.status,
       price: current.price,
       url: current.url,

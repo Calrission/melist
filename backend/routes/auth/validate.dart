@@ -9,8 +9,7 @@ import 'package:melist_backend/src/openapi/auth_docs.dart';
   method: HttpMethod.post,
   path: '/auth/validate',
   summary: 'Issue a JWT from Telegram initData',
-  description:
-      'Validates Mini App initData HMAC and returns an access token.',
+  description: 'Validates Mini App initData HMAC and returns an access token.',
   tags: ['Auth'],
   requestBody: initDataRequestBody,
   responses: authInitDataResponses,

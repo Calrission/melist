@@ -10,10 +10,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- Enum types (CREATE TYPE has no IF NOT EXISTS, hence the DO blocks).
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'wishlist_visibility') THEN
-    CREATE TYPE wishlist_visibility AS ENUM ('public', 'draft');
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'wish_visibility') THEN
-    CREATE TYPE wish_visibility AS ENUM ('public', 'private', 'link');
+    CREATE TYPE wishlist_visibility AS ENUM ('public', 'draft', 'link');
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'wish_status') THEN
     CREATE TYPE wish_status AS ENUM ('draft', 'free', 'reserved');
@@ -64,7 +61,6 @@ CREATE TABLE IF NOT EXISTS wishes (
   url          TEXT,
   description  TEXT,
   cover_url    TEXT,
-  visibility   wish_visibility NOT NULL DEFAULT 'public',
   status       wish_status NOT NULL DEFAULT 'free',
   copied_from  BIGINT REFERENCES wishes(id) ON DELETE SET NULL,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),

@@ -25,8 +25,7 @@ void main() {
       setUpAll(() async {
         final adminConfig = DatabaseConfig.parse(adminUrl!);
         admin = Database.fromConfig(adminConfig);
-        dbName =
-            'melist_wishes_test_${DateTime.now().millisecondsSinceEpoch}';
+        dbName = 'melist_wishes_test_${DateTime.now().millisecondsSinceEpoch}';
         await admin.executeScript('CREATE DATABASE $dbName');
 
         final endpoint = adminConfig.endpoint;
@@ -62,13 +61,11 @@ void main() {
           owner,
           name: 'Headphones',
           price: 12000,
-          visibility: 'private',
           status: 'draft',
         );
 
         expect(created.id, greaterThan(0));
         expect(created.ownerId, 42);
-        expect(created.visibility, WishVisibility.private);
         expect(created.status, WishStatus.draft);
         expect(created.price, 12000);
 

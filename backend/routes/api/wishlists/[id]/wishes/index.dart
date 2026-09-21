@@ -7,7 +7,8 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
   method: HttpMethod.post,
   path: '/api/wishlists/{id}/wishes',
   summary: 'Add wish to wishlist',
-  description: 'Exactly one of: new wish payload (4.1), own existing '
+  description:
+      'Exactly one of: new wish payload (4.1), own existing '
       'wishId (4.2), copyFromWishId from another wishlist (4.3).',
   tags: ['Wishlists'],
   requestBody: ApiRequestBody(

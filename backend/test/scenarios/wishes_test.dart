@@ -38,7 +38,6 @@ void main() {
       expect(body['url'], 'https://example.com');
       expect(body['description'], 'чёрные');
       expect(body['coverUrl'], 'https://example.com/c.png');
-      expect(body['visibility'], 'public');
       expect(body['status'], 'free');
 
       final missing = await handleWishesCollection(
@@ -179,43 +178,6 @@ void main() {
         id,
       );
       expect(missing, isNotFound);
-    });
-
-    test('32. wish visibility values', () async {
-      final created = await jsonMap(
-        await handleWishesCollection(
-          app
-              .context(HttpMethod.post, '/api/wishes', body: {'name': 'W'})
-              .context,
-        ),
-      );
-      final id = '${created['id']}';
-      for (final visibility in ['public', 'private', 'link']) {
-        final patched = await handleWishById(
-          app
-              .context(
-                HttpMethod.patch,
-                '/api/wishes/$id',
-                body: {'visibility': visibility},
-              )
-              .context,
-          id,
-        );
-        expect(patched, isOk);
-        expect((await jsonMap(patched))['visibility'], visibility);
-      }
-
-      final bad = await handleWishById(
-        app
-            .context(
-              HttpMethod.patch,
-              '/api/wishes/$id',
-              body: {'visibility': 'hidden'},
-            )
-            .context,
-        id,
-      );
-      expect(bad, isBadRequest);
     });
 
     test('33. wish status values', () async {

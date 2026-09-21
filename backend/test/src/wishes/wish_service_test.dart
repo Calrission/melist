@@ -17,11 +17,10 @@ void main() {
   });
 
   group('WishService.create', () {
-    test('creates a public free wish and upserts the user', () async {
+    test('creates a free wish and upserts the user', () async {
       final created = await service.create(owner, name: ' Headphones ');
 
       expect(created.name, 'Headphones');
-      expect(created.visibility, WishVisibility.public);
       expect(created.status, WishStatus.free);
       expect(created.ownerId, 7);
       expect(data.userIds, contains(7));
@@ -35,14 +34,12 @@ void main() {
         url: ' https://shop.example/book ',
         description: ' Hardcover ',
         coverUrl: 'https://img.example/cover.png',
-        visibility: 'private',
         status: 'draft',
       );
 
       expect(created.price, 12000);
       expect(created.url, 'https://shop.example/book');
       expect(created.description, 'Hardcover');
-      expect(created.visibility, WishVisibility.private);
       expect(created.status, WishStatus.draft);
     });
 
@@ -53,10 +50,6 @@ void main() {
       );
       expect(
         () => service.create(owner, name: 'A', price: -1),
-        throwsA(isA<BadRequestException>()),
-      );
-      expect(
-        () => service.create(owner, name: 'A', visibility: 'hidden'),
         throwsA(isA<BadRequestException>()),
       );
       expect(
@@ -129,14 +122,12 @@ void main() {
         owner,
         created.id,
         name: 'New',
-        visibility: 'link',
         status: 'reserved',
         price: null,
         url: '',
       );
 
       expect(updated.name, 'New');
-      expect(updated.visibility, WishVisibility.link);
       expect(updated.status, WishStatus.reserved);
       expect(updated.price, isNull);
       expect(updated.url, isNull);
@@ -162,7 +153,6 @@ void main() {
         owner,
         name: 'Book',
         price: 500,
-        visibility: 'private',
       );
 
       final copy = await service.duplicate(owner, created.id);
@@ -170,7 +160,6 @@ void main() {
       expect(copy.id, isNot(created.id));
       expect(copy.name, 'Book');
       expect(copy.price, 500);
-      expect(copy.visibility, WishVisibility.private);
       expect(copy.copiedFrom, created.id);
     });
 

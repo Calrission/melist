@@ -11,7 +11,6 @@ class WishModel {
     this.url,
     this.description,
     this.coverUrl,
-    this.visibility = WishVisibility.public,
     this.status = WishStatus.free,
     this.copiedFrom,
     this.createdAt,
@@ -27,9 +26,6 @@ class WishModel {
       url: optionalString(json['url']),
       description: optionalString(json['description']),
       coverUrl: optionalString(json['coverUrl']),
-      visibility: json['visibility'] == null
-          ? WishVisibility.public
-          : WishVisibility.fromName(json['visibility']),
       status: json['status'] == null
           ? WishStatus.free
           : WishStatus.fromName(json['status']),
@@ -48,9 +44,6 @@ class WishModel {
       url: optionalString(row['url']),
       description: optionalString(row['description']),
       coverUrl: optionalString(row['cover_url']),
-      visibility: row['visibility'] == null
-          ? WishVisibility.public
-          : WishVisibility.fromName(row['visibility']),
       status: row['status'] == null
           ? WishStatus.free
           : WishStatus.fromName(row['status']),
@@ -67,7 +60,6 @@ class WishModel {
   final String? url;
   final String? description;
   final String? coverUrl;
-  final WishVisibility visibility;
   final WishStatus status;
   final int? copiedFrom;
   final DateTime? createdAt;
@@ -81,7 +73,6 @@ class WishModel {
     'url': url,
     'description': description,
     'coverUrl': coverUrl,
-    'visibility': visibility.name,
     'status': status.name,
     'copiedFrom': copiedFrom,
     'createdAt': isoOrNull(createdAt),

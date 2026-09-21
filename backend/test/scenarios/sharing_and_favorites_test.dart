@@ -18,7 +18,7 @@ void main() {
 
   Future<({int wl, String token})> sharedList({
     String name = 'Birthday',
-    String visibility = 'draft',
+    String visibility = 'link',
     AuthUser as = ScenarioHarness.a,
   }) async {
     final list = await jsonMap(
@@ -108,7 +108,7 @@ void main() {
       expect(shared.token, isNotEmpty);
     });
 
-    test('19. B opens a draft by token and wl_ prefix', () async {
+    test('19. B opens a link wishlist by token and wl_ prefix', () async {
       final shared = await sharedList();
 
       for (final token in [shared.token, 'wl_${shared.token}']) {
@@ -138,9 +138,22 @@ void main() {
       );
       expect(missing, isNotFound);
       expect((await jsonMap(missing))['error'], 'Wishlist not found');
+
+      final draft = await sharedList(name: 'Draft', visibility: 'draft');
+      final hidden = await handleSharedWishlist(
+        app
+            .context(
+              HttpMethod.get,
+              '/api/shared/${draft.token}',
+              as: ScenarioHarness.b,
+            )
+            .context,
+        draft.token,
+      );
+      expect(hidden, isNotFound);
     });
 
-    test('20. shared view hides private wishes from B, not from A', () async {
+    test('20. shared view shows every wish', () async {
       final shared = await sharedList(visibility: 'public');
       await handleWishlistWishes(
         app
@@ -148,7 +161,7 @@ void main() {
               HttpMethod.post,
               '/api/wishlists/${shared.wl}/wishes',
               body: {
-                'wish': {'name': 'Public', 'visibility': 'public'},
+                'wish': {'name': 'Public'},
               },
             )
             .context,
@@ -160,7 +173,7 @@ void main() {
               HttpMethod.post,
               '/api/wishlists/${shared.wl}/wishes',
               body: {
-                'wish': {'name': 'Private', 'visibility': 'private'},
+                'wish': {'name': 'Second'},
               },
             )
             .context,
@@ -181,7 +194,7 @@ void main() {
       );
       expect(
         (asB['items'] as List<dynamic>).map((item) => (item as Map)['name']),
-        ['Public'],
+        ['Public', 'Second'],
       );
 
       final asA = await jsonMap(
@@ -197,7 +210,7 @@ void main() {
       );
       expect(
         (asA['items'] as List<dynamic>).map((item) => (item as Map)['name']),
-        ['Public', 'Private'],
+        ['Public', 'Second'],
       );
     });
   });
@@ -273,7 +286,7 @@ void main() {
       );
     });
 
-    test('23. favorites hide private wishes', () async {
+    test('23. favorites show every wish', () async {
       final shared = await sharedList(visibility: 'public');
       await handleWishlistWishes(
         app
@@ -281,7 +294,7 @@ void main() {
               HttpMethod.post,
               '/api/wishlists/${shared.wl}/wishes',
               body: {
-                'wish': {'name': 'Public', 'visibility': 'public'},
+                'wish': {'name': 'Public'},
               },
             )
             .context,
@@ -293,7 +306,7 @@ void main() {
               HttpMethod.post,
               '/api/wishlists/${shared.wl}/wishes',
               body: {
-                'wish': {'name': 'Private', 'visibility': 'private'},
+                'wish': {'name': 'Second'},
               },
             )
             .context,
@@ -322,7 +335,7 @@ void main() {
         ),
       );
       final items = (listed.single as Map)['items'] as List<dynamic>;
-      expect(items.map((item) => (item as Map)['name']), ['Public']);
+      expect(items.map((item) => (item as Map)['name']), ['Public', 'Second']);
     });
 
     test('24. reorder favorites', () async {

@@ -27,13 +27,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/me',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/me',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(user)
       ..provide<ProfileService>(profiles);
   }
@@ -80,14 +80,15 @@ void main() {
     });
 
     test('PATCH returns 400 for invalid JSON and empty body', () async {
-      final invalidContext = TestRequestContext(
-        path: '/api/me',
-        method: HttpMethod.patch,
-        body: '[]',
-        headers: {HttpHeaders.contentTypeHeader: 'application/json'},
-      )
-        ..provide<AuthUser>(user)
-        ..provide<ProfileService>(profiles);
+      final invalidContext =
+          TestRequestContext(
+              path: '/api/me',
+              method: HttpMethod.patch,
+              body: '[]',
+              headers: {HttpHeaders.contentTypeHeader: 'application/json'},
+            )
+            ..provide<AuthUser>(user)
+            ..provide<ProfileService>(profiles);
       final invalid = await handleMe(invalidContext.context);
       expect(invalid, isBadRequest);
 

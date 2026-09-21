@@ -115,7 +115,6 @@ Future<Response> _create(
     url: optionalJsonString(body['url'], 'url'),
     description: optionalJsonString(body['description'], 'description'),
     coverUrl: optionalJsonString(body['coverUrl'], 'coverUrl'),
-    visibility: optionalJsonString(body['visibility'], 'visibility'),
     status: optionalJsonString(body['status'], 'status'),
   );
   return created(wish.toJson());
@@ -163,7 +162,6 @@ Future<Response> _patch(
     coverUrl: body.containsKey('coverUrl')
         ? body['coverUrl']
         : WishService.unset,
-    visibility: optionalJsonString(body['visibility'], 'visibility'),
     status: optionalJsonString(body['status'], 'status'),
   );
   return Response.json(body: updated.toJson());

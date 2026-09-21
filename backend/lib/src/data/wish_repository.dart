@@ -6,7 +6,6 @@ class WishRepository {
 
   static const _columns = '''
 id, owner_id, name, price, url, description, cover_url,
-visibility::text AS visibility,
 status::text AS status,
 copied_from, created_at, updated_at
 ''';
@@ -49,7 +48,6 @@ WHERE owner_id = @ownerId
   Future<WishModel> insert({
     required int ownerId,
     required String name,
-    required WishVisibility visibility,
     required WishStatus status,
     double? price,
     String? url,
@@ -61,7 +59,7 @@ WHERE owner_id = @ownerId
       '''
 INSERT INTO wishes (
   owner_id, name, price, url, description, cover_url,
-  visibility, status, copied_from
+  status, copied_from
 ) VALUES (
   @ownerId,
   @name,
@@ -69,7 +67,6 @@ INSERT INTO wishes (
   @url,
   @description,
   @coverUrl,
-  CAST(@visibility AS wish_visibility),
   CAST(@status AS wish_status),
   @copiedFrom
 )
@@ -82,7 +79,6 @@ RETURNING $_columns
         'url': url,
         'description': description,
         'coverUrl': coverUrl,
-        'visibility': visibility.name,
         'status': status.name,
         'copiedFrom': copiedFrom,
       },
@@ -103,7 +99,6 @@ RETURNING $_columns
     bool clearDescription = false,
     String? coverUrl,
     bool clearCoverUrl = false,
-    WishVisibility? visibility,
     WishStatus? status,
   }) async {
     final sets = <String>['updated_at = now()'];
@@ -136,10 +131,6 @@ RETURNING $_columns
     } else if (coverUrl != null) {
       sets.add('cover_url = @coverUrl');
       params['coverUrl'] = coverUrl;
-    }
-    if (visibility != null) {
-      sets.add('visibility = CAST(@visibility AS wish_visibility)');
-      params['visibility'] = visibility.name;
     }
     if (status != null) {
       sets.add('status = CAST(@status AS wish_status)');
@@ -194,11 +185,11 @@ WHERE owner_id = @ownerId AND id = ANY(@ids)
       '''
 INSERT INTO wishes (
   owner_id, name, price, url, description, cover_url,
-  visibility, status, copied_from
+  status, copied_from
 )
 SELECT
   owner_id, name, price, url, description, cover_url,
-  visibility, status, id
+  status, id
 FROM wishes
 WHERE id = @id AND owner_id = @ownerId
 RETURNING $_columns

@@ -26,8 +26,7 @@ import 'package:melist_backend/src/wishes/wish_handlers.dart';
   method: HttpMethod.patch,
   path: '/api/wishes/{id}',
   summary: 'Edit wish',
-  description: 'Any wish field, including visibility (19) and status (20). '
-      '(18)',
+  description: 'Any wish field, including status (20). (18)',
   tags: ['Wishes'],
   requestBody: ApiRequestBody(
     required: true,

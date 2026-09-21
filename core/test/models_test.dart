@@ -147,7 +147,7 @@ void main() {
   });
 
   group('WishModel', () {
-    test('nullable price and url, default visibility and status', () {
+    test('nullable price and url, default status', () {
       final wish = WishModel.fromJson({
         'id': 10,
         'ownerId': 1,
@@ -156,7 +156,6 @@ void main() {
 
       expect(wish.price, isNull);
       expect(wish.url, isNull);
-      expect(wish.visibility, WishVisibility.public);
       expect(wish.status, WishStatus.free);
     });
 
@@ -169,14 +168,12 @@ void main() {
         'url': null,
         'description': 'hardcover',
         'cover_url': 'https://img/book.png',
-        'visibility': 'private',
         'status': 'reserved',
         'copied_from': 9,
       });
 
       expect(wish.price, closeTo(19.90, 0.001));
       expect(wish.coverUrl, 'https://img/book.png');
-      expect(wish.visibility, WishVisibility.private);
       expect(wish.status, WishStatus.reserved);
       expect(wish.copiedFrom, 9);
     });
@@ -219,6 +216,20 @@ void main() {
 
       expect(list.items, isEmpty);
       expect(list.visibility, WishlistVisibility.draft);
+    });
+
+    test('accepts link visibility', () {
+      final list = WishlistModel.fromJson({
+        'id': 4,
+        'ownerId': 1,
+        'name': 'Shared',
+        'color': '#FFB74D',
+        'visibility': 'link',
+        'position': 0,
+      });
+
+      expect(list.visibility, WishlistVisibility.link);
+      expect(list.toJson()['visibility'], 'link');
     });
   });
 

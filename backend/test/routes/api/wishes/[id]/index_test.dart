@@ -25,13 +25,13 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-      path: '/api/wishes/1',
-      method: method,
-      body: body == null ? null : jsonEncode(body),
-      headers: body == null
-          ? const {}
-          : {HttpHeaders.contentTypeHeader: 'application/json'},
-    )
+        path: '/api/wishes/1',
+        method: method,
+        body: body == null ? null : jsonEncode(body),
+        headers: body == null
+            ? const {}
+            : {HttpHeaders.contentTypeHeader: 'application/json'},
+      )
       ..provide<AuthUser>(auth)
       ..provide<WishService>(service);
   }
@@ -88,7 +88,7 @@ void main() {
       expect(response, isBadRequest);
     });
 
-    test('PATCH updates status and visibility', () async {
+    test('PATCH updates status', () async {
       final created = await service.create(user, name: 'Old');
 
       final response = await handleWishById(
@@ -96,7 +96,6 @@ void main() {
           HttpMethod.patch,
           body: {
             'name': 'New',
-            'visibility': 'private',
             'status': 'reserved',
           },
         ).context,
@@ -106,7 +105,6 @@ void main() {
 
       expect(response, isOk);
       expect(body['name'], 'New');
-      expect(body['visibility'], 'private');
       expect(body['status'], 'reserved');
     });
 

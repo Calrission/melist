@@ -10,7 +10,6 @@ class CreateWishBody {
     this.url,
     this.description,
     this.coverUrl,
-    this.visibility,
     this.status,
   });
 
@@ -21,11 +20,6 @@ class CreateWishBody {
       url: optionalString(json['url']),
       description: optionalString(json['description']),
       coverUrl: optionalString(json['coverUrl']),
-      visibility: optionalEnum(
-        WishVisibility.values,
-        json['visibility'],
-        'WishVisibility',
-      ),
       status: optionalEnum(WishStatus.values, json['status'], 'WishStatus'),
     );
   }
@@ -35,7 +29,6 @@ class CreateWishBody {
   final String? url;
   final String? description;
   final String? coverUrl;
-  final WishVisibility? visibility;
   final WishStatus? status;
 
   Map<String, Object?> toJson() => {
@@ -44,7 +37,6 @@ class CreateWishBody {
     if (url != null) 'url': url,
     if (description != null) 'description': description,
     if (coverUrl != null) 'coverUrl': coverUrl,
-    if (visibility != null) 'visibility': visibility!.name,
     if (status != null) 'status': status!.name,
   };
 }
@@ -60,7 +52,6 @@ class PatchWishBody {
     this.url = jsonOmit,
     this.description = jsonOmit,
     this.coverUrl = jsonOmit,
-    this.visibility,
     this.status,
   });
 
@@ -73,11 +64,6 @@ class PatchWishBody {
           ? json['description']
           : jsonOmit,
       coverUrl: json.containsKey('coverUrl') ? json['coverUrl'] : jsonOmit,
-      visibility: optionalEnum(
-        WishVisibility.values,
-        json['visibility'],
-        'WishVisibility',
-      ),
       status: optionalEnum(WishStatus.values, json['status'], 'WishStatus'),
     );
   }
@@ -87,7 +73,6 @@ class PatchWishBody {
   final Object? url;
   final Object? description;
   final Object? coverUrl;
-  final WishVisibility? visibility;
   final WishStatus? status;
 
   Map<String, Object?> toJson() {
@@ -97,7 +82,6 @@ class PatchWishBody {
       if (jsonIncluded(url)) 'url': url,
       if (jsonIncluded(description)) 'description': description,
       if (jsonIncluded(coverUrl)) 'coverUrl': coverUrl,
-      if (visibility != null) 'visibility': visibility!.name,
       if (status != null) 'status': status!.name,
     };
   }

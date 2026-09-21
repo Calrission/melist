@@ -229,14 +229,12 @@ class WishlistService {
     if (wishlist == null) {
       throw const NotFoundException('Wishlist not found');
     }
-
-    var items = await _repo.listItems(wishlist.id);
-    if (wishlist.ownerId != user.id) {
-      items = [
-        for (final item in items)
-          if (item.visibility != WishVisibility.private) item,
-      ];
+    if (wishlist.ownerId != user.id &&
+        wishlist.visibility == WishlistVisibility.draft) {
+      throw const NotFoundException('Wishlist not found');
     }
+
+    final items = await _repo.listItems(wishlist.id);
     return wishlist.copyWith(items: items);
   }
 
@@ -331,7 +329,6 @@ class WishlistService {
       url: optionalJsonString(wish['url'], 'url'),
       description: optionalJsonString(wish['description'], 'description'),
       coverUrl: optionalJsonString(wish['coverUrl'], 'coverUrl'),
-      visibility: optionalJsonString(wish['visibility'], 'visibility'),
       status: optionalJsonString(wish['status'], 'status'),
     );
     await _append(lists, wishlistId, created.id);
@@ -373,9 +370,6 @@ class WishlistService {
       throw const NotFoundException('Wish not found');
     }
     if (source.ownerId != user.id) {
-      if (source.visibility == WishVisibility.private) {
-        throw const ForbiddenException();
-      }
       final appearances = await lists.countPublicAppearances(copyFromWishId);
       if (appearances == 0) {
         throw const ForbiddenException();
@@ -390,7 +384,6 @@ class WishlistService {
       url: source.url,
       description: source.description,
       coverUrl: source.coverUrl,
-      visibility: source.visibility,
       status: source.status,
       copiedFrom: source.id,
     );
@@ -490,7 +483,7 @@ class WishlistService {
       return WishlistVisibility.fromName(raw.trim());
     } on FormatException {
       throw const BadRequestException(
-        'visibility must be public or draft',
+        'visibility must be public, draft or link',
       );
     }
   }

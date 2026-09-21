@@ -103,7 +103,10 @@ void main() {
 
       test('empty url', () => expectRejected('  ', 'empty'));
       test('wrong scheme', () => expectRejected('mysql://h/db', 'postgres://'));
-      test('missing database', () => expectRejected('postgres://h', 'database'));
+      test(
+        'missing database',
+        () => expectRejected('postgres://h', 'database'),
+      );
       test(
         'unknown parameter',
         () => expectRejected('postgres://h/db?foo=1', 'unknown parameter'),

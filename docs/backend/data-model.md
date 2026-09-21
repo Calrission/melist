@@ -106,8 +106,7 @@ erDiagram
 ### Enum-типы
 
 ```sql
-CREATE TYPE wishlist_visibility AS ENUM ('public', 'draft');
-CREATE TYPE wish_visibility     AS ENUM ('public', 'private', 'link');
+CREATE TYPE wishlist_visibility AS ENUM ('public', 'draft', 'link');
 CREATE TYPE wish_status         AS ENUM ('draft', 'free', 'reserved');
 CREATE TYPE ui_theme            AS ENUM ('system', 'light', 'dark');
 CREATE TYPE entitlement_source  AS ENUM ('ad', 'donation');
@@ -162,7 +161,6 @@ CREATE TABLE wishes (
   url          TEXT,
   description  TEXT,
   cover_url    TEXT,
-  visibility   wish_visibility NOT NULL DEFAULT 'public',   -- 19
   status       wish_status NOT NULL DEFAULT 'free',         -- 20
   copied_from  BIGINT REFERENCES wishes(id) ON DELETE SET NULL,  -- 4.3, 13
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -245,10 +243,10 @@ CREATE TABLE donations (
 ## Правила доступа
 
 - Владелец видит и меняет только свои `wishlists` и `wishes` (`owner_id = AuthUser.id`); иначе `403`.
-- Чужой вишлист читается, если `visibility = 'public'` или запрос идёт по `share_token` (`GET /api/shared/{token}`).
+- `public` — на профиле, подписка разрешена. `link` — не на профиле, чужой читает только по `share_token`. `draft` — только владелец; `GET /api/shared/{token}` для не-владельца — `404`.
 - `GET /api/users/{id}` отдаёт карточку пользователя и только его публичные вишлисты.
-- Чужое желание читается, если оно в доступном вишлисте и `visibility <> 'private'`.
-- Копирование (4.3, 13) создаёт новую строку `wishes` с `copied_from`, а не ссылку.
+- В доступном вишлисте чужому отдаются все желания списка.
+- Копирование (4.3, 13) создаёт новую строку `wishes` с `copied_from`, а не ссылку. Чужое желание копируется, только если оно стоит в публичном вишлисте.
 
 ## Соответствие с `melist_core`
 
@@ -265,7 +263,6 @@ CREATE TABLE donations (
 | `entitlements` | `EntitlementModel` |
 | `donations` | `DonationModel` |
 | `wishlist_visibility` | `WishlistVisibility` |
-| `wish_visibility` | `WishVisibility` |
 | `wish_status` | `WishStatus` |
 | `ui_theme` | `UiTheme` |
 | `entitlement_source` | `EntitlementSource` |
