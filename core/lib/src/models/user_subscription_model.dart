@@ -29,8 +29,8 @@ class UserSubscriptionModel {
   final DateTime? createdAt;
 
   Map<String, Object?> toJson() => {
-        'followerId': followerId,
-        'followeeId': followeeId,
-        'createdAt': isoOrNull(createdAt),
-      };
+    'followerId': followerId,
+    'followeeId': followeeId,
+    'createdAt': isoOrNull(createdAt),
+  };
 }

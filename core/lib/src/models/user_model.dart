@@ -59,14 +59,14 @@ class UserModel {
   final DateTime? updatedAt;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'username': username,
-        'avatarUrl': avatarUrl,
-        'birthday': birthday == null ? null : dateOnly(birthday!),
-        'theme': theme.name,
-        'createdAt': isoOrNull(createdAt),
-        'updatedAt': isoOrNull(updatedAt),
-      };
+    'id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    'username': username,
+    'avatarUrl': avatarUrl,
+    'birthday': birthday == null ? null : dateOnly(birthday!),
+    'theme': theme.name,
+    'createdAt': isoOrNull(createdAt),
+    'updatedAt': isoOrNull(updatedAt),
+  };
 }

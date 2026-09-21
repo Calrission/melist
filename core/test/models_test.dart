@@ -2,6 +2,45 @@ import 'package:melist_core/melist_core.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('AuthSessionModel', () {
+    test('fromJson / toJson round-trip for validate body', () {
+      final json = {
+        'accessToken': 'jwt-token',
+        'tokenType': 'Bearer',
+        'expiresIn': 3600,
+        'user': {
+          'id': 279058397,
+          'firstName': 'Vladislav',
+          'lastName': 'Kibenko',
+          'username': 'vdkfrost',
+          'avatarUrl': 'https://t.me/i/userpic/320/test.svg',
+        },
+      };
+
+      final session = AuthSessionModel.fromJson(json);
+
+      expect(session.accessToken, 'jwt-token');
+      expect(session.tokenType, AuthSessionModel.bearer);
+      expect(session.expiresIn, 3600);
+      expect(session.ttl, const Duration(hours: 1));
+      expect(session.user.id, 279058397);
+      expect(session.user.firstName, 'Vladislav');
+      expect(session.user.avatarUrl, 'https://t.me/i/userpic/320/test.svg');
+      expect(session.toJson(), json);
+    });
+
+    test('rejects a missing user object', () {
+      expect(
+        () => AuthSessionModel.fromJson({
+          'accessToken': 'jwt',
+          'tokenType': 'Bearer',
+          'expiresIn': 3600,
+        }),
+        throwsFormatException,
+      );
+    });
+  });
+
   group('UserModel', () {
     test('fromJson / toJson round-trip', () {
       final json = {

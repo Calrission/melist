@@ -69,3 +69,56 @@ String dateOnly(DateTime value) {
 }
 
 String? isoOrNull(DateTime? value) => value?.toUtc().toIso8601String();
+
+/// Sentinel for PATCH: the field is omitted from JSON (leave unchanged).
+/// Distinct from `null`, which clears a nullable field.
+const jsonOmit = Object();
+
+bool jsonIncluded(Object? value) => !identical(value, jsonOmit);
+
+Map<String, dynamic> requireMap(Object? value, String field) {
+  if (value is Map<String, dynamic>) {
+    return value;
+  }
+  if (value is Map) {
+    return Map<String, dynamic>.from(value);
+  }
+  throw FormatException('Expected object for $field, got $value');
+}
+
+List<int> requireIntList(Object? raw, String field) {
+  if (raw is! List) {
+    throw FormatException('Expected array of integers for $field, got $raw');
+  }
+  return [for (final item in raw) requireInt(item, field)];
+}
+
+List<int> optionalIntList(Object? raw, String field) {
+  return raw == null ? const [] : requireIntList(raw, field);
+}
+
+/// Maps a PostgreSQL enum / JSON string onto a Dart enum by [Enum.name].
+T decodeEnum<T extends Enum>(List<T> values, Object? raw, String typeName) {
+  if (raw is T) {
+    return raw;
+  }
+  if (raw is String) {
+    for (final value in values) {
+      if (value.name == raw) {
+        return value;
+      }
+    }
+  }
+  throw FormatException('Unknown $typeName: $raw');
+}
+
+T? optionalEnum<T extends Enum>(
+  List<T> values,
+  Object? raw,
+  String typeName,
+) {
+  if (raw == null) {
+    return null;
+  }
+  return decodeEnum(values, raw, typeName);
+}

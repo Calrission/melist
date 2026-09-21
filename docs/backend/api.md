@@ -9,6 +9,7 @@
 - Публичные роуты: `/`, `/health`, `/auth/*`, `/docs`, `/openapi.json`.
 - Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
 - Ошибки всегда в формате `{ "error": "<сообщение>" }`.
+- Тела `POST`/`PATCH` на клиенте — модели в `melist_core` (`CreateWishlistBody`, `PatchWishBody`, …). PATCH: нет ключа — поле не менять; `null` — сбросить (`jsonOmit` в конструкторе).
 - Коды: `200` ok, `201` создано, `204` удалено без тела, `400` невалидное тело, `401` нет/плохой токен, `403` чужой ресурс, `404` не найдено, `405` метод не поддерживается, `501` ещё не реализовано.
 - Массовые операции и сортировка выполняются методами на коллекции (`PATCH`/`DELETE /api/wishlists`), а не отдельными статическими путями рядом с `[id]` — в Dart Frog динамический сегмент может перехватить такой путь.
 
@@ -23,8 +24,6 @@ sequenceDiagram
   Api-->>App: { accessToken, expiresIn, user }
   App->>Api: GET /api/me  Authorization: Bearer accessToken
   Api-->>App: 200
-  App->>Api: POST /auth/refresh { initData }
-  Api-->>App: новый accessToken
 ```
 
 ### `POST /auth/validate`
@@ -42,13 +41,11 @@ sequenceDiagram
 }
 ```
 
+Клиент: `AuthSessionModel` в `melist_core` (`fromJson` тела ответа).
+
 `400` — `initData` отсутствует; `401` — `Invalid initData` / `Expired initData`.
 
-### `POST /auth/refresh`
-
-Тот же контракт. Refresh-токена нет: клиент повторно присылает `initData`, пока его `auth_date` не старше 24 часов. Реализация общая — `authenticateWithInitData` в `backend/lib/src/auth/authenticate.dart`.
-
-JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1 час.
+JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1 час. Когда токен истечёт — снова `POST /auth/validate` со свежим `initData`.
 
 ### `GET /auth/debug`
 
@@ -234,4 +231,4 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
+Работают: `/`, `/health`, `/auth/validate`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).

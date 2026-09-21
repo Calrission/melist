@@ -82,18 +82,18 @@ class WishlistModel {
   }
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'ownerId': ownerId,
-        'name': name,
-        'description': description,
-        'color': color,
-        'visibility': visibility.name,
-        'position': position,
-        'shareToken': shareToken,
-        'items': [for (final item in items) item.toJson()],
-        'createdAt': isoOrNull(createdAt),
-        'updatedAt': isoOrNull(updatedAt),
-      };
+    'id': id,
+    'ownerId': ownerId,
+    'name': name,
+    'description': description,
+    'color': color,
+    'visibility': visibility.name,
+    'position': position,
+    'shareToken': shareToken,
+    'items': [for (final item in items) item.toJson()],
+    'createdAt': isoOrNull(createdAt),
+    'updatedAt': isoOrNull(updatedAt),
+  };
 
   static List<WishModel> _itemsFrom(Object? raw) {
     if (raw is! List) {
@@ -101,8 +101,7 @@ class WishlistModel {
     }
     return [
       for (final item in raw)
-        if (item is Map)
-          WishModel.fromJson(Map<String, dynamic>.from(item)),
+        if (item is Map) WishModel.fromJson(Map<String, dynamic>.from(item)),
     ];
   }
 }

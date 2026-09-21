@@ -34,7 +34,6 @@ backend/
 │   ├── health.dart             # GET /health
 │   ├── auth/
 │   │   ├── validate.dart       # POST /auth/validate  (initData -> JWT)
-│   │   ├── refresh.dart        # POST /auth/refresh   (initData -> новый JWT)
 │   │   └── debug.dart          # GET  /auth/debug     (локальный Bearer, DEBUG_AUTH)
 │   └── api/                    # защищённые роуты (Bearer JWT)
 │       ├── _middleware.dart    # bearerAuthentication -> AuthUser в контексте
@@ -183,6 +182,6 @@ CLI Dart Frog ставится один раз: `dart pub global activate dart_f
 
 ## Состояние
 
-Реализовано: `/`, `/health`, `/auth/validate`, `/auth/refresh`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
+Реализовано: `/`, `/health`, `/auth/validate`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
 
 Остальные `/api/**` — заглушки (`501`). Порядок доделок — [roadmap.md](roadmap.md).

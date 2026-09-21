@@ -1,3 +1,5 @@
+import 'model_codec.dart';
+
 /// Visibility of a wishlist (`wishlist_visibility`).
 enum WishlistVisibility {
   public,
@@ -54,19 +56,4 @@ enum DonationStatus {
 
   static DonationStatus fromName(Object? raw) =>
       decodeEnum(DonationStatus.values, raw, 'DonationStatus');
-}
-
-/// Maps a PostgreSQL enum / JSON string onto a Dart enum by [Enum.name].
-T decodeEnum<T extends Enum>(List<T> values, Object? raw, String typeName) {
-  if (raw is T) {
-    return raw;
-  }
-  if (raw is String) {
-    for (final value in values) {
-      if (value.name == raw) {
-        return value;
-      }
-    }
-  }
-  throw FormatException('Unknown $typeName: $raw');
 }

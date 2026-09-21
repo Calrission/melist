@@ -38,10 +38,10 @@ class EntitlementModel {
   final DateTime expiresAt;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'userId': userId,
-        'source': source.name,
-        'grantedAt': isoOrNull(grantedAt),
-        'expiresAt': expiresAt.toUtc().toIso8601String(),
-      };
+    'id': id,
+    'userId': userId,
+    'source': source.name,
+    'grantedAt': isoOrNull(grantedAt),
+    'expiresAt': expiresAt.toUtc().toIso8601String(),
+  };
 }

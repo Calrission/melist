@@ -131,7 +131,7 @@ CREATE TABLE users (
 );
 ```
 
-Запись создаётся/обновляется при `POST /auth/validate` и `POST /auth/refresh` из данных `initData` (upsert, включая `avatar_url`). `GET /api/me` создаёт строку из JWT, если её ещё нет.
+Запись создаётся/обновляется при `POST /auth/validate` из данных `initData` (upsert, включая `avatar_url`). `GET /api/me` создаёт строку из JWT, если её ещё нет.
 
 ### `wishlists` (1–7)
 

@@ -34,12 +34,11 @@ Future<Response> authenticateWithInitData({
     case InitDataSuccess(:final user):
       await users.upsertTelegram(user);
       return Response.json(
-        body: {
-          'accessToken': jwtService.issueAccessToken(user),
-          'tokenType': 'Bearer',
-          'expiresIn': jwtService.accessTokenTtl.inSeconds,
-          'user': _userJson(user),
-        },
+        body: AuthSessionModel(
+          accessToken: jwtService.issueAccessToken(user),
+          expiresIn: jwtService.accessTokenTtl.inSeconds,
+          user: user,
+        ).toJson(),
       );
   }
 }
@@ -60,14 +59,4 @@ Future<String?> _readInitData(Request request) async {
   } on Object {
     return null;
   }
-}
-
-Map<String, Object?> _userJson(UserModel user) {
-  return {
-    'id': user.id,
-    'firstName': user.firstName,
-    'lastName': user.lastName,
-    'username': user.username,
-    'avatarUrl': user.avatarUrl,
-  };
 }

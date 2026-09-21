@@ -74,17 +74,17 @@ class WishModel {
   final DateTime? updatedAt;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'ownerId': ownerId,
-        'name': name,
-        'price': price,
-        'url': url,
-        'description': description,
-        'coverUrl': coverUrl,
-        'visibility': visibility.name,
-        'status': status.name,
-        'copiedFrom': copiedFrom,
-        'createdAt': isoOrNull(createdAt),
-        'updatedAt': isoOrNull(updatedAt),
-      };
+    'id': id,
+    'ownerId': ownerId,
+    'name': name,
+    'price': price,
+    'url': url,
+    'description': description,
+    'coverUrl': coverUrl,
+    'visibility': visibility.name,
+    'status': status.name,
+    'copiedFrom': copiedFrom,
+    'createdAt': isoOrNull(createdAt),
+    'updatedAt': isoOrNull(updatedAt),
+  };
 }

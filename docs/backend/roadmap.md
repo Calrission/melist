@@ -25,7 +25,6 @@
 | `GET /` | готово |
 | `GET /health` | готово |
 | `POST /auth/validate` | готово |
-| `POST /auth/refresh` | готово |
 | `GET /auth/debug` | готово (только `DEBUG_AUTH`) |
 | Bearer `/api/**` | готово |
 
@@ -97,7 +96,7 @@
 
 ### 8. Профиль (22, 23, 26) — готово
 
-Upsert пользователя при `POST /auth/validate` и `POST /auth/refresh` пишет строку `users` (включая `avatar_url`). `GET /api/me` тоже создаёт запись из JWT, если её ещё нет.
+Upsert пользователя при `POST /auth/validate` пишет строку `users` (включая `avatar_url`). `GET /api/me` тоже создаёт запись из JWT, если её ещё нет.
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|

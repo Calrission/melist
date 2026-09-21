@@ -29,8 +29,8 @@ class WishlistSubscriptionModel {
   final DateTime? createdAt;
 
   Map<String, Object?> toJson() => {
-        'userId': userId,
-        'wishlistId': wishlistId,
-        'createdAt': isoOrNull(createdAt),
-      };
+    'userId': userId,
+    'wishlistId': wishlistId,
+    'createdAt': isoOrNull(createdAt),
+  };
 }

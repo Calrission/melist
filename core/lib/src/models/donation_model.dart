@@ -46,11 +46,11 @@ class DonationModel {
   final DateTime? createdAt;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'userId': userId,
-        'amountStars': amountStars,
-        'telegramPaymentId': telegramPaymentId,
-        'status': status.name,
-        'createdAt': isoOrNull(createdAt),
-      };
+    'id': id,
+    'userId': userId,
+    'amountStars': amountStars,
+    'telegramPaymentId': telegramPaymentId,
+    'status': status.name,
+    'createdAt': isoOrNull(createdAt),
+  };
 }

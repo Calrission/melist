@@ -33,9 +33,9 @@ class FavoriteModel {
   final DateTime? addedAt;
 
   Map<String, Object?> toJson() => {
-        'userId': userId,
-        'wishlistId': wishlistId,
-        'position': position,
-        'addedAt': isoOrNull(addedAt),
-      };
+    'userId': userId,
+    'wishlistId': wishlistId,
+    'position': position,
+    'addedAt': isoOrNull(addedAt),
+  };
 }
