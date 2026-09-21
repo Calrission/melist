@@ -22,6 +22,7 @@ melist/
 - [Backend: модель данных PostgreSQL](backend/data-model.md)
 - [Backend: best practices Dart Frog](backend/best-practices.md)
 - [Backend: тестирование](backend/testing.md)
+- [Сценарии использования](scenarios.md)
 
 Документация по frontend и core будет добавлена позже.
 

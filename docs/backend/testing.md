@@ -5,6 +5,7 @@
 ```powershell
 dart test                                   # всё
 dart test test/routes/auth                  # каталог
+dart test test/scenarios                    # сценарии docs/scenarios.md
 dart test -n "POST /auth/validate"          # по имени группы/теста
 dart test --reporter expanded               # подробный вывод
 ```
@@ -26,14 +27,21 @@ test/
 │   ├── auth/debug_auth_test.dart
 │   ├── config/app_config_test.dart
 │   └── data/               # database_config_test, database_test, migrator_test
+├── scenarios/              # продуктовые сценарии docs/scenarios.md, in-memory
+│   ├── wishlists_test.dart
+│   ├── sharing_and_favorites_test.dart
+│   ├── wishes_test.dart
+│   └── profile_and_subscriptions_test.dart
 ├── integration/            # реальная PostgreSQL, тег integration, skip без TEST_DATABASE_URL
 │   └── migrator_integration_test.dart
 └── helpers/                # общие фабрики тестовых данных (не *_test.dart)
     ├── init_data.dart
-    └── fake_pool.dart      # FakePool / FakeTxSession / makeResult для Database
+    ├── fake_pool.dart      # FakePool / FakeTxSession / makeResult для Database
+    ├── memory_wishlists.dart
+    └── scenario_harness.dart
 ```
 
-Правило: новый роут — новый `*_test.dart` рядом в `test/routes/`; новый сервис — тест в `test/src/`.
+Правило: новый роут — новый `*_test.dart` рядом в `test/routes/`; новый сервис — тест в `test/src/`. Сценарии из `docs/scenarios.md` — в `test/scenarios/`: один тест на номер, через хендлеры и `ScenarioHarness` (общая in-memory память A/B, без PostgreSQL). Монетизация (функции 27–29) не покрывается, пока API отдаёт `501`.
 
 ## Что тестировать на каком уровне
 

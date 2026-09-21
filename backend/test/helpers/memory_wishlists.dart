@@ -219,9 +219,7 @@ class MemoryWishlistRepository implements WishlistRepository {
     required int ownerId,
     required List<int> ids,
   }) async {
-    return ids
-        .where((id) => data.wishlists[id]?.ownerId == ownerId)
-        .length;
+    return ids.where((id) => data.wishlists[id]?.ownerId == ownerId).length;
   }
 
   @override
@@ -290,9 +288,7 @@ class MemoryWishlistRepository implements WishlistRepository {
     required int ownerId,
     required List<int> ids,
   }) async {
-    return ids
-        .where((id) => data.wishes[id]?.ownerId == ownerId)
-        .length;
+    return ids.where((id) => data.wishes[id]?.ownerId == ownerId).length;
   }
 
   @override
@@ -312,8 +308,7 @@ class MemoryWishlistRepository implements WishlistRepository {
     ];
   }
 
-  List<int> _itemIds(int wishlistId) =>
-      data.items[wishlistId] ?? const <int>[];
+  List<int> _itemIds(int wishlistId) => data.items[wishlistId] ?? const <int>[];
 
   @override
   Future<int> maxItemPosition(int wishlistId) async {
@@ -398,6 +393,15 @@ WishlistService memoryWishlistService(MemoryWishlistData data) {
     db: _UnusedExecutor(),
     transaction: <R>(action) => action(_UnusedExecutor()),
     wishlists: (_) => MemoryWishlistRepository(data),
+    wishes: (_) => MemoryWishRepository(data.wishStore),
+    users: (_) => MemoryUserRepository(data),
+  );
+}
+
+WishService memoryWishServiceFromLists(MemoryWishlistData data) {
+  return WishService(
+    db: _UnusedExecutor(),
+    transaction: <R>(action) => action(_UnusedExecutor()),
     wishes: (_) => MemoryWishRepository(data.wishStore),
     users: (_) => MemoryUserRepository(data),
   );
@@ -599,8 +603,7 @@ SubscriptionService memorySubscriptionService(MemoryWishlistData data) {
   return SubscriptionService(
     db: _UnusedExecutor(),
     transaction: <R>(action) => action(_UnusedExecutor()),
-    wishlistSubscriptions: (_) =>
-        MemoryWishlistSubscriptionRepository(data),
+    wishlistSubscriptions: (_) => MemoryWishlistSubscriptionRepository(data),
     userSubscriptions: (_) => MemoryUserSubscriptionRepository(data),
     wishlists: (_) => MemoryWishlistRepository(data),
     users: (_) => MemoryUserRepository(data),
