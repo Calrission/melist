@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:melist_backend/melist_backend.dart';
 import 'package:test/test.dart';
 
@@ -114,8 +116,9 @@ void main() {
         ]),
       );
       expect(
-        (paths['/api/wishlists'] as Map<String, dynamic>)
-            .containsKey('parameters'),
+        (paths['/api/wishlists'] as Map<String, dynamic>).containsKey(
+          'parameters',
+        ),
         isFalse,
       );
     });
@@ -164,5 +167,45 @@ void main() {
       (item['get'] as Map<String, dynamic>)['security'],
       isNotNull,
     );
+    expect(
+      (spec['info'] as Map<String, dynamic>)['title'],
+      openApiTitle,
+    );
+    expect(
+      (spec['info'] as Map<String, dynamic>)['version'],
+      packageVersion(),
+    );
+  });
+
+  group('applyOpenApiInfo', () {
+    test('replaces Dart Frog defaults with pubspec version', () {
+      final spec = <String, dynamic>{
+        'info': {'title': 'Dart Frog API', 'version': '1.0.0'},
+        'paths': <String, Object>{},
+      };
+
+      applyOpenApiInfo(spec);
+
+      final info = spec['info'] as Map<String, dynamic>;
+      expect(info['title'], openApiTitle);
+      expect(info['version'], packageVersion());
+      expect(info['version'], isNot('1.0.0'));
+    });
+
+    test('uses an explicit version when given', () {
+      final spec = <String, dynamic>{'paths': <String, Object>{}};
+      applyOpenApiInfo(spec, version: '9.9.9');
+      expect(
+        (spec['info'] as Map<String, dynamic>)['version'],
+        '9.9.9',
+      );
+    });
+  });
+
+  group('parsePubspecVersion', () {
+    test('reads the version field', () {
+      expect(parsePubspecVersion('name: x\nversion: 0.1.1\n'), '0.1.1');
+      expect(parsePubspecVersion("version: '1.2.3+4'\n"), '1.2.3+4');
+    });
   });
 }

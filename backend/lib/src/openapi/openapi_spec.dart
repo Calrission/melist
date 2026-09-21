@@ -1,10 +1,72 @@
+import 'dart:io';
+
+/// Swagger UI page and OpenAPI `info.title`.
+const openApiTitle = 'MELIST API';
+
+/// Used when `pubspec.yaml` is not on disk (AOT image).
+/// Keep equal to `version:` in `backend/pubspec.yaml`.
+const openApiFallbackVersion = '0.1.0';
+
 /// Patches the generated OpenAPI spec so Swagger UI is usable.
 ///
-/// `dart_frog_swagger` does not emit `security` or path `parameters`.
+/// `dart_frog_swagger` does not emit `security` or path `parameters`,
+/// and hardcodes `info` as "Dart Frog API" / "1.0.0".
 Map<String, dynamic> applyOpenApiSpec(Map<String, dynamic> spec) {
   applyOpenApiPathParameters(spec);
   applyOpenApiBearerAuth(spec);
+  applyOpenApiInfo(spec);
   return spec;
+}
+
+/// Sets `info.title` and `info.version` from [openApiTitle] and pubspec.
+Map<String, dynamic> applyOpenApiInfo(
+  Map<String, dynamic> spec, {
+  String title = openApiTitle,
+  String? version,
+}) {
+  final info = _asStringMap(spec['info']) ?? <String, dynamic>{};
+  spec['info'] = info;
+  info['title'] = title;
+  info['version'] = version ?? packageVersion();
+  return spec;
+}
+
+/// `version:` from the nearest `pubspec.yaml`, else [openApiFallbackVersion].
+String packageVersion({
+  List<String> candidatePaths = const [
+    'pubspec.yaml',
+    'backend/pubspec.yaml',
+  ],
+}) {
+  for (final path in candidatePaths) {
+    final file = File(path);
+    if (!file.existsSync()) {
+      continue;
+    }
+    return parsePubspecVersion(file.readAsStringSync());
+  }
+  return openApiFallbackVersion;
+}
+
+String parsePubspecVersion(String yaml) {
+  final match = RegExp(
+    r'^version:\s*(.+)$',
+    multiLine: true,
+  ).firstMatch(yaml);
+  var value = match?.group(1)?.trim() ?? '';
+  final comment = value.indexOf('#');
+  if (comment != -1) {
+    value = value.substring(0, comment).trim();
+  }
+  if (value.length >= 2 &&
+      ((value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'")))) {
+    value = value.substring(1, value.length - 1);
+  }
+  if (value.isEmpty) {
+    throw const FormatException('pubspec.yaml has no version');
+  }
+  return value;
 }
 
 /// Declares `{param}` segments as required path parameters.

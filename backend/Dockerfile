@@ -23,6 +23,7 @@ RUN dart pub global activate dart_frog_cli
 ENV PATH="/root/.pub-cache/bin:${PATH}"
 RUN dart_frog build
 RUN dart run dart_frog_swagger
+RUN dart run tool/patch_openapi.dart
 
 WORKDIR /workspace/backend/build
 RUN dart pub get
@@ -33,6 +34,8 @@ COPY --from=build /runtime/ /
 COPY --from=build /server /bin/server
 COPY --from=build /workspace/backend/build/openapi.json \
     /app/build/openapi.json
+COPY --from=build /workspace/backend/pubspec.yaml \
+    /app/pubspec.yaml
 WORKDIR /app
 ENV PORT=8080
 EXPOSE 8080
