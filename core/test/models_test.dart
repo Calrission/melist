@@ -41,6 +41,62 @@ void main() {
     });
   });
 
+  group('PublicProfileModel', () {
+    test('fromJson / toJson round-trip', () {
+      final json = {
+        'user': {
+          'id': 42,
+          'firstName': 'Ann',
+          'lastName': 'Lee',
+          'username': 'ann',
+          'avatarUrl': 'https://t.me/i/userpic/320/a.svg',
+          'birthday': '1990-05-12',
+          'theme': 'dark',
+          'createdAt': '2026-01-01T00:00:00.000Z',
+          'updatedAt': '2026-01-02T00:00:00.000Z',
+        },
+        'wishlists': [
+          {
+            'id': 3,
+            'ownerId': 42,
+            'name': 'Birthday',
+            'description': null,
+            'color': '#FFB74D',
+            'visibility': 'public',
+            'position': 0,
+            'shareToken': 'abc',
+            'items': <Object?>[],
+            'createdAt': null,
+            'updatedAt': null,
+          },
+        ],
+      };
+
+      final profile = PublicProfileModel.fromJson(json);
+
+      expect(profile.user.id, 42);
+      expect(profile.user.username, 'ann');
+      expect(profile.wishlists, hasLength(1));
+      expect(profile.wishlists.first.name, 'Birthday');
+      expect(profile.toJson(), json);
+    });
+
+    test('treats missing wishlists as empty', () {
+      final profile = PublicProfileModel.fromJson({
+        'user': {'id': 1},
+      });
+
+      expect(profile.wishlists, isEmpty);
+    });
+
+    test('rejects a missing user object', () {
+      expect(
+        () => PublicProfileModel.fromJson({'wishlists': <Object>[]}),
+        throwsFormatException,
+      );
+    });
+  });
+
   group('UserModel', () {
     test('fromJson / toJson round-trip', () {
       final json = {

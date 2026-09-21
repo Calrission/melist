@@ -112,11 +112,7 @@ T decodeEnum<T extends Enum>(List<T> values, Object? raw, String typeName) {
   throw FormatException('Unknown $typeName: $raw');
 }
 
-T? optionalEnum<T extends Enum>(
-  List<T> values,
-  Object? raw,
-  String typeName,
-) {
+T? optionalEnum<T extends Enum>(List<T> values, Object? raw, String typeName) {
   if (raw == null) {
     return null;
   }

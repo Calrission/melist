@@ -25,9 +25,9 @@ void main() {
     AuthUser auth = guest,
   }) {
     return TestRequestContext(
-      path: '/api/users/$id',
-      method: method,
-    )
+        path: '/api/users/$id',
+        method: method,
+      )
       ..provide<AuthUser>(auth)
       ..provide<ProfileService>(profiles);
   }

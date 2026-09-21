@@ -35,14 +35,7 @@ Future<Response> handlePublicUser(RequestContext context, String id) async {
 
   try {
     final profile = await profiles.getPublic(parsePathId(id));
-    return Response.json(
-      body: {
-        'user': profile.user.toJson(),
-        'wishlists': [
-          for (final wishlist in profile.wishlists) wishlist.toJson(),
-        ],
-      },
-    );
+    return Response.json(body: profile.toJson());
   } on AppException catch (error) {
     return appError(error);
   }

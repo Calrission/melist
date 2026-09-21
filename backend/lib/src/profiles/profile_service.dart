@@ -70,15 +70,13 @@ class ProfileService {
     return updated;
   }
 
-  Future<({UserModel user, List<WishlistModel> wishlists})> getPublic(
-    int id,
-  ) async {
+  Future<PublicProfileModel> getPublic(int id) async {
     final user = await _repo.findById(id);
     if (user == null) {
       throw const NotFoundException('User not found');
     }
     final wishlists = await _wishlists(_db).listPublicByOwner(id);
-    return (user: user, wishlists: wishlists);
+    return PublicProfileModel(user: user, wishlists: wishlists);
   }
 
   UiTheme _theme(String raw) {
