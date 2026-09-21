@@ -60,6 +60,8 @@ backend/
 │   ├── integration/            # тесты на реальной PostgreSQL (TEST_DATABASE_URL), иначе skip
 │   └── helpers/                # тестовый initData, FakePool для Database
 ├── dart_test.yaml              # тег integration
+├── docker-compose.yml          # PostgreSQL + API
+├── Dockerfile                  # образ API, контекст — корень репозитория
 ├── build/openapi.json          # генерируется, в git не попадает
 ├── .env                        # секреты, в git не попадает
 └── .example_env                # шаблон .env
@@ -111,11 +113,21 @@ Ctrl+C / SIGTERM закрывают пул.
 
 Пароль с спецсимволами — percent-encode (`p%40ss`). Неизвестный параметр или неверное значение — `FormatException` на старте.
 
-Локальная БД для разработки:
+Локальный стек — [`docker-compose.yml`](../../backend/docker-compose.yml): PostgreSQL и API. Образ API собирается из [`Dockerfile`](../../backend/Dockerfile) (workspace без frontend). С хоста Postgres — порт **5433**, API — **8080**. `DATABASE_URL` внутри контейнера — `postgres://melist:melist@db:5432/melist?sslmode=disable` (хост `db`, не `localhost`).
 
 ```powershell
-docker run -d --name melist-pg -e POSTGRES_USER=melist -e POSTGRES_PASSWORD=melist -e POSTGRES_DB=melist -p 5432:5432 postgres:16
+cd backend
+Copy-Item .example_env .env   # заполнить BOT_TOKEN и JWT_SECRET
+docker compose up -d --build
 ```
+
+Только Postgres, API через `dart_frog dev` на хосте:
+
+```powershell
+docker compose up -d db
+```
+
+`DATABASE_URL` в `.env` для хоста: `postgres://melist:melist@localhost:5433/melist?sslmode=disable`.
 
 ## Команды
 
@@ -149,9 +161,12 @@ $env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=d
 dart test test/routes/auth/validate_test.dart
 dart test -n "POST /auth/validate"
 
-# production-сборка (build/, включая Dockerfile)
+# production-сборка (build/, включая сгенерированный Dockerfile)
 dart_frog build
 dart build/bin/server.dart
+
+# API + PostgreSQL в Docker (нужен backend/.env)
+docker compose up -d --build
 ```
 
 Swagger UI: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`. Если `build/openapi.json` отсутствует, `/docs` покажет подсказку с командой генерации.

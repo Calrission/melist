@@ -86,7 +86,7 @@ Future<Response> onRequest(RequestContext context) async {
 
 ## 9. Развёртывание
 
-- `dart_frog build` собирает `build/` с `Dockerfile`; запускать `dart build/bin/server.dart`.
+- `dart_frog build` собирает `build/` с `Dockerfile`; локальный стек — `backend/docker-compose.yml` и `backend/Dockerfile` (контекст сборки — корень монорепо, без frontend). Запускать `dart build/bin/server.dart` или `docker compose up --build` из `backend/`.
 - Порт берётся из `PORT` (по умолчанию `8080`), хост — `0.0.0.0` в контейнере.
 - Перед сборкой в CI запускайте `dart run dart_frog_swagger`, иначе `/docs` покажет ошибку об отсутствующем `openapi.json`.
 

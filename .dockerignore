@@ -1,0 +1,13 @@
+.git
+.idea
+.dart_tool
+**/.dart_tool
+**/.pub
+**/.dart_frog
+**/build
+**/coverage
+**/*.md
+**/*.env
+frontend
+docs
+**/.DS_Store

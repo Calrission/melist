@@ -16,5 +16,23 @@ services:
       timeout: 3s
       retries: 10
 
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: melist-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+      # Hostname `db` is the compose network; do not use localhost from .env.
+      DATABASE_URL: postgres://melist:melist@db:5432/melist?sslmode=disable
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   melist-pg-data:

@@ -6,22 +6,25 @@ Telegram Mini App для вишлистов: пользователь собир
 
 ```
 melist/
-├── frontend/   # Flutter Web (Telegram Mini App)
-├── backend/    # Dart Frog API + PostgreSQL
-├── core/       # общие модели (melist_core)
-└── docs/       # документация
+├── frontend/              # Flutter Web (Telegram Mini App)
+├── backend/               # Dart Frog API
+│   ├── docker-compose.yml # PostgreSQL + API
+│   └── Dockerfile         # образ API, контекст — корень репозитория
+├── core/                  # общие модели (melist_core)
+└── docs/                  # документация
 ```
 
-Конфигурации запуска IntelliJ / Android Studio лежат в [`.idea/runConfigurations/`](.idea/runConfigurations/) и совпадают с командами ниже.
+Конфигурации запуска IntelliJ / Android Studio — [`.idea/runConfigurations/`](.idea/runConfigurations/). Они совпадают с командами frontend и локального `dart_frog dev` ниже. Стек API в Docker запускается compose, не из IDE.
 
 ## Требования
 
-- [Flutter](https://flutter.dev) / Dart SDK `^3.12`
-- [Docker](https://docs.docker.com/get-docker/) — PostgreSQL
-- Токен Telegram-бота (`BOT_TOKEN`)
-- [ngrok](https://ngrok.com/) — публичный HTTPS для Mini App (конфиг `ngrok`)
+- [Docker](https://docs.docker.com/get-docker/) — Postgres и API
+- Токен Telegram-бота (`BOT_TOKEN`) и `JWT_SECRET` в `backend/.env`
 
-Один раз поставить CLI:
+Для frontend, тестов и hot reload API на хосте дополнительно:
+
+- [Flutter](https://flutter.dev) / Dart SDK `^3.12`
+- [ngrok](https://ngrok.com/) — публичный HTTPS Mini App (конфиг `ngrok`)
 
 ```powershell
 dart pub global activate dart_frog_cli
@@ -33,102 +36,103 @@ dart pub global activate web_cache_killer
 
 ## Первый запуск
 
-Из корня репозитория:
-
-```powershell
-flutter pub get
-```
-
-Backend: скопировать шаблон env и заполнить секреты.
-
 ```powershell
 Copy-Item backend/.example_env backend/.env
 ```
 
-Минимум в `backend/.env`:
+Заполнить в `backend/.env`:
 
 ```
 BOT_TOKEN=<токен бота>
 JWT_SECRET=<случайная строка>
-DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
 BOT_USERNAME=melist_bot
 DEBUG_AUTH=true
 ```
 
 `DEBUG_AUTH=true` — локальный Bearer без Telegram (`DEBUG_TOKEN`, по умолчанию `dev-admin`). На проде не включать.
 
-PostgreSQL из [`backend/docker-compose.yml`](backend/docker-compose.yml) слушает **хост-порт 5433** (внутри контейнера 5432):
+`DATABASE_URL` в `.env` нужен **хостовому** `dart_frog dev` (порт **5433**). Контейнер API его игнорирует и ходит в сервис `db` на `5432`.
+
+```
+DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
+```
+
+Зависимости workspace — если будете собирать frontend или гонять тесты:
+
+```powershell
+flutter pub get
+```
+
+## Backend (Docker)
+
+Из `backend/`. Нужен заполненный `.env` (`BOT_TOKEN`, `JWT_SECRET`).
 
 ```powershell
 cd backend
-docker compose up -d
+docker compose up -d --build
 ```
 
-Шаблон `.example_env` указывает `localhost:5432`. С compose нужен порт **5433**, как в `DATABASE_URL` выше.
+| Сервис | Контейнер | С хоста |
+|---|---|---|
+| API | `melist-api` | [http://localhost:8080](http://localhost:8080) |
+| PostgreSQL | `melist-pg` | `localhost:5433` |
 
-## Запуск
+- Health: [http://localhost:8080/health](http://localhost:8080/health)
+- Swagger: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`
+- Внутри API `DATABASE_URL` = `postgres://melist:melist@db:5432/melist?sslmode=disable`
 
-Те же команды, что в IDE. Запускать в отдельных терминалах (или через Run Configurations).
+Остановить: `docker compose down`. Данные Postgres остаются в томе `melist-pg-data`.
 
-| Конфиг IDE | Каталог | Команда | Зачем |
-|---|---|---|---|
-| `backend` | `backend/` | `dart_frog dev` | API с hot reload, [http://localhost:8080](http://localhost:8080) |
-| `build-dev` | `frontend/` | `web_cache_killer` | Сборка Flutter Web с cache-busting → `frontend/build/web` |
-| `web-server` | `frontend/` | `dhttpd --port 55456 --path build/web` | Статика Mini App, [http://localhost:55456](http://localhost:55456) |
-| `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run` | Релизная сборка в `frontend/build/web` |
-| `ngrok` | корень | `ngrok http 55456` | HTTPS-туннель для BotFather / Telegram |
-
-### Локальный контур Mini App
-
-1. PostgreSQL: `docker compose up -d` из `backend/`.
-2. API: конфиг **backend** → Swagger на [http://localhost:8080/docs](http://localhost:8080/docs), health — [http://localhost:8080/health](http://localhost:8080/health).
-3. Сборка клиента: конфиг **build-dev**.
-4. Раздача: конфиг **web-server**.
-5. Публичный URL: конфиг **ngrok**. HTTPS из ngrok указать в BotFather как Web App URL.
-
-После правок frontend снова **build-dev**, затем перезагрузить Mini App в Telegram (кэш JS сбивается timestamp’ами в именах файлов).
-
-Для Swagger без Mini App: Authorize → вставить `DEBUG_TOKEN` (без `Bearer`) или JWT из `POST /auth/validate`.
-
-### Команды вручную
+Только база, API на хосте с hot reload (конфиг IDE **backend**):
 
 ```powershell
-# API
+docker compose up -d db
 cd backend
 dart_frog dev
-
-# Клиент: сборка с cache-busting (как build-dev)
-cd frontend
-web_cache_killer
-
-# Клиент: раздача (как web-server)
-cd frontend
-dhttpd --port 55456 --path build/web
-
-# Клиент: релиз (как build-release)
-cd frontend
-flutter build web --release --no-wasm-dry-run
-
-# Туннель (как ngrok)
-ngrok http 55456
 ```
 
-OpenAPI после изменения `@Route`:
+Не запускайте `dart_frog dev` и контейнер `melist-api` одновременно: оба слушают **8080**.
+
+В Swagger Authorize вставить `DEBUG_TOKEN` (без `Bearer`) или JWT из `POST /auth/validate`.
+
+OpenAPI после изменения `@Route` (для `dart_frog dev`; в образе генерируется при `docker compose build`):
 
 ```powershell
 cd backend
 dart run dart_frog_swagger
 ```
 
-## Тесты и анализ
+## Frontend (конфиги IDE)
+
+Запускать в отдельных терминалах. Сначала собрать, потом раздать.
+
+| Конфиг IDE | Каталог | Команда | Зачем |
+|---|---|---|---|
+| `build-dev` | `frontend/` | `web_cache_killer` | Сборка Flutter Web с cache-busting → `frontend/build/web` |
+| `web-server` | `frontend/` | `dhttpd --port 55456 --path build/web` | Статика Mini App, [http://localhost:55456](http://localhost:55456) |
+| `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run` | Релизная сборка в `frontend/build/web` |
+| `ngrok` | корень | `ngrok http 55456` | HTTPS-туннель для BotFather / Telegram |
+| `backend` | `backend/` | `dart_frog dev` | API на хосте, если не используете контейнер `melist-api` |
 
 ```powershell
-# workspace: зависимости уже стоят через flutter pub get из корня
+cd frontend
+web_cache_killer
+dhttpd --port 55456 --path build/web
 
+# в другом терминале, из корня репозитория
+ngrok http 55456
+```
+
+HTTPS из ngrok указать в BotFather как Web App URL. После правок frontend снова **build-dev**, затем перезагрузить Mini App в Telegram.
+
+## Тесты и анализ
+
+Нужны `flutter pub get` из корня и живой Postgres на `localhost:5433` для интеграционных тестов.
+
+```powershell
 cd backend
 dart analyze
 dart test
-# интеграционные тесты на живой PostgreSQL (создают временную БД и удаляют её)
 $env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
 
 cd ../core
