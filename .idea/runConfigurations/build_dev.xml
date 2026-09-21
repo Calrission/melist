@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="build-dev" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="web_cache_killer" />
+    <option name="SCRIPT_TEXT" value="web_cache_killer; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; if (Test-Path .build) { Remove-Item -Recurse -Force .build }; Rename-Item build .build" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />

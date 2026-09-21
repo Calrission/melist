@@ -6,7 +6,7 @@ Telegram Mini App для вишлистов: пользователь собир
 
 ```
 melist/
-├── frontend/              # Flutter Web (Telegram Mini App)
+├── frontend/              # Flutter Web (Telegram Mini App), сборка → `.build/web`
 ├── backend/               # Dart Frog API
 │   ├── docker-compose.yml # PostgreSQL + API
 │   └── Dockerfile         # образ API, контекст — корень репозитория
@@ -108,16 +108,21 @@ dart run dart_frog_swagger
 
 | Конфиг IDE | Каталог | Команда | Зачем |
 |---|---|---|---|
-| `build-dev` | `frontend/` | `web_cache_killer` | Сборка Flutter Web с cache-busting → `frontend/build/web` |
-| `web-server` | `frontend/` | `dhttpd --port 55456 --path build/web` | Статика Mini App, [http://localhost:55456](http://localhost:55456) |
-| `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run` | Релизная сборка в `frontend/build/web` |
+| `build-dev` | `frontend/` | `web_cache_killer`, затем `build/` → `.build/` | Сборка Flutter Web с cache-busting → `frontend/.build/web` |
+| `web-server` | `frontend/` | `dhttpd --port 55456 --path .build/web` | Статика Mini App, [http://localhost:55456](http://localhost:55456) |
+| `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run -o .build/web` | Релизная сборка в `frontend/.build/web` |
 | `ngrok` | корень | `ngrok http 55456` | HTTPS-туннель для BotFather / Telegram |
 | `backend` | `backend/` | `dart_frog dev` | API на хосте, если не используете контейнер `melist-api` |
+
+`web_cache_killer` всегда пишет в `build/`; после успешной сборки каталог переименовывается в `.build/` (в gitignore). Раздавать нужно `.build/web`.
 
 ```powershell
 cd frontend
 web_cache_killer
-dhttpd --port 55456 --path build/web
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+if (Test-Path .build) { Remove-Item -Recurse -Force .build }
+Rename-Item build .build
+dhttpd --port 55456 --path .build/web
 
 # в другом терминале, из корня репозитория
 ngrok http 55456

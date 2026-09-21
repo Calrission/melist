@@ -6,7 +6,7 @@ MELIST — Telegram Mini App для создания виш-листов к пр
 
 ```
 melist/
-├── frontend/   # Flutter Web (Telegram Mini App)
+├── frontend/   # Flutter Web (Telegram Mini App), артефакты в `.build/web`
 ├── backend/    # Dart Frog API + PostgreSQL
 ├── core/       # общие модели (melist_core)
 └── docs/       # документация
