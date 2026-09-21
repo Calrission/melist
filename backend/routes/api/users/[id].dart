@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/profiles/profile_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
@@ -23,16 +24,12 @@ import 'package:melist_backend/melist_backend.dart';
         },
       },
     ),
+    badRequestResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context, String id) async {
-  final rejected = rejectUnlessMethod(context, {HttpMethod.get});
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context, String id) {
+  return handlePublicUser(context, id);
 }

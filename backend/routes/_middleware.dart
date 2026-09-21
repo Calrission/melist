@@ -35,6 +35,39 @@ Handler middleware(Handler handler) {
         ),
       )
       .use(
+        provider<WishService>(
+          (context) => WishService.fromDatabase(
+            context.read<Database>(),
+          ),
+        ),
+      )
+      .use(
+        provider<FavoriteService>(
+          (context) => FavoriteService.fromDatabase(
+            context.read<Database>(),
+          ),
+        ),
+      )
+      .use(
+        provider<UserRepository>(
+          (context) => UserRepository(context.read<Database>()),
+        ),
+      )
+      .use(
+        provider<ProfileService>(
+          (context) => ProfileService.fromDatabase(
+            context.read<Database>(),
+          ),
+        ),
+      )
+      .use(
+        provider<SubscriptionService>(
+          (context) => SubscriptionService.fromDatabase(
+            context.read<Database>(),
+          ),
+        ),
+      )
+      .use(
         swaggerMiddleware(
           title: 'MELIST API',
           projectRoot: '.',

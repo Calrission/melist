@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/subscriptions/subscription_handlers.dart';
 
 @Route(
   method: HttpMethod.delete,
@@ -11,15 +12,10 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     noContentResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context, String userId) async {
-  final rejected = rejectUnlessMethod(context, {HttpMethod.delete});
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context, String userId) {
+  return handleUserUnsubscribe(context, userId);
 }

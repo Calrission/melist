@@ -95,12 +95,32 @@ void main() {
       expectJsonBody(response, {'error': 'name is required'});
     });
 
-    test('PATCH reorder stays unimplemented', () async {
+    test('PATCH reorders own wishlists', () async {
+      final first = await service.create(user, name: 'A');
+      final second = await service.create(user, name: 'B');
+
       final response = await handleWishlistsCollection(
-        contextFor(HttpMethod.patch, body: {'order': [1]}).context,
+        contextFor(
+          HttpMethod.patch,
+          body: {
+            'order': [second.id, first.id],
+          },
+        ).context,
       );
 
-      expect(response, isNotImplemented);
+      expect(response.statusCode, HttpStatus.noContent);
+      expect(
+        (await service.listMine(user)).map((item) => item.name),
+        ['B', 'A'],
+      );
+    });
+
+    test('PATCH responds 400 when order is missing', () async {
+      final response = await handleWishlistsCollection(
+        contextFor(HttpMethod.patch, body: {}).context,
+      );
+
+      expect(response, isBadRequest);
     });
 
     test('DELETE removes own wishlists', () async {

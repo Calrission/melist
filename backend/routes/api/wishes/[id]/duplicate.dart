@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/wishes/wish_handlers.dart';
 
 @Route(
   method: HttpMethod.post,
@@ -14,17 +15,13 @@ import 'package:melist_backend/melist_backend.dart';
       description: 'The new copy.',
       schema: wishSchema,
     ),
+    badRequestResponse,
     forbiddenResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context, String id) async {
-  final rejected = rejectUnlessMethod(context, {HttpMethod.post});
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context, String id) {
+  return handleWishDuplicate(context, id);
 }

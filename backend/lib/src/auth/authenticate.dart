@@ -3,12 +3,14 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:melist_backend/src/auth/init_data_validator.dart';
 import 'package:melist_backend/src/auth/jwt_service.dart';
+import 'package:melist_backend/src/data/user_repository.dart';
 import 'package:melist_core/melist_core.dart';
 
 Future<Response> authenticateWithInitData({
   required Request request,
   required InitDataValidator validator,
   required JwtService jwtService,
+  required UserRepository users,
 }) async {
   final initData = await _readInitData(request);
   if (initData == null) {
@@ -18,8 +20,9 @@ Future<Response> authenticateWithInitData({
     );
   }
 
-  return switch (validator.validate(initData)) {
-    InitDataFailure(:final reason) => Response.json(
+  switch (validator.validate(initData)) {
+    case InitDataFailure(:final reason):
+      return Response.json(
         statusCode: HttpStatus.unauthorized,
         body: {
           'error': switch (reason) {
@@ -27,16 +30,18 @@ Future<Response> authenticateWithInitData({
             InitDataFailureReason.invalid => 'Invalid initData',
           },
         },
-      ),
-    InitDataSuccess(:final user) => Response.json(
+      );
+    case InitDataSuccess(:final user):
+      await users.upsertTelegram(user);
+      return Response.json(
         body: {
           'accessToken': jwtService.issueAccessToken(user),
           'tokenType': 'Bearer',
           'expiresIn': jwtService.accessTokenTtl.inSeconds,
           'user': _userJson(user),
         },
-      ),
-  };
+      );
+  }
 }
 
 Future<String?> _readInitData(Request request) async {

@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/subscriptions/subscription_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
@@ -11,13 +12,14 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     ApiResponse(
       statusCode: 200,
-      description: 'Followed users.',
+      description: 'Followed users, newest first.',
       schema: {
         'type': 'array',
         'items': userSchema,
       },
     ),
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -38,21 +40,18 @@ import 'package:melist_backend/melist_backend.dart';
     example: {'userId': 42},
   ),
   responses: [
-    ApiResponse(statusCode: 201, description: 'Subscribed.'),
+    ApiResponse(
+      statusCode: 201,
+      description: 'Subscribed user.',
+      schema: userSchema,
+    ),
     badRequestResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    conflictResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context) async {
-  final rejected = rejectUnlessMethod(
-    context,
-    {HttpMethod.get, HttpMethod.post},
-  );
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context) {
+  return handleUserSubscriptions(context);
 }

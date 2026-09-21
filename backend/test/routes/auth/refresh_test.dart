@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import '../../../routes/auth/refresh.dart' as route;
 import '../../helpers/init_data.dart';
+import '../../helpers/memory_wishlists.dart';
 
 class _MockRequestContext extends Mock implements RequestContext {}
 
@@ -18,12 +19,14 @@ void main() {
     clock: () => now,
   );
   const jwtService = JwtService(secret: 'test-secret');
+  final users = MemoryUserRepository(MemoryWishlistData());
 
   RequestContext contextWith(Request request) {
     final context = _MockRequestContext();
     when(() => context.request).thenReturn(request);
     when(() => context.read<InitDataValidator>()).thenReturn(validator);
     when(() => context.read<JwtService>()).thenReturn(jwtService);
+    when(() => context.read<UserRepository>()).thenReturn(users);
     return context;
   }
 

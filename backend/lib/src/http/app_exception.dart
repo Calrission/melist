@@ -25,3 +25,8 @@ final class NotFoundException extends AppException {
   const NotFoundException([String message = 'Not found'])
     : super(HttpStatus.notFound, message);
 }
+
+final class ConflictException extends AppException {
+  const ConflictException([String message = 'Conflict'])
+    : super(HttpStatus.conflict, message);
+}

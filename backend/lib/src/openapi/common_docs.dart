@@ -25,6 +25,12 @@ const notFoundResponse = ApiResponse(
   schema: errorSchema,
 );
 
+const conflictResponse = ApiResponse(
+  statusCode: 409,
+  description: 'Wish is already in the wishlist.',
+  schema: errorSchema,
+);
+
 const badRequestResponse = ApiResponse(
   statusCode: 400,
   description: 'Invalid request body.',

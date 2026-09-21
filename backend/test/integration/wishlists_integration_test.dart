@@ -95,6 +95,91 @@ void main() {
         await wishlists.deleteMany(owner, [first.id, second.id]);
         expect(await wishlists.listMine(owner), isEmpty);
       });
+
+      test('add, reorder, copy and detach wishes', () async {
+        final wishes = WishService.fromDatabase(db);
+        final list = await wishlists.create(owner, name: 'Birthday');
+        final created = await wishlists.addWish(
+          owner,
+          list.id,
+          wish: {'name': 'Book', 'price': 500},
+        );
+        expect(created.ownerId, 42);
+
+        final second = await wishlists.addWish(
+          owner,
+          list.id,
+          wish: {'name': 'Headphones'},
+        );
+        await wishlists.reorderWishes(owner, list.id, [
+          second.id,
+          created.id,
+        ]);
+        expect(
+          (await wishlists.getById(owner, list.id)).items.map(
+            (item) => item.id,
+          ),
+          [second.id, created.id],
+        );
+
+        const stranger = AuthUser(id: 43, firstName: 'Bob');
+        final publicList = await wishlists.create(
+          stranger,
+          name: 'Public',
+          visibility: 'public',
+        );
+        final source = await wishlists.addWish(
+          stranger,
+          publicList.id,
+          wish: {'name': 'Camera'},
+        );
+        final copy = await wishlists.addWish(
+          owner,
+          list.id,
+          copyFromWishId: source.id,
+        );
+        expect(copy.copiedFrom, source.id);
+        expect(copy.ownerId, 42);
+
+        await wishlists.removeWish(owner, list.id, created.id);
+        expect(
+          (await wishlists.getById(owner, list.id)).items.map(
+            (item) => item.id,
+          ),
+          [second.id, copy.id],
+        );
+        expect((await wishes.getById(owner, created.id)).name, 'Book');
+      });
+
+      test('reorder wishlists and share a draft by token', () async {
+        const sorter = AuthUser(id: 77, firstName: 'Cara');
+        final first = await wishlists.create(sorter, name: 'A');
+        final second = await wishlists.create(sorter, name: 'B');
+        await wishlists.reorder(sorter, [second.id, first.id]);
+        expect(
+          (await wishlists.listMine(sorter)).map((item) => item.name),
+          ['B', 'A'],
+        );
+
+        await wishlists.addWish(
+          sorter,
+          first.id,
+          wish: {'name': 'Secret', 'visibility': 'private'},
+        );
+        await wishlists.addWish(
+          sorter,
+          first.id,
+          wish: {'name': 'Camera'},
+        );
+        final token = await wishlists.share(sorter, first.id);
+        expect(token, isNotEmpty);
+        expect(await wishlists.share(sorter, first.id), token);
+
+        const stranger = AuthUser(id: 99, firstName: 'Guest');
+        final shared = await wishlists.getShared(stranger, 'wl_$token');
+        expect(shared.id, first.id);
+        expect(shared.items.map((item) => item.name), ['Camera']);
+      });
     },
   );
 }

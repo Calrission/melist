@@ -24,5 +24,6 @@ Future<Response> onRequest(RequestContext context) async {
     request: context.request,
     validator: context.read<InitDataValidator>(),
     jwtService: context.read<JwtService>(),
+    users: context.read<UserRepository>(),
   );
 }

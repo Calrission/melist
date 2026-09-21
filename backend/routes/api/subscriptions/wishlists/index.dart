@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/subscriptions/subscription_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
@@ -11,20 +12,21 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     ApiResponse(
       statusCode: 200,
-      description: 'Followed wishlists.',
+      description: 'Followed public wishlists, newest first.',
       schema: {
         'type': 'array',
         'items': wishlistSchema,
       },
     ),
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
   method: HttpMethod.post,
   path: '/api/subscriptions/wishlists',
   summary: 'Subscribe to wishlist',
-  description: 'Start following changes of a wishlist. (30)',
+  description: 'Start following changes of a public wishlist. (30)',
   tags: ['Subscriptions'],
   requestBody: ApiRequestBody(
     required: true,
@@ -38,21 +40,18 @@ import 'package:melist_backend/melist_backend.dart';
     example: {'wishlistId': 1},
   ),
   responses: [
-    ApiResponse(statusCode: 201, description: 'Subscribed.'),
+    ApiResponse(
+      statusCode: 201,
+      description: 'Subscribed wishlist.',
+      schema: wishlistSchema,
+    ),
     badRequestResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    conflictResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context) async {
-  final rejected = rejectUnlessMethod(
-    context,
-    {HttpMethod.get, HttpMethod.post},
-  );
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context) {
+  return handleWishlistSubscriptions(context);
 }

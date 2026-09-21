@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import '../../../routes/auth/validate.dart' as route;
 import '../../helpers/init_data.dart';
+import '../../helpers/memory_wishlists.dart';
 
 class _MockRequestContext extends Mock implements RequestContext {}
 
@@ -19,13 +20,22 @@ void main() {
   );
   const jwtService = JwtService(secret: 'test-secret');
 
+  late MemoryWishlistData usersData;
+  late MemoryUserRepository users;
+
   RequestContext contextWith(Request request) {
     final context = _MockRequestContext();
     when(() => context.request).thenReturn(request);
     when(() => context.read<InitDataValidator>()).thenReturn(validator);
     when(() => context.read<JwtService>()).thenReturn(jwtService);
+    when(() => context.read<UserRepository>()).thenReturn(users);
     return context;
   }
+
+  setUp(() {
+    usersData = MemoryWishlistData();
+    users = MemoryUserRepository(usersData);
+  });
 
   group('POST /auth/validate', () {
     test('responds with 405 when the method is not POST', () async {
@@ -122,6 +132,9 @@ void main() {
         'avatarUrl': 'https://t.me/i/userpic/320/test.svg',
       }));
       expect(jwt.subject, equals('279058397'));
+      expect(usersData.users[279058397]?.avatarUrl, equals(
+        'https://t.me/i/userpic/320/test.svg',
+      ));
     });
   });
 }

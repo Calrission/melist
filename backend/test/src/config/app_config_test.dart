@@ -61,6 +61,7 @@ DATABASE_URL=postgres://file@localhost/melist
       expect(config.debugAuth, isFalse);
       expect(config.debugToken, isNull);
       expect(config.debugUserId, equals(1));
+      expect(config.botUsername, equals('melist_bot'));
     });
 
     test('reads optional debug auth settings', () {
@@ -78,6 +79,19 @@ DEBUG_USER_ID=42
       expect(config.debugAuth, isTrue);
       expect(config.debugToken, equals('local-admin'));
       expect(config.debugUserId, equals(42));
+    });
+
+    test('reads BOT_USERNAME and strips a leading @', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+BOT_USERNAME=@custom_bot
+''');
+
+      final config = AppConfig.load(files: [envFile], environment: const {});
+
+      expect(config.botUsername, equals('custom_bot'));
     });
 
     test('treats 1 and yes as DEBUG_AUTH enabled', () {

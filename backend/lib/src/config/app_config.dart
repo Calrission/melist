@@ -12,6 +12,7 @@ class AppConfig {
     this.debugAuth = false,
     this.debugToken,
     this.debugUserId = 1,
+    this.botUsername = 'melist_bot',
   });
 
   /// Reads [files] (`.env` by default), then overlays the process environment
@@ -35,6 +36,7 @@ class AppConfig {
       debugAuth: _flag(env, 'DEBUG_AUTH'),
       debugToken: _optional(env, 'DEBUG_TOKEN'),
       debugUserId: _positiveInt(env, 'DEBUG_USER_ID', 1),
+      botUsername: _botUsername(env),
     );
   }
 
@@ -52,6 +54,9 @@ class AppConfig {
   final bool debugAuth;
   final String? debugToken;
   final int debugUserId;
+
+  /// Telegram bot username without `@`, used in Mini App share links (7.1).
+  final String botUsername;
 
   static String _require(DotEnv env, String key) {
     final value = env[key];
@@ -72,6 +77,11 @@ class AppConfig {
   static bool _flag(DotEnv env, String key) {
     final raw = env[key]?.trim().toLowerCase();
     return raw == 'true' || raw == '1' || raw == 'yes';
+  }
+
+  static String _botUsername(DotEnv env) {
+    final raw = _optional(env, 'BOT_USERNAME') ?? 'melist_bot';
+    return raw.startsWith('@') ? raw.substring(1) : raw;
   }
 
   static int _positiveInt(DotEnv env, String key, int fallback) {

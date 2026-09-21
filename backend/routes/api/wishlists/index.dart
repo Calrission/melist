@@ -59,7 +59,8 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
   responses: [
     noContentResponse,
     badRequestResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(

@@ -1,6 +1,7 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/favorites/favorite_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
@@ -17,7 +18,8 @@ import 'package:melist_backend/melist_backend.dart';
         'items': wishlistSchema,
       },
     ),
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -45,7 +47,9 @@ import 'package:melist_backend/melist_backend.dart';
     ),
     badRequestResponse,
     notFoundResponse,
-    ...protectedStubResponses,
+    conflictResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -58,18 +62,10 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     noContentResponse,
     badRequestResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context) async {
-  final rejected = rejectUnlessMethod(
-    context,
-    {HttpMethod.get, HttpMethod.post, HttpMethod.patch},
-  );
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context) {
+  return handleFavoritesCollection(context);
 }

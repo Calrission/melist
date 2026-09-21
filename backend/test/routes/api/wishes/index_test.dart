@@ -1,37 +1,127 @@
 // expectNotAllowedMethods is marked @experimental in dart_frog_test.
 // ignore_for_file: experimental_member_use
 
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_test/dart_frog_test.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/wishes/wish_handlers.dart';
 import 'package:test/test.dart';
 
-import '../../../../routes/api/wishes/index.dart' as route;
+import '../../../helpers/memory_wishes.dart';
 
 void main() {
   const user = AuthUser(id: 1, username: 'melist_test');
 
-  TestRequestContext contextFor(HttpMethod method) {
-    return TestRequestContext(path: '/api/wishes', method: method)
-      ..provide<AuthUser>(user);
+  late MemoryWishData data;
+  late WishService service;
+
+  TestRequestContext contextFor(
+    HttpMethod method, {
+    String path = '/api/wishes',
+    Map<String, Object?>? body,
+  }) {
+    return TestRequestContext(
+      path: path,
+      method: method,
+      body: body == null ? null : jsonEncode(body),
+      headers: body == null
+          ? const {}
+          : {HttpHeaders.contentTypeHeader: 'application/json'},
+    )
+      ..provide<AuthUser>(user)
+      ..provide<WishService>(service);
   }
+
+  setUp(() {
+    data = MemoryWishData();
+    service = memoryWishService(data);
+  });
 
   group('/api/wishes', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
-        route.onRequest,
-        contextBuilder: contextFor,
-        allowedMethods: [HttpMethod.get, HttpMethod.post, HttpMethod.delete],
+        handleWishesCollection,
+        // ignore: unnecessary_lambdas
+        contextBuilder: (method) => contextFor(method),
+        allowedMethods: [
+          HttpMethod.get,
+          HttpMethod.post,
+          HttpMethod.delete,
+        ],
       );
     });
 
-    for (final method in [HttpMethod.get, HttpMethod.post, HttpMethod.delete]) {
-      test('${method.name.toUpperCase()} responds with 501 (stub)', () async {
-        final response = await route.onRequest(contextFor(method).context);
+    test('GET returns own wishes', () async {
+      await service.create(user, name: 'Headphones');
 
-        expect(response, isNotImplemented);
-        expectJsonBody(response, {'error': 'Not implemented'});
-      });
-    }
+      final response = await handleWishesCollection(
+        contextFor(HttpMethod.get).context,
+      );
+      final body = jsonDecode(await response.body()) as List<dynamic>;
+
+      expect(response, isOk);
+      expect(body, hasLength(1));
+      expect((body.first as Map)['name'], 'Headphones');
+    });
+
+    test('GET rejects mine=false', () async {
+      final response = await handleWishesCollection(
+        contextFor(HttpMethod.get, path: '/api/wishes?mine=false').context,
+      );
+
+      expect(response, isBadRequest);
+    });
+
+    test('POST creates a wish', () async {
+      final response = await handleWishesCollection(
+        contextFor(
+          HttpMethod.post,
+          body: {
+            'name': 'Headphones',
+            'price': 12000,
+            'visibility': 'private',
+            'status': 'draft',
+          },
+        ).context,
+      );
+      final body = jsonDecode(await response.body()) as Map<String, dynamic>;
+
+      expect(response, isCreated);
+      expect(body['name'], 'Headphones');
+      expect(body['price'], 12000);
+      expect(body['visibility'], 'private');
+      expect(body['ownerId'], 1);
+    });
+
+    test('POST responds 400 when name is missing', () async {
+      final response = await handleWishesCollection(
+        contextFor(HttpMethod.post, body: {'price': 1}).context,
+      );
+
+      expect(response, isBadRequest);
+      expectJsonBody(response, {'error': 'name is required'});
+    });
+
+    test('DELETE removes own wishes', () async {
+      final created = await service.create(user, name: 'A');
+
+      final response = await handleWishesCollection(
+        contextFor(HttpMethod.delete, body: {'ids': [created.id]}).context,
+      );
+
+      expect(response.statusCode, HttpStatus.noContent);
+      expect(data.wishes, isEmpty);
+    });
+
+    test('DELETE responds 400 when ids are missing', () async {
+      final response = await handleWishesCollection(
+        contextFor(HttpMethod.delete, body: {}).context,
+      );
+
+      expect(response, isBadRequest);
+    });
   });
 }

@@ -1,13 +1,14 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_swagger/dart_frog_swagger.dart';
 import 'package:melist_backend/melist_backend.dart';
+import 'package:melist_backend/src/wishes/wish_handlers.dart';
 
 @Route(
   method: HttpMethod.get,
   path: '/api/wishes',
   summary: 'List and search wishes',
-  description: 'Query params: query (name search, 17.1), mine=true '
-      '(only own wishes, 17.2), limit, offset. (16)',
+  description: 'Own wishes. Query params: query (name search, 17.1), '
+      'mine=true (17.2), limit, offset. (16)',
   tags: ['Wishes'],
   responses: [
     ApiResponse(
@@ -18,7 +19,9 @@ import 'package:melist_backend/melist_backend.dart';
         'items': wishSchema,
       },
     ),
-    ...protectedStubResponses,
+    badRequestResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -45,7 +48,8 @@ import 'package:melist_backend/melist_backend.dart';
       schema: wishSchema,
     ),
     badRequestResponse,
-    ...protectedStubResponses,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
 @Route(
@@ -58,18 +62,11 @@ import 'package:melist_backend/melist_backend.dart';
   responses: [
     noContentResponse,
     badRequestResponse,
-    ...protectedStubResponses,
+    notFoundResponse,
+    unauthorizedResponse,
+    methodNotAllowedResponse,
   ],
 )
-Future<Response> onRequest(RequestContext context) async {
-  final rejected = rejectUnlessMethod(
-    context,
-    {HttpMethod.get, HttpMethod.post, HttpMethod.delete},
-  );
-  if (rejected != null) {
-    return rejected;
-  }
-
-  context.read<AuthUser>();
-  return notImplemented();
+Future<Response> onRequest(RequestContext context) {
+  return handleWishesCollection(context);
 }
