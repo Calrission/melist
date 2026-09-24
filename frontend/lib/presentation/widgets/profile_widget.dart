@@ -4,12 +4,10 @@ import 'package:melist_core/melist_core.dart';
 class ProfileWidget extends StatelessWidget {
 
   final UserModel userModel;
-  final Brightness brightness;
 
   const ProfileWidget({
     super.key,
-    required this.userModel,
-    required this.brightness
+    required this.userModel
   });
 
   @override
@@ -23,7 +21,7 @@ class ProfileWidget extends StatelessWidget {
             Text(
               'Hello, ${userModel.username}!',
               style: TextStyle(
-                color: brightness == Brightness.dark
+                color: userModel.theme == UiTheme.dark
                     ? Colors.white
                     : Colors.black,
               ),
@@ -47,7 +45,7 @@ class ProfileWidget extends StatelessWidget {
               'avatarUrl = ${userModel.avatarUrl}\n'
               'birthday = ${userModel.birthday}',
               style: TextStyle(
-                color: brightness == Brightness.dark
+                color: userModel.theme == UiTheme.dark
                     ? Colors.white
                     : Colors.black,
               ),

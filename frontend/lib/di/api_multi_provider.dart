@@ -4,7 +4,11 @@ import 'package:melist/data/interceptors/session_interceptor.dart';
 import 'package:melist/data/repository/api_repository.dart';
 import 'package:melist/di/dio_provider.dart';
 import 'package:melist/domain/interfaces/i_auth_repository.dart';
+import 'package:melist/domain/interfaces/i_favorite_repository.dart';
 import 'package:melist/domain/interfaces/i_profile_repository.dart';
+import 'package:melist/domain/interfaces/i_subscriptions_repository.dart';
+import 'package:melist/domain/interfaces/i_wish_repository.dart';
+import 'package:melist/domain/interfaces/i_wishlist_repository.dart';
 import 'package:melist/domain/models/config.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -36,11 +40,25 @@ class ApiMultiProvider {
       dispose: (_, graph) => graph.dio.close(),
     ),
     ProxyProvider<_ApiGraph, Dio>(update: (_, graph, _) => graph.dio),
-    ProxyProvider<_ApiGraph, AuthSession>(update: (_, graph, _) => graph.session),
+    ProxyProvider<_ApiGraph, AuthSession>(
+      update: (_, graph, _) => graph.session,
+    ),
     ProxyProvider<_ApiGraph, IAuthRepository>(
       update: (_, graph, _) => graph.repository,
     ),
     ProxyProvider<_ApiGraph, IProfileRepository>(
+      update: (_, graph, _) => graph.repository,
+    ),
+    ProxyProvider<_ApiGraph, IWishlistRepository>(
+      update: (_, graph, _) => graph.repository,
+    ),
+    ProxyProvider<_ApiGraph, IFavoriteRepository>(
+      update: (_, graph, _) => graph.repository,
+    ),
+    ProxyProvider<_ApiGraph, IWishRepository>(
+      update: (_, graph, _) => graph.repository,
+    ),
+    ProxyProvider<_ApiGraph, ISubscriptionsRepository>(
       update: (_, graph, _) => graph.repository,
     ),
   ];

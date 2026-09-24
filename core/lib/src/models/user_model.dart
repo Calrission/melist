@@ -15,6 +15,10 @@ class UserModel {
     this.updatedAt,
   });
 
+  static List<UserModel> listFromJson(Object? data) {
+    return (data as List).map((e) => UserModel.fromJson(e)).toList();
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: requireInt(json['id'], 'id'),

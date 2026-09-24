@@ -17,6 +17,10 @@ class WishModel {
     this.updatedAt,
   });
 
+  static List<WishModel> listFromJson(Object? data) {
+    return (data as List).map((e) => WishModel.fromJson(e)).toList();
+  }
+
   factory WishModel.fromJson(Map<String, dynamic> json) {
     return WishModel(
       id: requireInt(json['id'], 'id'),

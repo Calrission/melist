@@ -71,9 +71,87 @@ void main() {
     expect(issued.accessToken, 'dev-admin');
     expect(adapter.requests.single.path, '/auth/debug');
   });
+
+  test('favorites, wishes and subscriptions hit their routes', () async {
+    adapter
+      ..enqueue(_json(201, _wishlist))
+      ..enqueue(_json(200, [_wishlist]))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(201, _wish))
+      ..enqueue(_json(201, _wish))
+      ..enqueue(_json(200, [_wish]))
+      ..enqueue(_json(200, _wish))
+      ..enqueue(_json(200, _wish))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(201, _wish))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(201, {'id': 2}))
+      ..enqueue(_json(201, _wishlist))
+      ..enqueue(
+        _json(200, [
+          {'id': 2},
+        ]),
+      )
+      ..enqueue(_json(200, [_wishlist]))
+      ..enqueue(_json(204, {}))
+      ..enqueue(_json(204, {}));
+
+    await auth.addWishlistToFavorites(const AddFavoriteBody(shareToken: 'k3'));
+    await auth.getMyFavoriteWishlists();
+    await auth.reorderFavorites(const ReorderIdsBody(order: [1]));
+    await auth.deleteFavoriteById(1);
+    await auth.createWish(const CreateWishBody(name: 'Headphones'));
+    await auth.duplicateWishById(10);
+    await auth.getMyWishes();
+    await auth.getMyWishById(10);
+    await auth.patchWishById(10, const PatchWishBody(name: 'Cans'));
+    await auth.deleteBulkWishesByIds([10]);
+    await auth.deleteWishById(10);
+    await auth.addWishToWishlist(4, const AddWishlistWishBody.attach(10));
+    await auth.reorderWishesInWishlist(4, const ReorderIdsBody(order: [10]));
+    await auth.subscribeToProfile(const SubscribeUserBody(userId: 2));
+    await auth.subscribeToWishlist(const SubscribeWishlistBody(wishlistId: 1));
+    await auth.getMyProfileSubscriptions();
+    await auth.getMyWishlistSubscriptions();
+    await auth.unsubscribeProfile(2);
+    await auth.unsubscribeWishlist(1);
+
+    expect(
+      adapter.requests.map((request) => '${request.method} ${request.path}'),
+      [
+        'POST /api/favorites',
+        'GET /api/favorites',
+        'PATCH /api/favorites',
+        'DELETE /api/favorites/1',
+        'POST /api/wishes',
+        'POST /api/wishes/10/duplicate',
+        'GET /api/wishes',
+        'GET /api/wishes/10',
+        'PATCH /api/wishes/10',
+        'DELETE /api/wishes',
+        'DELETE /api/wishes/10',
+        'POST /api/wishlists/4/wishes',
+        'PATCH /api/wishlists/4/wishes',
+        'POST /api/subscriptions/users',
+        'POST /api/subscriptions/wishlists',
+        'GET /api/subscriptions/users',
+        'GET /api/subscriptions/wishlists',
+        'DELETE /api/subscriptions/users/2',
+        'DELETE /api/subscriptions/wishlists/1',
+      ],
+    );
+    expect(adapter.requests[6].queryParameters, {'mine': 'true'});
+    expect(adapter.requests[11].data, {'wishId': 10});
+  });
 }
 
-ResponseBody _json(int status, Map<String, Object?> body) {
+const _wishlist = {'id': 1, 'ownerId': 1, 'name': 'Gifts', 'color': '#fff'};
+
+const _wish = {'id': 10, 'ownerId': 1, 'name': 'Headphones'};
+
+ResponseBody _json(int status, Object? body) {
   return ResponseBody.fromString(
     jsonEncode(body),
     status,

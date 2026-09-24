@@ -8,6 +8,6 @@ abstract class IWishRepository {
   Future<WishModel> patchWishById(int wishId, PatchWishBody body);
   Future<void> deleteBulkWishesByIds(List<int> ids);
   Future<void> deleteWishById(int wishId);
-  Future<WishModel> addWishToWishlist(AddWishlistWishBody body);
+  Future<WishModel> addWishToWishlist(int wishlistId, AddWishlistWishBody body);
   Future<void> reorderWishesInWishlist(int wishlistId, ReorderIdsBody body);
 }
