@@ -2,14 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:melist/data/auth/auth_session.dart';
 import 'package:melist/data/interceptors/session_interceptor.dart';
 import 'package:melist/data/repository/api_repository.dart';
-import 'package:melist/di/dio_provider.dart';
 import 'package:melist/domain/interfaces/i_auth_repository.dart';
 import 'package:melist/domain/interfaces/i_favorite_repository.dart';
 import 'package:melist/domain/interfaces/i_profile_repository.dart';
 import 'package:melist/domain/interfaces/i_subscriptions_repository.dart';
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
 import 'package:melist/domain/interfaces/i_wishlist_repository.dart';
-import 'package:melist/domain/models/config.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -20,8 +18,7 @@ class _ApiGraph {
     required this.repository,
   });
 
-  factory _ApiGraph.create(Config config) {
-    final dio = DioProvider.create(config);
+  factory _ApiGraph.create(Dio dio) {
     final repository = ApiRepository(dio: dio);
     final session = AuthSession(repository: repository);
     dio.interceptors.add(SessionInterceptor(session: session, dio: dio));
@@ -36,7 +33,7 @@ class _ApiGraph {
 class ApiMultiProvider {
   static List<SingleChildWidget> get providers => [
     Provider<_ApiGraph>(
-      create: (ctx) => _ApiGraph.create(ctx.read<Config>()),
+      create: (ctx) => _ApiGraph.create(ctx.read<Dio>()),
       dispose: (_, graph) => graph.dio.close(),
     ),
     ProxyProvider<_ApiGraph, Dio>(update: (_, graph, _) => graph.dio),

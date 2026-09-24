@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -10,8 +11,21 @@ class ProfileWidget extends StatelessWidget {
     required this.userModel
   });
 
+  void _changeBirthday(BuildContext context) async {
+    final newBirthday = await showDatePicker(
+        context: context,
+        firstDate: DateTime(1900),
+        lastDate: DateTime.now()
+    );
+    if (newBirthday == null || !context.mounted) {
+      return;
+    }
+    ProfileController.of(context).updateBirthday(newBirthday);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userModel = ProfileController.of(context).profile!;
     return Center(
       child: SelectionArea(
         child: Column(
@@ -50,6 +64,9 @@ class ProfileWidget extends StatelessWidget {
                     : Colors.black,
               ),
             ),
+            FilledButton(
+              onPressed: () => _changeBirthday(context),
+              child: Text("Update Birthdate"))
           ],
         ),
       ),
