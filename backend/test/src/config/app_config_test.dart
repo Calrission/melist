@@ -128,6 +128,57 @@ DEBUG_USER_ID=0
       );
     });
 
+    test('fails when ACCESS_TOKEN_TTL_SECONDS is not a positive integer', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+ACCESS_TOKEN_TTL_SECONDS=0
+''');
+
+      expect(
+        () => AppConfig.load(files: [envFile], environment: const {}),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('ACCESS_TOKEN_TTL_SECONDS'),
+          ),
+        ),
+      );
+    });
+
+    test('reads token TTLs, cookie Secure, and CORS origins', () {
+      File(envFile).writeAsStringSync('''
+BOT_TOKEN=file-bot
+JWT_SECRET=file-jwt
+DATABASE_URL=postgres://file@localhost/melist
+ACCESS_TOKEN_TTL_SECONDS=600
+REFRESH_TOKEN_TTL_SECONDS=1209600
+COOKIE_SECURE=true
+CORS_ORIGINS=http://localhost:8081, https://app.example
+''');
+
+      final config = AppConfig.load(files: [envFile], environment: const {});
+
+      expect(config.accessTokenTtl, const Duration(seconds: 600));
+      expect(config.refreshTokenTtl, const Duration(days: 14));
+      expect(config.cookieSecure, isTrue);
+      expect(
+        config.corsOrigins,
+        equals(['http://localhost:8081', 'https://app.example']),
+      );
+    });
+
+    test('defaults TTLs and empty CORS when unset', () {
+      final config = AppConfig.load(files: [envFile], environment: const {});
+
+      expect(config.accessTokenTtl, const Duration(minutes: 15));
+      expect(config.refreshTokenTtl, const Duration(days: 7));
+      expect(config.cookieSecure, isFalse);
+      expect(config.corsOrigins, isEmpty);
+    });
+
     test('fails when a required variable is missing or empty', () {
       File(envFile).writeAsStringSync('BOT_TOKEN=x\nJWT_SECRET=\n');
 

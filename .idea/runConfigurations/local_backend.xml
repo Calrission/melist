@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="local_backend" type="ShConfigurationType">
+  <configuration default="false" name="local-backend" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="dart_frog dev" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />

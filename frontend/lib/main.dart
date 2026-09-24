@@ -14,4 +14,3 @@ void main() async {
     debugPrint('Error initializing Mini App: $e');
   }
 }
-

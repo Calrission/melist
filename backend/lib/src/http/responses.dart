@@ -4,15 +4,24 @@ import 'package:dart_frog/dart_frog.dart';
 import 'package:melist_backend/src/http/app_exception.dart';
 
 /// Unified error payload: `{ "error": "<message>" }`.
-Response errorResponse(int statusCode, String message) {
+Response errorResponse(
+  int statusCode,
+  String message, {
+  Map<String, Object> headers = const {},
+}) {
   return Response.json(
     statusCode: statusCode,
     body: {'error': message},
+    headers: headers,
   );
 }
 
 Response badRequest(String message) {
   return errorResponse(HttpStatus.badRequest, message);
+}
+
+Response unauthorized([String message = 'Unauthorized']) {
+  return errorResponse(HttpStatus.unauthorized, message);
 }
 
 Response forbidden([String message = 'Forbidden']) {

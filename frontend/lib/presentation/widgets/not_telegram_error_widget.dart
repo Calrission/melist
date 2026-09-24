@@ -10,9 +10,7 @@ class NotTelegramErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: .min,
           mainAxisAlignment: .center,
-          children: [
-            Text("This is not a Telegram Mini App")
-          ],
+          children: [Text("This is not a Telegram Mini App")],
         ),
       ),
     );

@@ -25,7 +25,7 @@
   2. `CREATE TABLE IF NOT EXISTS schema_migrations (version, name, applied_at)`;
   3. читает применённые версии, выполняет отсутствующие по возрастанию (`executeScript`, simple protocol — многострочный DDL) и записывает каждую в `schema_migrations`;
   4. commit. Ошибка в любой миграции — rollback всего и исключение: сервер не стартует, схема остаётся в прежнем состоянии (DDL в PostgreSQL транзакционен).
-- В логе при старте: `[migrations] applying 0001_init` → `[migrations] applied 0001_init (now at version 1)`, при повторном запуске — `[migrations] schema up to date (version 1)`. Если в `schema_migrations` есть версии, неизвестные этой сборке (БД мигрирована более новым кодом), пишется предупреждение, старт продолжается.
+- В логе при старте: `[migrations] applying 0001_init` → `[migrations] applied 0001_init (now at version 1)`, затем `0002_refresh_tokens`; при повторном запуске — `[migrations] schema up to date (version 2)`. Если в `schema_migrations` есть версии, неизвестные этой сборке (БД мигрирована более новым кодом), пишется предупреждение, старт продолжается.
 
 **Как добавить миграцию**
 
@@ -101,6 +101,7 @@ erDiagram
   users ||--o{ user_subscriptions : followee
   users ||--o{ entitlements : has
   users ||--o{ donations : made
+  users ||--o{ refresh_tokens : sessions
 ```
 
 ### Enum-типы
@@ -131,6 +132,23 @@ CREATE TABLE users (
 ```
 
 Запись создаётся/обновляется при `POST /auth/validate` из данных `initData` (upsert, включая `avatar_url`). `GET /api/me` создаёт строку из JWT, если её ещё нет.
+
+### `refresh_tokens`
+
+Opaque refresh-токен живёт в HttpOnly cookie; в таблице только SHA-256 хеш. Несколько строк на пользователя — отдельные устройства. Ротация при `POST /auth/refresh`; повтор отозванного токена отзывает все сессии пользователя.
+
+```sql
+CREATE TABLE refresh_tokens (
+  id           BIGSERIAL PRIMARY KEY,
+  user_id      BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token_hash   TEXT NOT NULL UNIQUE,
+  expires_at   TIMESTAMPTZ NOT NULL,
+  revoked_at   TIMESTAMPTZ,
+  replaced_by  BIGINT REFERENCES refresh_tokens(id),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX refresh_tokens_user_id_idx ON refresh_tokens (user_id);
+```
 
 ### `wishlists` (1–7)
 

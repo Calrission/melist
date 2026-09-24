@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="build-release" type="ShConfigurationType">
-    <option name="SCRIPT_TEXT" value="flutter build web --release --no-wasm-dry-run -o .build/web" />
+    <option name="SCRIPT_TEXT" value="flutter build web --release --no-wasm-dry-run -o .build/web --dart-define-from-file=.env" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />

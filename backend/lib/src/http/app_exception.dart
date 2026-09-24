@@ -16,6 +16,11 @@ final class BadRequestException extends AppException {
     : super(HttpStatus.badRequest, message);
 }
 
+final class UnauthorizedException extends AppException {
+  const UnauthorizedException([String message = 'Unauthorized'])
+    : super(HttpStatus.unauthorized, message);
+}
+
 final class ForbiddenException extends AppException {
   const ForbiddenException([String message = 'Forbidden'])
     : super(HttpStatus.forbidden, message);

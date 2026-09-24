@@ -33,7 +33,9 @@ backend/
 │   ├── index.dart              # GET /
 │   ├── health.dart             # GET /health
 │   ├── auth/
-│   │   ├── validate.dart       # POST /auth/validate  (initData -> JWT)
+│   │   ├── validate.dart       # POST /auth/validate  (initData -> JWT + refresh cookie)
+│   │   ├── refresh.dart        # POST /auth/refresh   (cookie -> новый access)
+│   │   ├── logout.dart         # POST /auth/logout    (отозвать cookie)
 │   │   └── debug.dart          # GET  /auth/debug     (локальный Bearer, DEBUG_AUTH)
 │   └── api/                    # защищённые роуты (Bearer JWT)
 │       ├── _middleware.dart    # bearerAuthentication -> AuthUser в контексте
@@ -42,7 +44,7 @@ backend/
 ├── lib/
 │   ├── melist_backend.dart     # публичный экспорт
 │   └── src/
-│       ├── auth/               # InitDataValidator, JwtService, AuthUser, DebugAuth
+│       ├── auth/               # InitDataValidator, JwtService, AuthSessionService, refresh cookie
 │       ├── config/             # AppConfig (.env)
 │       ├── data/               # Database (пул PostgreSQL), DatabaseConfig, Migrator, далее репозитории
 │       │   └── migrations/     # mNNNN_<name>.dart — SQL-миграции, список allMigrations
@@ -80,6 +82,10 @@ BOT_USERNAME=melist_bot  # username бота без @, для ссылок ша�
 DEBUG_AUTH=false    # true — локальный логин без Telegram; в проде не включать
 DEBUG_TOKEN=dev-admin
 DEBUG_USER_ID=1
+ACCESS_TOKEN_TTL_SECONDS=900     # access JWT, по умолчанию 15 минут
+REFRESH_TOKEN_TTL_SECONDS=604800 # refresh cookie, по умолчанию 7 дней
+COOKIE_SECURE=false              # true в проде (HTTPS)
+CORS_ORIGINS=http://localhost:8081,https://*.ngrok-free.dev  # origins с credentials; `*` — одна метка; пусто — allow-all без cookies
 ```
 
 `AppConfig.load()` читает `.env`, затем поверх накладывает переменные окружения процесса — **окружение важнее файла**. Так одна и та же сборка работает локально с `.env` и в Docker/CI без него, где значения приходят через `environment:` или `-e`. Падает на старте, если `BOT_TOKEN`, `JWT_SECRET` или `DATABASE_URL` пусты. Секреты в код не попадают: см. `lib/src/config/app_config.dart`.
@@ -91,12 +97,13 @@ Dart Frog вызывает `run(handler, ip, port)` из `backend/main.dart` д�
 ```
 Connected to PostgreSQL
 [migrations] applying 0001_init          # только на пустой базе
-[migrations] schema up to date (version 1)
+[migrations] applying 0002_refresh_tokens
+[migrations] schema up to date (version 2)
 ```
 
 Ctrl+C / SIGTERM закрывают пул.
 
-Значения по умолчанию: TTL access JWT — 1 час, максимальный возраст `initData` — 24 часа.
+Значения по умолчанию: TTL access JWT — 15 минут, refresh cookie — 7 дней, максимальный возраст `initData` — 24 часа.
 
 ### `DATABASE_URL`
 
@@ -176,12 +183,14 @@ CLI Dart Frog ставится один раз: `dart pub global activate dart_f
 
 ## Аутентификация
 
-Пароля у пользователя нет. Клиент присылает сырую строку `WebApp.initData`, сервер проверяет HMAC-SHA256 токеном бота и выдаёт access JWT (`sub` = Telegram user id). Дальше все запросы к `/api/**` идут с заголовком `Authorization: Bearer <jwt>`. Детали и формат ответов — [api.md](api.md).
+Пароля у пользователя нет. Клиент присылает сырую строку `WebApp.initData`, сервер проверяет HMAC-SHA256 токеном бота и выдаёт access JWT (`sub` = Telegram user id) плюс HttpOnly cookie `refresh_token`. Дальше все запросы к `/api/**` идут с заголовком `Authorization: Bearer <jwt>`. Когда access истечёт — `POST /auth/refresh` (cookie), без повторного `initData`. Детали и формат ответов — [api.md](api.md).
+
+Локальный Flutter Web на другом порту — cross-origin: задайте `CORS_ORIGINS` (origin фронта, можно `https://*.ngrok-free.dev`) и на клиенте `withCredentials` для `/auth/*`. Same-origin прокси в проде: `CORS_ORIGINS` можно оставить пустым. `COOKIE_SECURE=true` обязателен на HTTPS.
 
 Для локальной разработки без Mini App: `DEBUG_AUTH=true` в `.env`. На старте создаётся пользователь `debug_admin` (`DEBUG_USER_ID`, по умолчанию `1`), а строка `DEBUG_TOKEN` (по умолчанию `dev-admin`) принимается как Bearer на `/api/**`. Это не JWT: `iat`/`exp` не меняются. Токен можно взять из `GET /auth/debug` или сразу вставить в Swagger Authorize. Если флаг выключен, магическая строка даёт `401`, эндпоинт — `404`. На проде флаг не включать.
 
 ## Состояние
 
-Реализовано: `/`, `/health`, `/auth/validate`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
+Реализовано: `/`, `/health`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
 
 Остальные `/api/**` — заглушки (`501`). Порядок доделок — [roadmap.md](roadmap.md).

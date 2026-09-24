@@ -18,29 +18,33 @@ const initDataRequestBody = ApiRequestBody(
   },
 );
 
+const authSessionSchema = <String, Object?>{
+  'type': 'object',
+  'properties': {
+    'accessToken': {'type': 'string'},
+    'tokenType': {'type': 'string', 'example': 'Bearer'},
+    'expiresIn': {'type': 'integer', 'example': 900},
+    'user': {
+      'type': 'object',
+      'properties': {
+        'id': {'type': 'integer'},
+        'firstName': {'type': 'string'},
+        'lastName': {'type': 'string'},
+        'username': {'type': 'string'},
+        'avatarUrl': {'type': 'string'},
+      },
+    },
+  },
+  'required': ['accessToken', 'tokenType', 'expiresIn', 'user'],
+};
+
 const authInitDataResponses = <ApiResponse>[
   ApiResponse(
     statusCode: 200,
-    description: 'Access JWT issued.',
-    schema: {
-      'type': 'object',
-      'properties': {
-        'accessToken': {'type': 'string'},
-        'tokenType': {'type': 'string', 'example': 'Bearer'},
-        'expiresIn': {'type': 'integer', 'example': 3600},
-        'user': {
-          'type': 'object',
-          'properties': {
-            'id': {'type': 'integer'},
-            'firstName': {'type': 'string'},
-            'lastName': {'type': 'string'},
-            'username': {'type': 'string'},
-            'avatarUrl': {'type': 'string'},
-          },
-        },
-      },
-      'required': ['accessToken', 'tokenType', 'expiresIn', 'user'],
-    },
+    description:
+        'Access JWT issued. Refresh token is set as an HttpOnly cookie, '
+        'not in the JSON body.',
+    schema: authSessionSchema,
   ),
   ApiResponse(
     statusCode: 400,
@@ -67,6 +71,43 @@ const authInitDataResponses = <ApiResponse>[
         },
       },
     },
+  ),
+  ApiResponse(
+    statusCode: 405,
+    description: 'Method not allowed.',
+  ),
+];
+
+const authRefreshResponses = <ApiResponse>[
+  ApiResponse(
+    statusCode: 200,
+    description:
+        'New access JWT. The refresh cookie is rotated (new Set-Cookie).',
+    schema: authSessionSchema,
+  ),
+  ApiResponse(
+    statusCode: 401,
+    description: 'Missing, expired, or reused refresh cookie.',
+    schema: {
+      'type': 'object',
+      'properties': {
+        'error': {
+          'type': 'string',
+          'example': 'Invalid refresh token',
+        },
+      },
+    },
+  ),
+  ApiResponse(
+    statusCode: 405,
+    description: 'Method not allowed.',
+  ),
+];
+
+const authLogoutResponses = <ApiResponse>[
+  ApiResponse(
+    statusCode: 204,
+    description: 'Refresh token revoked (if present) and cookie cleared.',
   ),
   ApiResponse(
     statusCode: 405,

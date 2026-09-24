@@ -4,7 +4,6 @@ import 'package:melist/domain/interfaces/i_telegram_repository.dart';
 import 'package:melist_core/melist_core.dart';
 
 class RealTelegramRepository implements ITelegramRepository {
-
   final WebApp _webApp = WebApp();
 
   @override
@@ -17,6 +16,9 @@ class RealTelegramRepository implements ITelegramRepository {
   bool get isAvailable {
     return _webApp.initData.isNotEmpty;
   }
+
+  @override
+  String get initData => _webApp.initData;
 
   @override
   UserModel getUserData() {
@@ -32,7 +34,7 @@ class RealTelegramRepository implements ITelegramRepository {
 
   @override
   Brightness getBrightness() {
-    return switch(_webApp.colorScheme) {
+    return switch (_webApp.colorScheme) {
       WebAppColorScheme.light => Brightness.light,
       WebAppColorScheme.dark => Brightness.dark,
     };

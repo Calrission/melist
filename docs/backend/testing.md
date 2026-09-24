@@ -18,6 +18,8 @@ dart test --reporter expanded               # подробный вывод
 test/
 ├── routes/                 # хендлеры: test/routes/<путь как в routes/>_test.dart
 │   ├── auth/validate_test.dart
+│   ├── auth/refresh_test.dart
+│   ├── auth/logout_test.dart
 │   ├── auth/debug_test.dart
 │   └── api/
 │       ├── _middleware_test.dart
@@ -25,6 +27,8 @@ test/
 ├── src/                    # unit-тесты lib/src/**
 │   ├── auth/init_data_validator_test.dart
 │   ├── auth/debug_auth_test.dart
+│   ├── auth/refresh_cookie_test.dart
+│   ├── auth/auth_session_service_test.dart
 │   ├── config/app_config_test.dart
 │   └── data/               # database_config_test, database_test, migrator_test
 ├── scenarios/              # продуктовые сценарии docs/scenarios.md, in-memory

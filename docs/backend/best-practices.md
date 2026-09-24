@@ -15,7 +15,9 @@ Future<Response> onRequest(RequestContext context) async {
   return authenticateWithInitData(
     request: context.request,
     validator: context.read<InitDataValidator>(),
-    jwtService: context.read<JwtService>(),
+    users: context.read<UserRepository>(),
+    sessions: context.read<AuthSessionService>(),
+    cookieSecure: context.read<AppConfig>().cookieSecure,
   );
 }
 ```
@@ -52,8 +54,8 @@ Future<Response> onRequest(RequestContext context) async {
 
 ## 4. Аутентификация
 
-- Пароля нет: вход только через проверенный Telegram `initData` (HMAC токеном бота), затем access JWT. `initDataUnsafe` на сервере не используется.
-- Защищённые роуты — `dart_frog_auth` `bearerAuthentication<AuthUser>` в `routes/api/_middleware.dart`. При невалидном токене middleware сам отвечает `401`; в хендлере пользователь доступен как `context.read<AuthUser>()`.
+- Пароля нет: вход только через проверенный Telegram `initData` (HMAC токеном бота), затем access JWT в JSON и opaque refresh в HttpOnly cookie (`SameSite=Lax`, `Path=/auth`). Refresh в теле ответа не отдаётся. `initDataUnsafe` на сервере не используется.
+- Тихое обновление — `POST /auth/refresh` (cookie); выход — `POST /auth/logout`. Защищённые роуты — `dart_frog_auth` `bearerAuthentication<AuthUser>` в `routes/api/_middleware.dart` (только Bearer, cookie на `/api/**` не смотрим). При невалидном токене middleware сам отвечает `401`; в хендлере пользователь доступен как `context.read<AuthUser>()`.
 - Никогда не доверяйте `userId` из тела запроса — только из `AuthUser`.
 - Проверку владения ресурсом (`owner_id == AuthUser.id`) делайте в сервисе и возвращайте `403`.
 

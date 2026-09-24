@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'model_codec.dart';
 import 'user_model.dart';
 
@@ -45,4 +47,14 @@ class AuthSessionModel {
       'avatarUrl': user.avatarUrl,
     },
   };
+
+  factory AuthSessionModel.fromString(String str) {
+    final json = jsonDecode(str);
+    return AuthSessionModel.fromJson(json);
+  }
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
 }

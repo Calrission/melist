@@ -66,7 +66,10 @@ void main() {
         final report = await Migrator(db).migrate();
 
         expect(report.wasUpToDate, isFalse);
-        expect(report.applied.map((m) => m.id), equals(['0001_init']));
+        expect(
+          report.applied.map((m) => m.id),
+          equals(['0001_init', '0002_refresh_tokens']),
+        );
         expect(report.currentVersion, equals(allMigrations.last.version));
 
         final tables = await db.query('''
@@ -78,6 +81,7 @@ void main() {
           containsAll([
             'schema_migrations',
             'users',
+            'refresh_tokens',
             'wishlists',
             'wishes',
             'wishlist_wishes',

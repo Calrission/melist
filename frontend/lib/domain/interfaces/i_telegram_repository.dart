@@ -6,11 +6,15 @@ abstract class ITelegramRepository {
   UserModel getUserData();
   Brightness getBrightness();
   bool get isAvailable;
+  String get initData;
 }
 
 class MockTelegramRepository implements ITelegramRepository {
   @override
   bool get isAvailable => true;
+
+  @override
+  String get initData => '';
 
   @override
   Future<void> initialize() {
@@ -24,9 +28,27 @@ class MockTelegramRepository implements ITelegramRepository {
       firstName: 'Test',
       lastName: 'Test',
       username: 'melist_test',
-      avatarUrl: "https://t.me/i/userpic/320/YvKU5WJ7_k4hmztPkqukrB1-hU4tcUNurDfG18WSa-I.svg"
+      avatarUrl:
+          "https://t.me/i/userpic/320/YvKU5WJ7_k4hmztPkqukrB1-hU4tcUNurDfG18WSa-I.svg",
     );
   }
+
+  @override
+  Brightness getBrightness() => Brightness.light;
+}
+
+class UnavailableTelegramRepository implements ITelegramRepository {
+  @override
+  bool get isAvailable => false;
+
+  @override
+  String get initData => '';
+
+  @override
+  Future<void> initialize() => Future.value();
+
+  @override
+  UserModel getUserData() => const UserModel(id: 0);
 
   @override
   Brightness getBrightness() => Brightness.light;

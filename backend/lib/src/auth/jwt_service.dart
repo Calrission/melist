@@ -4,7 +4,7 @@ import 'package:melist_core/melist_core.dart';
 class JwtService {
   const JwtService({
     required this.secret,
-    this.accessTokenTtl = const Duration(hours: 1),
+    this.accessTokenTtl = const Duration(minutes: 15),
   });
 
   final String secret;

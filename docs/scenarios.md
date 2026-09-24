@@ -239,7 +239,13 @@
 
 - **Дано:** валидный Telegram `initData` пользователя A (`first_name`, `photo_url`).
 - **Когда:** `POST /auth/validate` `{ "initData" }`. Затем `GET /api/me` с выданным JWT.
-- **Тогда:** validate — `200`, `user.firstName` и `user.avatarUrl` из initData. `GET /api/me` — `200`, те же `id`, `firstName`, `avatarUrl`, `theme = system`, пока не меняли. Без Bearer на `/api/me` — `401`.
+- **Тогда:** validate — `200`, `user.firstName` и `user.avatarUrl` из initData, `Set-Cookie` с `refresh_token` (не в JSON). `GET /api/me` — `200`, те же `id`, `firstName`, `avatarUrl`, `theme = system`, пока не меняли. Без Bearer на `/api/me` — `401`.
+
+### 37b. Тихое обновление access (refresh cookie)
+
+- **Дано:** A прошёл `POST /auth/validate`, cookie `refresh_token` установлена.
+- **Когда:** `POST /auth/refresh` с этой cookie; затем повторно тем же cookie; затем без cookie.
+- **Тогда:** первый refresh — `200` с новым `accessToken` и новым `Set-Cookie`. Повтор старого cookie — `401`. Без cookie — `401`.
 
 ### 38. Дата рождения (23)
 

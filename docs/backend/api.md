@@ -15,15 +15,19 @@
 
 ## Аутентификация
 
+Access JWT — короткоживущий, только в JSON (`AuthSessionModel`). Refresh — opaque-токен в HttpOnly cookie `refresh_token` (`Secure` по флагу `COOKIE_SECURE`, `SameSite=Lax`, `Path=/auth`). В JSON refresh **нет**. `/api/**` по-прежнему только `Authorization: Bearer`.
+
 ```mermaid
 sequenceDiagram
   participant App as MiniApp
   participant Api as Backend
   App->>Api: POST /auth/validate { initData }
   Api->>Api: HMAC-SHA256(initData, BOT_TOKEN), auth_date <= 24h
-  Api-->>App: { accessToken, expiresIn, user }
+  Api-->>App: JSON accessToken plus Set-Cookie HttpOnly refresh
   App->>Api: GET /api/me  Authorization: Bearer accessToken
-  Api-->>App: 200
+  Note over App: F5 clears in-memory access
+  App->>Api: POST /auth/refresh Cookie refresh_token
+  Api-->>App: new accessToken plus rotated Set-Cookie
 ```
 
 ### `POST /auth/validate`
@@ -36,16 +40,26 @@ sequenceDiagram
 {
   "accessToken": "<jwt>",
   "tokenType": "Bearer",
-  "expiresIn": 3600,
+  "expiresIn": 900,
   "user": { "id": 123, "firstName": "…", "lastName": "…", "username": "…", "avatarUrl": "…" }
 }
 ```
 
-Клиент: `AuthSessionModel` в `melist_core` (`fromJson` тела ответа).
+Заголовок `Set-Cookie`: `refresh_token=…; Path=/auth; HttpOnly; SameSite=Lax` (`Secure` если `COOKIE_SECURE=true`). Клиент: `AuthSessionModel` в `melist_core` (`fromJson` тела ответа) — поле refresh в модели нет.
 
 `400` — `initData` отсутствует; `401` — `Invalid initData` / `Expired initData`.
 
-JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1 час. Когда токен истечёт — снова `POST /auth/validate` со свежим `initData`.
+JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL access по умолчанию 15 минут (`ACCESS_TOKEN_TTL_SECONDS`). Когда access истечёт — `POST /auth/refresh` с cookie, без повторного `initData`.
+
+### `POST /auth/refresh`
+
+Тела нет. Браузер присылает cookie `refresh_token`. Сервер проверяет хеш в `refresh_tokens`, ротирует токен и отвечает тем же JSON, что validate, плюс новый `Set-Cookie`.
+
+`401` `{ "error": "Invalid refresh token" }` — нет cookie, просрочен, неизвестен или уже отозван. Повтор отозванного токена отзывает все refresh этого пользователя и тоже даёт `401` с `Set-Cookie` `Max-Age=0`.
+
+### `POST /auth/logout`
+
+Отзывает текущий refresh (если cookie есть) и всегда отвечает `204` с очисткой cookie (`Max-Age=0`), даже без cookie.
 
 ### `GET /auth/debug`
 
@@ -231,4 +245,4 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`, TTL 1
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/auth/validate`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
+Работают: `/`, `/health`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).

@@ -8,6 +8,7 @@ import 'package:test/test.dart';
 
 import '../../../routes/auth/validate.dart' as route;
 import '../../helpers/init_data.dart';
+import '../../helpers/memory_refresh_tokens.dart';
 import '../../helpers/memory_wishlists.dart';
 
 class _MockRequestContext extends Mock implements RequestContext {}
@@ -19,22 +20,36 @@ void main() {
     clock: () => now,
   );
   const jwtService = JwtService(secret: 'test-secret');
+  const config = AppConfig(
+    botToken: 'token',
+    jwtSecret: 'test-secret',
+    databaseUrl: 'postgres://melist@localhost/melist',
+  );
 
   late MemoryWishlistData usersData;
   late MemoryUserRepository users;
+  late MemoryRefreshTokenRepository tokens;
+  late AuthSessionService sessions;
 
   RequestContext contextWith(Request request) {
     final context = _MockRequestContext();
     when(() => context.request).thenReturn(request);
     when(() => context.read<InitDataValidator>()).thenReturn(validator);
-    when(() => context.read<JwtService>()).thenReturn(jwtService);
     when(() => context.read<UserRepository>()).thenReturn(users);
+    when(() => context.read<AuthSessionService>()).thenReturn(sessions);
+    when(() => context.read<AppConfig>()).thenReturn(config);
     return context;
   }
 
   setUp(() {
     usersData = MemoryWishlistData();
     users = MemoryUserRepository(usersData);
+    tokens = MemoryRefreshTokenRepository();
+    sessions = memoryAuthSessionService(
+      jwtService: jwtService,
+      users: users,
+      tokens: tokens,
+    );
   });
 
   group('POST /auth/validate', () {
@@ -105,7 +120,7 @@ void main() {
       expect(body['error'], equals('Expired initData'));
     });
 
-    test('responds with a JWT and user when initData is valid', () async {
+    test('responds with a JWT, user, and refresh cookie', () async {
       final context = contextWith(
         Request.post(
           Uri.parse('http://localhost/auth/validate'),
@@ -120,10 +135,12 @@ void main() {
       final body = jsonDecode(await response.body()) as Map<String, dynamic>;
       final token = body['accessToken'] as String;
       final jwt = jwtService.verify(token);
+      final cookie = response.headers[HttpHeaders.setCookieHeader]!;
 
       expect(response.statusCode, equals(HttpStatus.ok));
       expect(body['tokenType'], equals('Bearer'));
-      expect(body['expiresIn'], equals(3600));
+      expect(body['expiresIn'], equals(jwtService.accessTokenTtl.inSeconds));
+      expect(body.containsKey('refreshToken'), isFalse);
       expect(
         body['user'],
         equals({
@@ -135,6 +152,12 @@ void main() {
         }),
       );
       expect(jwt.subject, equals('279058397'));
+      expect(cookie, contains('refresh_token='));
+      expect(cookie, contains('HttpOnly'));
+      expect(cookie, contains('SameSite=Lax'));
+      expect(cookie, contains('Path=/auth'));
+      expect(cookie, isNot(contains('Secure')));
+      expect(tokens.rows, hasLength(1));
       expect(
         usersData.users[279058397]?.avatarUrl,
         equals(

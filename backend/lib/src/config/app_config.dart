@@ -8,7 +8,10 @@ class AppConfig {
     required this.jwtSecret,
     required this.databaseUrl,
     this.initDataMaxAge = const Duration(hours: 24),
-    this.accessTokenTtl = const Duration(hours: 1),
+    this.accessTokenTtl = const Duration(minutes: 15),
+    this.refreshTokenTtl = const Duration(days: 7),
+    this.cookieSecure = false,
+    this.corsOrigins = const [],
     this.debugAuth = false,
     this.debugToken,
     this.debugUserId = 1,
@@ -37,6 +40,14 @@ class AppConfig {
       debugToken: _optional(env, 'DEBUG_TOKEN'),
       debugUserId: _positiveInt(env, 'DEBUG_USER_ID', 1),
       botUsername: _botUsername(env),
+      accessTokenTtl: Duration(
+        seconds: _positiveInt(env, 'ACCESS_TOKEN_TTL_SECONDS', 900),
+      ),
+      refreshTokenTtl: Duration(
+        seconds: _positiveInt(env, 'REFRESH_TOKEN_TTL_SECONDS', 604800),
+      ),
+      cookieSecure: _flag(env, 'COOKIE_SECURE'),
+      corsOrigins: _csv(env, 'CORS_ORIGINS'),
     );
   }
 
@@ -48,6 +59,14 @@ class AppConfig {
   final String databaseUrl;
   final Duration initDataMaxAge;
   final Duration accessTokenTtl;
+  final Duration refreshTokenTtl;
+
+  /// When true, the refresh cookie is marked `Secure` (HTTPS / production).
+  final bool cookieSecure;
+
+  /// Allowed browser origins for credentialed CORS. Empty — allow all
+  /// origins without credentials (same-origin proxy, curl).
+  final List<String> corsOrigins;
 
   /// When true, `Authorization: Bearer <DEBUG_TOKEN>` logs in as [debugUserId]
   /// without Telegram. Must stay false in production.
@@ -94,5 +113,16 @@ class AppConfig {
       throw StateError('$key must be a positive integer');
     }
     return value;
+  }
+
+  static List<String> _csv(DotEnv env, String key) {
+    final raw = _optional(env, key);
+    if (raw == null) {
+      return const [];
+    }
+    return [
+      for (final part in raw.split(','))
+        if (part.trim().isNotEmpty) part.trim(),
+    ];
   }
 }

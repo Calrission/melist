@@ -7,12 +7,15 @@ import 'package:melist_backend/melist_backend.dart';
 import 'package:melist_backend/src/profiles/profile_handlers.dart';
 import 'package:melist_backend/src/subscriptions/subscription_handlers.dart';
 import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
+import 'package:melist_core/melist_core.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
 import '../../routes/api/_middleware.dart' as api;
+import '../../routes/auth/refresh.dart' as refresh;
 import '../../routes/auth/validate.dart' as validate;
 import '../helpers/init_data.dart';
+import '../helpers/memory_refresh_tokens.dart';
 import '../helpers/memory_wishlists.dart';
 import '../helpers/scenario_harness.dart';
 
@@ -38,6 +41,12 @@ void main() {
       );
       const jwtService = JwtService(secret: 'test-secret');
       final users = MemoryUserRepository(app.data);
+      final tokens = MemoryRefreshTokenRepository();
+      final sessions = memoryAuthSessionService(
+        jwtService: jwtService,
+        users: users,
+        tokens: tokens,
+      );
 
       final authContext = _MockRequestContext();
       when(() => authContext.request).thenReturn(
@@ -50,8 +59,11 @@ void main() {
         ),
       );
       when(() => authContext.read<InitDataValidator>()).thenReturn(validator);
-      when(() => authContext.read<JwtService>()).thenReturn(jwtService);
       when(() => authContext.read<UserRepository>()).thenReturn(users);
+      when(() => authContext.read<AuthSessionService>()).thenReturn(sessions);
+      when(
+        () => authContext.read<AppConfig>(),
+      ).thenReturn(ScenarioHarness.config);
 
       final issued = await validate.onRequest(authContext);
       expect(issued, isOk);
@@ -89,6 +101,56 @@ void main() {
         mwContext,
       );
       expect(unauthorized.statusCode, HttpStatus.unauthorized);
+    });
+
+    test('37b. silent refresh rotates the cookie; reuse is 401', () async {
+      const jwtService = JwtService(secret: 'test-secret');
+      final users = MemoryUserRepository(app.data);
+      final tokens = MemoryRefreshTokenRepository();
+      final sessions = memoryAuthSessionService(
+        jwtService: jwtService,
+        users: users,
+        tokens: tokens,
+      );
+      await users.upsertTelegram(
+        const UserModel(id: 1, firstName: 'Ann', username: 'ann'),
+      );
+      final issued = await sessions.issue(
+        const UserModel(id: 1, firstName: 'Ann', username: 'ann'),
+      );
+
+      RequestContext refreshContext(String? cookie) {
+        final context = _MockRequestContext();
+        when(() => context.request).thenReturn(
+          Request.post(
+            Uri.parse('http://localhost/auth/refresh'),
+            headers: {
+              if (cookie != null) HttpHeaders.cookieHeader: cookie,
+            },
+          ),
+        );
+        when(() => context.read<AuthSessionService>()).thenReturn(sessions);
+        when(
+          () => context.read<AppConfig>(),
+        ).thenReturn(ScenarioHarness.config);
+        return context;
+      }
+
+      final first = await refresh.onRequest(
+        refreshContext('${RefreshCookie.name}=${issued.refreshToken}'),
+      );
+      expect(first, isOk);
+      final firstBody = await jsonMap(first);
+      expect(firstBody['accessToken'], isA<String>());
+      expect(firstBody.containsKey('refreshToken'), isFalse);
+
+      final reused = await refresh.onRequest(
+        refreshContext('${RefreshCookie.name}=${issued.refreshToken}'),
+      );
+      expect(reused.statusCode, HttpStatus.unauthorized);
+
+      final missing = await refresh.onRequest(refreshContext(null));
+      expect(missing.statusCode, HttpStatus.unauthorized);
     });
 
     test('38. set, change and clear birthday', () async {
