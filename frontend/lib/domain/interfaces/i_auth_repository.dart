@@ -8,9 +8,6 @@ abstract class IAuthRepository {
 
   Future<void> logout();
 
-  /// Cookie refresh, then Telegram `initData`, then optional debug Bearer.
-  Future<AuthSessionModel?> restoreSession({
-    required String initData,
-    bool allowDebug = false,
-  });
+  /// Debug Bearer from `GET /auth/debug`. Does not touch the in-memory token.
+  Future<AuthSessionModel> loginDebug();
 }

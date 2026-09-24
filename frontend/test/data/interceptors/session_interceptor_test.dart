@@ -5,29 +5,19 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:melist/data/auth/auth_session.dart';
 import 'package:melist/data/interceptors/session_interceptor.dart';
+import 'package:melist/data/repository/api_repository.dart';
 
 void main() {
   late AuthSession session;
   late Dio dio;
   late _ScriptedAdapter adapter;
-  late int refreshCalls;
 
   setUp(() {
-    session = AuthSession();
-    refreshCalls = 0;
     adapter = _ScriptedAdapter();
     dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080'));
     dio.httpClientAdapter = adapter;
-    dio.interceptors.add(
-      SessionInterceptor(
-        session: session,
-        dio: dio,
-        refresh: () async {
-          refreshCalls += 1;
-          session.setAccessToken('refreshed');
-        },
-      ),
-    );
+    session = AuthSession(repository: ApiRepository(dio: dio));
+    dio.interceptors.add(SessionInterceptor(session: session, dio: dio));
   });
 
   test('adds a Bearer header from memory', () async {
@@ -36,34 +26,44 @@ void main() {
 
     await dio.get('/api/me');
 
-    expect(
-      adapter.requests.single.headers['Authorization'],
-      'Bearer access',
-    );
+    expect(adapter.requests.single.headers['Authorization'], 'Bearer access');
   });
 
   test('does not attach Bearer to auth cookie routes', () async {
     session.setAccessToken('access');
-    adapter.enqueue(_json(200, {'accessToken': 'x'}));
+    adapter.enqueue(
+      _json(200, {
+        'accessToken': 'x',
+        'tokenType': 'Bearer',
+        'expiresIn': 900,
+        'user': {'id': 1},
+      }),
+    );
 
     await dio.post('/auth/refresh');
 
-    expect(
-      adapter.requests.single.headers['Authorization'],
-      isNull,
-    );
+    expect(adapter.requests.single.headers['Authorization'], isNull);
   });
 
   test('refreshes once and retries a 401', () async {
     session.setAccessToken('stale');
     adapter.enqueue(_json(401, {'error': 'Unauthorized'}));
+    adapter.enqueue(
+      _json(200, {
+        'accessToken': 'refreshed',
+        'tokenType': 'Bearer',
+        'expiresIn': 900,
+        'user': {'id': 1},
+      }),
+    );
     adapter.enqueue(_json(200, {'id': 1}));
 
     final response = await dio.get('/api/me');
 
-    expect(refreshCalls, 1);
     expect(response.statusCode, 200);
-    expect(adapter.requests, hasLength(2));
+    expect(session.accessToken, 'refreshed');
+    expect(adapter.requests, hasLength(3));
+    expect(adapter.requests[1].path, '/auth/refresh');
     expect(
       adapter.requests.last.headers['Authorization'],
       'Bearer refreshed',
@@ -74,7 +74,7 @@ void main() {
     adapter.enqueue(_json(401, {'error': 'Invalid refresh token'}));
 
     await expectLater(dio.post('/auth/refresh'), throwsA(isA<DioException>()));
-    expect(refreshCalls, 0);
+    expect(adapter.requests, hasLength(1));
   });
 }
 

@@ -10,15 +10,10 @@ const _retryExtra = 'authRetry';
 /// `/auth/*` is left alone: refresh/logout/validate use the HttpOnly cookie
 /// and must not trigger another refresh.
 class SessionInterceptor extends Interceptor {
-  SessionInterceptor({
-    required this.session,
-    required this.dio,
-    required this.refresh,
-  });
+  SessionInterceptor({required this.session, required this.dio});
 
   final AuthSession session;
   final Dio dio;
-  final Future<void> Function() refresh;
 
   Completer<void>? _refreshing;
 
@@ -76,10 +71,9 @@ class SessionInterceptor extends Interceptor {
     _refreshing = next;
     () async {
       try {
-        await refresh();
+        await session.refresh();
         next.complete();
       } on Object catch (error, stack) {
-        session.clear();
         next.completeError(error, stack);
       } finally {
         if (identical(_refreshing, next)) {

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:melist/di/setup.dart';
-import 'package:melist/domain/interfaces/i_profile_repository.dart';
 import 'package:melist/domain/interfaces/i_telegram_repository.dart';
+import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/widgets/profile_widget.dart';
-import 'package:melist_core/melist_core.dart';
+import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -13,32 +12,25 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-  final telegram = getIt<ITelegramRepository>();
-  final profile = getIt<IProfileRepository>();
-  UserModel? user;
-
   @override
   void initState() {
     super.initState();
-
-    profile.getMyProfile().then((value){
-      setState(() {
-        user = value;
-      });
-    });
+    context.read<ProfileController>().loadProfile();
   }
 
   @override
   Widget build(BuildContext context) {
+    final telegram = context.read<ITelegramRepository>();
+    final profile = context.watch<ProfileController>();
     final brightness = telegram.getBrightness();
+    final user = profile.profile;
     return Scaffold(
       backgroundColor: brightness == Brightness.dark
           ? Colors.black26
           : Colors.white,
       body: (user == null)
           ? Center(child: CircularProgressIndicator())
-          : ProfileWidget(userModel: user!, brightness: brightness)
+          : ProfileWidget(userModel: user, brightness: brightness),
     );
   }
 }

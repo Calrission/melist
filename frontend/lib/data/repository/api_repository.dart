@@ -1,14 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:melist/data/auth/auth_session.dart';
 import 'package:melist/domain/interfaces/i_auth_repository.dart';
 import 'package:melist/domain/interfaces/i_profile_repository.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ApiRepository implements IAuthRepository, IProfileRepository {
-  ApiRepository({required this.dio, required this.authSession});
+  ApiRepository({required this.dio});
 
   final Dio dio;
-  final AuthSession authSession;
 
   @override
   Future<AuthSessionModel> login(AuthValidateBody body) {
@@ -22,65 +20,28 @@ class ApiRepository implements IAuthRepository, IProfileRepository {
 
   @override
   Future<void> logout() async {
-    try {
-      await dio.post('/auth/logout');
-    } finally {
-      authSession.clear();
-    }
-  }
-
-  @override
-  Future<AuthSessionModel?> restoreSession({
-    required String initData,
-    bool allowDebug = false,
-  }) async {
-    try {
-      return await refresh();
-    } on DioException {
-      authSession.clear();
-    }
-
-    if (initData.isNotEmpty) {
-      try {
-        return await login(AuthValidateBody(initData: initData));
-      } on DioException {
-        // Fall through to debug Bearer when enabled.
-      }
-    }
-
-    if (allowDebug) {
-      try {
-        return await _loginDebug();
-      } on DioException {
-        return null;
-      }
-    }
-
-    return null;
+    await dio.post('/auth/logout');
   }
 
   Future<AuthSessionModel> _postSession(String path, {Object? data}) async {
     final response = await dio.post(path, data: data);
-    return _storeSession(response.data);
+    return _parseSession(response.data);
   }
 
-  Future<AuthSessionModel> _loginDebug() async {
+  @override
+  Future<AuthSessionModel> loginDebug() async {
     final response = await dio.get('/auth/debug');
     final raw = _asMap(response.data);
-    final issued = AuthSessionModel(
+    return AuthSessionModel(
       accessToken: raw['accessToken'] as String,
       tokenType: raw['tokenType'] as String? ?? AuthSessionModel.bearer,
       expiresIn: (raw['expiresIn'] as num?)?.toInt() ?? 0,
       user: UserModel.fromJson(_asMap(raw['user'])),
     );
-    authSession.setAccessToken(issued.accessToken);
-    return issued;
   }
 
-  AuthSessionModel _storeSession(Object? data) {
-    final issued = AuthSessionModel.fromJson(_asMap(data));
-    authSession.setAccessToken(issued.accessToken);
-    return issued;
+  AuthSessionModel _parseSession(Object? data) {
+    return AuthSessionModel.fromJson(_asMap(data));
   }
 
   Map<String, dynamic> _asMap(Object? value) {

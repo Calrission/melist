@@ -3,25 +3,22 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:melist/data/auth/auth_session.dart';
 import 'package:melist/data/repository/api_repository.dart';
 import 'package:melist_core/melist_core.dart';
 
 void main() {
-  late AuthSession session;
   late Dio dio;
   late _ScriptedAdapter adapter;
   late ApiRepository auth;
 
   setUp(() {
-    session = AuthSession();
     adapter = _ScriptedAdapter();
     dio = Dio(BaseOptions(baseUrl: 'http://localhost:8080'));
     dio.httpClientAdapter = adapter;
-    auth = ApiRepository(dio: dio, authSession: session);
+    auth = ApiRepository(dio: dio);
   });
 
-  test('login stores the access token from JSON', () async {
+  test('login returns the access token from JSON', () async {
     adapter.enqueue(
       _json(200, {
         'accessToken': 'jwt',
@@ -34,11 +31,10 @@ void main() {
     final issued = await auth.login(const AuthValidateBody(initData: 'raw'));
 
     expect(issued.accessToken, 'jwt');
-    expect(session.accessToken, 'jwt');
     expect(adapter.requests.single.path, '/auth/validate');
   });
 
-  test('refresh hits /auth/refresh and updates memory', () async {
+  test('refresh hits /auth/refresh', () async {
     adapter.enqueue(
       _json(200, {
         'accessToken': 'new-jwt',
@@ -48,39 +44,20 @@ void main() {
       }),
     );
 
-    await auth.refresh();
+    final issued = await auth.refresh();
 
-    expect(session.accessToken, 'new-jwt');
+    expect(issued.accessToken, 'new-jwt');
     expect(adapter.requests.single.path, '/auth/refresh');
   });
 
-  test('logout clears memory even when the request fails', () async {
-    session.setAccessToken('jwt');
+  test('logout posts /auth/logout and rethrows failures', () async {
     adapter.enqueue(_json(500, {'error': 'boom'}));
 
     await expectLater(auth.logout(), throwsA(isA<DioException>()));
-    expect(session.accessToken, isNull);
+    expect(adapter.requests.single.path, '/auth/logout');
   });
 
-  test('restoreSession prefers refresh over login', () async {
-    adapter.enqueue(
-      _json(200, {
-        'accessToken': 'from-refresh',
-        'tokenType': 'Bearer',
-        'expiresIn': 900,
-        'user': {'id': 1},
-      }),
-    );
-
-    final issued = await auth.restoreSession(initData: 'raw');
-
-    expect(issued?.accessToken, 'from-refresh');
-    expect(adapter.requests.single.path, '/auth/refresh');
-  });
-
-  test('restoreSession falls back to initData then debug', () async {
-    adapter.enqueue(_json(401, {'error': 'Invalid refresh token'}));
-    adapter.enqueue(_json(401, {'error': 'Invalid initData'}));
+  test('loginDebug parses a bearer without expiresIn', () async {
     adapter.enqueue(
       _json(200, {
         'accessToken': 'dev-admin',
@@ -89,15 +66,10 @@ void main() {
       }),
     );
 
-    final issued = await auth.restoreSession(initData: 'raw', allowDebug: true);
+    final issued = await auth.loginDebug();
 
-    expect(issued?.accessToken, 'dev-admin');
-    expect(session.accessToken, 'dev-admin');
-    expect(adapter.requests.map((r) => r.path), [
-      '/auth/refresh',
-      '/auth/validate',
-      '/auth/debug',
-    ]);
+    expect(issued.accessToken, 'dev-admin');
+    expect(adapter.requests.single.path, '/auth/debug');
   });
 }
 
