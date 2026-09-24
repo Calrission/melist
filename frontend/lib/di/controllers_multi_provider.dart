@@ -4,6 +4,8 @@ import 'package:provider/single_child_widget.dart';
 
 class ControllersMultiProvider {
   static List<SingleChildWidget> get providers => [
-    ChangeNotifierProvider<ProfileController>(create: (ctx) => ProfileController(repository: ctx.read()))
+    ChangeNotifierProvider<ProfileController>(
+        create: (ctx) => ProfileController(repository: ctx.read())..loadProfile()
+    )
   ];
 }
