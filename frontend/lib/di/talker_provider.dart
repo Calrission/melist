@@ -6,9 +6,9 @@ import 'package:talker/talker.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 class TalkerProvider {
-  static Talker create(Dio dio) {
+  static Talker create([Dio? dio]) {
     final talker = Talker();
-    dio.interceptors.add(TalkerDioLogger(
+    dio?.interceptors.add(TalkerDioLogger(
       talker: talker,
       settings: const TalkerDioLoggerSettings(
         printResponseMessage: true,
