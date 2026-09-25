@@ -4,6 +4,7 @@ import 'package:melist/di/controllers_multi_provider.dart';
 import 'package:melist/di/dio_provider.dart';
 import 'package:melist/di/talker_provider.dart';
 import 'package:melist/di/telegram_provider.dart';
+import 'package:melist/di/telegram_theme_provider.dart';
 import 'package:provider/single_child_widget.dart';
 
 List<SingleChildWidget> appProviders() => [
@@ -12,5 +13,6 @@ List<SingleChildWidget> appProviders() => [
   TalkerProvider.provider,
   TelegramProvider.provider,
   ...ApiMultiProvider.providers,
-  ...ControllersMultiProvider.providers
+  ...ControllersMultiProvider.providers,
+  TelegramThemeProvider.provider
 ];

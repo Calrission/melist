@@ -7,6 +7,8 @@ abstract class ITelegramRepository {
   Brightness getBrightness();
   bool get isAvailable;
   String get initData;
+  Stream<Brightness> get onBrightnessChanged;
+  void dispose();
 }
 
 class MockTelegramRepository implements ITelegramRepository {
@@ -35,6 +37,12 @@ class MockTelegramRepository implements ITelegramRepository {
 
   @override
   Brightness getBrightness() => Brightness.light;
+
+  @override
+  Stream<Brightness> get onBrightnessChanged => Stream.empty();
+
+  @override
+  void dispose() {}
 }
 
 class UnavailableTelegramRepository implements ITelegramRepository {
@@ -52,4 +60,10 @@ class UnavailableTelegramRepository implements ITelegramRepository {
 
   @override
   Brightness getBrightness() => Brightness.light;
+
+  @override
+  Stream<Brightness> get onBrightnessChanged => Stream.empty();
+
+  @override
+  void dispose() {}
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:melist/data/auth/auth_session.dart';
 import 'package:melist/di/setup.dart';
 import 'package:melist/domain/interfaces/i_telegram_repository.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/theme/palette.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/home_page.dart';
@@ -57,8 +59,13 @@ class _RestoredAppState extends State<_RestoredApp> {
 
     final telegram = context.read<ITelegramRepository>();
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
+      title: 'MELIST',
+      theme: ThemeData(
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        extensions: [
+          PaletteThemeExtension(palette: Palette.light()),
+        ]
+      ),
       home: telegram.isAvailable
           ? const MyHomePage()
           : const NotTelegramErrorWidget(),
