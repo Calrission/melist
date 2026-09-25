@@ -5,8 +5,10 @@ import 'package:melist/di/setup.dart';
 import 'package:melist/domain/interfaces/i_telegram_repository.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/palette.dart';
+import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:provider/provider.dart';
 
+import 'controllers/theme_controller.dart';
 import 'pages/home_page.dart';
 import 'widgets/not_telegram_error_widget.dart';
 
@@ -51,22 +53,19 @@ class _RestoredAppState extends State<_RestoredApp> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_ready) {
-      return const MaterialApp(
-        home: Scaffold(body: Center(child: CircularProgressIndicator())),
-      );
-    }
-
     final telegram = context.read<ITelegramRepository>();
+    final themeController = context.watch<ThemeController>();
     return MaterialApp(
       title: 'MELIST',
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
         extensions: [
-          PaletteThemeExtension(palette: Palette.light()),
+          PaletteThemeExtension(palette: Palette.fromUiTheme(themeController.theme)),
         ]
       ),
-      home: telegram.isAvailable
+      home: (!_ready)
+        ? LoadingWidget()
+        : telegram.isAvailable
           ? const MyHomePage()
           : const NotTelegramErrorWidget(),
     );

@@ -22,4 +22,12 @@ class PaletteThemeExtension extends ThemeExtension<PaletteThemeExtension> {
 
     return PaletteThemeExtension(palette: palette.lerp(other.palette, t));
   }
+
+  static PaletteThemeExtension of(BuildContext context) {
+    return Theme.of(context).extension<PaletteThemeExtension>()!;
+  }
+}
+
+extension PaletteContext on BuildContext {
+  Palette get palette => PaletteThemeExtension.of(this).palette;
 }

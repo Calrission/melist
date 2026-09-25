@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:melist_core/melist_core.dart';
 
 class Palette {
   final Color background;
@@ -31,6 +32,14 @@ class Palette {
       textOnAccent: Colors.white,
       hint: Colors.grey,
     );
+  }
+
+  factory Palette.fromUiTheme(UiTheme theme) {
+    return switch (theme) {
+      UiTheme.light => Palette.light(),
+      UiTheme.dark => Palette.dark(),
+      UiTheme.system => Palette.light(),
+    };
   }
 
   Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint}) {

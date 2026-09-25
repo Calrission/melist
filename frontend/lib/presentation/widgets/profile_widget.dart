@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -35,9 +36,7 @@ class ProfileWidget extends StatelessWidget {
             Text(
               'Hello, ${userModel.username}!',
               style: TextStyle(
-                color: userModel.theme == UiTheme.dark
-                    ? Colors.white
-                    : Colors.black,
+                color: context.palette.text,
               ),
             ),
             if (userModel.avatarUrl != null)
@@ -59,9 +58,7 @@ class ProfileWidget extends StatelessWidget {
               'avatarUrl = ${userModel.avatarUrl}\n'
               'birthday = ${userModel.birthday}',
               style: TextStyle(
-                color: userModel.theme == UiTheme.dark
-                    ? Colors.white
-                    : Colors.black,
+                color: context.palette.text,
               ),
             ),
             FilledButton(
