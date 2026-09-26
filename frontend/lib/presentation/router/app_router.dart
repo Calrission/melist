@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/pages/error_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
 import 'package:melist/presentation/pages/wishlist_list_page.dart';
-import 'package:melist/presentation/widgets/session_gate.dart';
+import 'package:melist/presentation/router/session_gate.dart';
 import 'package:provider/provider.dart';
 import 'package:talker/talker.dart';
 
