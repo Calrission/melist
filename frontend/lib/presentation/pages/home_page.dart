@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
+import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/profile_widget.dart';
@@ -22,7 +23,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.read<ProfileController>().loadProfile();
+    context.postFrame((){
+      context.read<ProfileController>().loadProfile();
+    });
   }
 
   @override
@@ -50,7 +53,7 @@ class _HomePageState extends State<HomePage> {
               ),
             },
             FilledButton(
-              onPressed: () => context.pushNamed('wishlists'),
+              onPressed: () => context.goNamed('wishlists'),
               child: Text("TO LIST WISHLIST"),
             ),
           ],

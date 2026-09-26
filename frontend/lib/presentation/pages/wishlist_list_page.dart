@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_controller.dart';
+import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist_core/melist_core.dart';
@@ -24,7 +26,9 @@ class _WishlistListPageState extends State<WishlistListPage> {
   @override
   void initState() {
     super.initState();
-    context.read<WishlistListController>().loadMyWishlist();
+    context.postFrame((){
+      context.read<WishlistListController>().loadMyWishlist();
+    });
   }
 
   @override
@@ -55,17 +59,19 @@ class _LoadedWishlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: ListView.separated(
-        itemCount: wishlists.length,
-        separatorBuilder: (ctx, _) => SizedBox(height: 8),
-        itemBuilder: (ctx, index) {
-          final e = wishlists[index];
-          return ListTile(
-            title: Text(e.name),
-            subtitle: Text("Кол-во вишей: ${e.items.length}"),
-          );
-        },
-      ),
+      child: (wishlists.isNotEmpty)
+        ? ListView.separated(
+            itemCount: wishlists.length,
+            separatorBuilder: (ctx, _) => SizedBox(height: 8),
+            itemBuilder: (ctx, index) {
+              final e = wishlists[index];
+              return ListTile(
+                title: Text(e.name),
+                subtitle: Text("Кол-во вишей: ${e.items.length}"),
+              );
+            },
+          )
+        : EmptyPlaceholderWidget()
     );
   }
 }

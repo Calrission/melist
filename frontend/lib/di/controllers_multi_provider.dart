@@ -8,6 +8,7 @@ import 'package:provider/single_child_widget.dart';
 
 class ControllersMultiProvider {
   static List<SingleChildWidget> get providers => [
+
     ChangeNotifierProvider<AppBootstrapController>(
       create: (ctx) => AppBootstrapController(
         session: ctx.read(),
@@ -15,10 +16,13 @@ class ControllersMultiProvider {
         allowDebug: kDebugMode,
       )..restore(),
     ),
+
     ChangeNotifierProvider<ProfileController>(
       create: (ctx) => ProfileController(repository: ctx.read()),
     ),
+
     ChangeNotifierProvider<ThemeController>(create: (ctx) => ThemeController()),
+
     ChangeNotifierProvider<WishlistListController>(
       create: (ctx) => WishlistListController(repository: ctx.read()),
     ),
