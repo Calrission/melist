@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist_core/melist_core.dart';
 
 class Palette {
+  final UiTheme uiTheme;
   final Color background;
   final Color text;
   final Color accent;
@@ -11,7 +13,7 @@ class Palette {
   Palette({
     required this.background, required this.text,
     required this.accent, required this.textOnAccent,
-    required this.hint
+    required this.hint, required this.uiTheme
   });
 
   factory Palette.light() {
@@ -21,6 +23,7 @@ class Palette {
       accent: Color(0xFF3C4FB4),
       textOnAccent: Colors.white,
       hint: Colors.grey,
+        uiTheme: UiTheme.light
     );
   }
 
@@ -31,6 +34,7 @@ class Palette {
       accent: Color(0xFF3C4FB4),
       textOnAccent: Colors.white,
       hint: Colors.grey,
+        uiTheme: UiTheme.dark
     );
   }
 
@@ -42,8 +46,9 @@ class Palette {
     };
   }
 
-  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint}) {
+  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, UiTheme? uiTheme}) {
     return Palette(
+      uiTheme: uiTheme ?? this.uiTheme,
       background: background ?? this.background,
       text: text ?? this.text,
       accent: accent ?? this.accent,
@@ -59,6 +64,31 @@ class Palette {
       accent: Color.lerp(accent, other.accent, t)!,
       textOnAccent: Color.lerp(textOnAccent, other.textOnAccent, t)!,
       hint: Color.lerp(hint, other.hint, t)!,
+      uiTheme: uiTheme,
+    );
+  }
+
+  ThemeData get themeData {
+    final brightness = uiTheme == UiTheme.light ? Brightness.light : Brightness.dark;
+    return ThemeData(
+      scaffoldBackgroundColor: background,
+      brightness: brightness,
+      textTheme: TextTheme().apply(
+        bodyColor: text,
+        displayColor: text,
+      ),
+      extensions: [
+        PaletteThemeExtension(palette: this),
+      ],
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: accent,
+        brightness: brightness,
+      ).copyWith(
+        primary: accent,
+        onPrimary: textOnAccent,
+        secondary: accent,
+        onSecondary: textOnAccent,
+      ),
     );
   }
 }
