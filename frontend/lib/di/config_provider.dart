@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:melist/domain/models/config.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
@@ -15,6 +14,4 @@ class ConfigProvider {
       apiUrl: apiUrl,
     );
   }
-
-  static Config of(BuildContext context) => context.read<Config>();
 }
