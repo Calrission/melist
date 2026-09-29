@@ -27,7 +27,7 @@ API для MELIST на [Dart Frog](https://dart-frog.dev) с PostgreSQL. Пак�
 
 ```
 backend/
-├── main.dart                   # точка входа: AppConfig, БД, миграции, provider<AppConfig|Database|DebugAuth>
+├── main.dart                   # точка входа: AppConfig, БД, миграции, provider, статика Mini App
 ├── routes/                     # эндпоинты (файл = путь)
 │   ├── _middleware.dart        # логи, CORS, провайдеры per-request сервисов, Swagger UI
 │   ├── index.dart              # GET /
@@ -86,6 +86,7 @@ ACCESS_TOKEN_TTL_SECONDS=900     # access JWT, по умолчанию 15 мин
 REFRESH_TOKEN_TTL_SECONDS=604800 # refresh cookie, по умолчанию 7 дней
 COOKIE_SECURE=false              # true в проде (HTTPS)
 CORS_ORIGINS=http://localhost:8081,https://*.ngrok-free.dev  # origins с credentials; `*` — одна метка; пусто — allow-all без cookies
+WEB_ROOT=           # каталог сборки Flutter Web; пусто — более новый из frontend/build/web и frontend/.build/web
 ```
 
 `AppConfig.load()` читает `.env`, затем поверх накладывает переменные окружения процесса — **окружение важнее файла**. Так одна и та же сборка работает локально с `.env` и в Docker/CI без него, где значения приходят через `environment:` или `-e`. Падает на старте, если `BOT_TOKEN`, `JWT_SECRET` или `DATABASE_URL` пусты. Секреты в код не попадают: см. `lib/src/config/app_config.dart`.
@@ -185,7 +186,7 @@ CLI Dart Frog ставится один раз: `dart pub global activate dart_f
 
 Пароля у пользователя нет. Клиент присылает сырую строку `WebApp.initData`, сервер проверяет HMAC-SHA256 токеном бота и выдаёт access JWT (`sub` = Telegram user id) плюс HttpOnly cookie `refresh_token`. Дальше все запросы к `/api/**` идут с заголовком `Authorization: Bearer <jwt>`. Когда access истечёт — `POST /auth/refresh` (cookie), без повторного `initData`. Детали и формат ответов — [api.md](api.md).
 
-Локальный Flutter Web на другом порту — cross-origin: задайте `CORS_ORIGINS` (origin фронта, можно `https://*.ngrok-free.dev`) и на клиенте `withCredentials` для `/auth/*`. Same-origin прокси в проде: `CORS_ORIGINS` можно оставить пустым. `COOKIE_SECURE=true` обязателен на HTTPS.
+Сборка Mini App (`frontend/build/web` или `frontend/.build/web`, или `WEB_ROOT`) раздаётся тем же процессом на порту API. Открывать её на `GET /`. `GET /` — приложение, пока в каталоге есть `index.html`; `/api`, `/auth`, `/health`, `/docs`, `/openapi.json` не перехватываются. `API_URL` на клиенте пустой. `flutter run` на другом порту — cross-origin: задайте `CORS_ORIGINS` (origin фронта) и `API_URL`. `COOKIE_SECURE=true` обязателен на HTTPS.
 
 Для локальной разработки без Mini App: `DEBUG_AUTH=true` в `.env`. На старте создаётся пользователь `debug_admin` (`DEBUG_USER_ID`, по умолчанию `1`), а строка `DEBUG_TOKEN` (по умолчанию `dev-admin`) принимается как Bearer на `/api/**`. Это не JWT: `iat`/`exp` не меняются. Токен можно взять из `GET /auth/debug` или сразу вставить в Swagger Authorize. Если флаг выключен, магическая строка даёт `401`, эндпоинт — `404`. На проде флаг не включать.
 

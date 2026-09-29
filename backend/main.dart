@@ -46,11 +46,28 @@ Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
     rethrow;
   }
 
+  final webRoot = frontendWebRoot(
+    environment: {
+      if (config.webRoot != null) 'WEB_ROOT': config.webRoot!,
+    },
+  );
+  if (frontendBuildReady(webRoot)) {
+    stdout.writeln('Serving frontend from ${webRoot.path}');
+  } else {
+    stdout.writeln(
+      'Frontend build not found at ${webRoot.path}; '
+      'API only until index.html appears',
+    );
+  }
+
   final server = await serve(
-    handler
-        .use(provider<AppConfig>((_) => config))
-        .use(provider<Database>((_) => database))
-        .use(provider<DebugAuth>((_) => debugAuth)),
+    withFrontend(
+      handler
+          .use(provider<AppConfig>((_) => config))
+          .use(provider<Database>((_) => database))
+          .use(provider<DebugAuth>((_) => debugAuth)),
+      root: webRoot,
+    ),
     ip,
     port,
   );

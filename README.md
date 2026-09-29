@@ -6,7 +6,7 @@ Telegram Mini App для вишлистов: пользователь собир
 
 ```
 melist/
-├── frontend/              # Flutter Web (Telegram Mini App), сборка → `.build/web`
+├── frontend/              # Flutter Web (Telegram Mini App), сборка → `build/web` или `.build/web`
 ├── backend/               # Dart Frog API
 │   ├── docker-compose.yml # PostgreSQL + API
 │   └── Dockerfile         # образ API, контекст — корень репозитория
@@ -28,11 +28,10 @@ melist/
 
 ```powershell
 dart pub global activate dart_frog_cli
-dart pub global activate dhttpd
 dart pub global activate web_cache_killer
 ```
 
-`dart` / `dart_frog` / `dhttpd` / `web_cache_killer` должны быть в `PATH` (обычно `%LOCALAPPDATA%\Pub\Cache\bin`).
+`dart` / `dart_frog` / `web_cache_killer` должны быть в `PATH` (обычно `%LOCALAPPDATA%\Pub\Cache\bin`).
 
 ## Первый запуск
 
@@ -104,17 +103,18 @@ dart run dart_frog_swagger
 
 ## Frontend (конфиги IDE)
 
-Запускать в отдельных терминалах. Сначала собрать, потом раздать.
+Сборка Flutter Web раздаётся тем же процессом, что и API, на порту **8080**. Mini App — [http://localhost:8080](http://localhost:8080). Пока есть `index.html` в `frontend/build/web` (build-dev) или `frontend/.build/web` (build-release), берётся более новая сборка. `/api`, `/auth`, `/health`, `/docs` и `/openapi.json` остаются API. Сборки нет — только API, `GET /` отвечает JSON.
 
 | Конфиг IDE | Каталог | Команда | Зачем |
 |---|---|---|---|
 | `build-dev` | `frontend/` | `web_cache_killer`, затем `build/` → `.build/` | Сборка Flutter Web с cache-busting → `frontend/.build/web` |
-| `web-server` | `frontend/` | `dhttpd --port 55456 --path .build/web` | Статика Mini App, [http://localhost:55456](http://localhost:55456) |
 | `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run -o .build/web` | Релизная сборка в `frontend/.build/web` |
-| `ngrok` | корень | `ngrok http 55456` | HTTPS-туннель для BotFather / Telegram |
-| `backend` | `backend/` | `dart_frog dev` | API на хосте, если не используете контейнер `melist-api` |
+| `ngrok` | корень | `ngrok start --all --config ngrok.yml` | Один HTTPS-туннель на **8080** |
+| `backend` | `backend/` | `dart_frog dev` | API и статика на хосте, если не используете контейнер `melist-api` |
 
-`web_cache_killer` всегда пишет в `build/`; после успешной сборки каталог переименовывается в `.build/` (в gitignore). Раздавать нужно `.build/web`.
+`web_cache_killer` пишет в `frontend/build/web`. Релизная сборка — в `frontend/.build/web`. Бэкенд отдаёт ту, у которой новее `index.html` (переопределение — `WEB_ROOT` в `backend/.env`). Появившийся `index.html` подхватывается без перезапуска, смена каталога — после перезапуска бэкенда. Контейнер `melist-api` монтирует каталог `frontend/` и читает ту же сборку.
+
+`API_URL` в `frontend/.env` оставьте пустым — запросы идут на тот же origin, в том числе через ngrok. Конфиг `main.dart` (`flutter run`, порт **8081**) по-прежнему на другом origin: тогда `API_URL=http://localhost:8080` и `CORS_ORIGINS` с этим origin.
 
 ```powershell
 cd frontend
@@ -122,10 +122,11 @@ web_cache_killer
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 if (Test-Path .build) { Remove-Item -Recurse -Force .build }
 Rename-Item build .build
-dhttpd --port 55456 --path .build/web
+
+# API уже слушает 8080 — Mini App: http://localhost:8080
 
 # в другом терминале, из корня репозитория
-ngrok http 55456
+ngrok start --all --config ngrok.yml
 ```
 
 HTTPS из ngrok указать в BotFather как Web App URL. После правок frontend снова **build-dev**, затем перезагрузить Mini App в Telegram.

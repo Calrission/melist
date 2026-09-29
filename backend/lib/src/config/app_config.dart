@@ -12,6 +12,7 @@ class AppConfig {
     this.refreshTokenTtl = const Duration(days: 7),
     this.cookieSecure = false,
     this.corsOrigins = const [],
+    this.webRoot,
     this.debugAuth = false,
     this.debugToken,
     this.debugUserId = 1,
@@ -48,6 +49,7 @@ class AppConfig {
       ),
       cookieSecure: _flag(env, 'COOKIE_SECURE'),
       corsOrigins: _csv(env, 'CORS_ORIGINS'),
+      webRoot: _optional(env, 'WEB_ROOT'),
     );
   }
 
@@ -67,6 +69,11 @@ class AppConfig {
   /// Allowed browser origins for credentialed CORS. Empty — allow all
   /// origins without credentials (same-origin proxy, curl).
   final List<String> corsOrigins;
+
+  /// Flutter web build directory. Empty — the newer of
+  /// `frontend/build/web` and `frontend/.build/web`. Ignored until that
+  /// directory contains `index.html`.
+  final String? webRoot;
 
   /// When true, `Authorization: Bearer <DEBUG_TOKEN>` logs in as [debugUserId]
   /// without Telegram. Must stay false in production.

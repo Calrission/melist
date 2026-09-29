@@ -157,6 +157,7 @@ ACCESS_TOKEN_TTL_SECONDS=600
 REFRESH_TOKEN_TTL_SECONDS=1209600
 COOKIE_SECURE=true
 CORS_ORIGINS=http://localhost:8081, https://app.example
+WEB_ROOT=C:/web
 ''');
 
       final config = AppConfig.load(files: [envFile], environment: const {});
@@ -168,6 +169,7 @@ CORS_ORIGINS=http://localhost:8081, https://app.example
         config.corsOrigins,
         equals(['http://localhost:8081', 'https://app.example']),
       );
+      expect(config.webRoot, equals('C:/web'));
     });
 
     test('defaults TTLs and empty CORS when unset', () {
@@ -177,6 +179,7 @@ CORS_ORIGINS=http://localhost:8081, https://app.example
       expect(config.refreshTokenTtl, const Duration(days: 7));
       expect(config.cookieSecure, isFalse);
       expect(config.corsOrigins, isEmpty);
+      expect(config.webRoot, isNull);
     });
 
     test('fails when a required variable is missing or empty', () {

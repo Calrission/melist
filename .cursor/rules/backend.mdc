@@ -34,7 +34,7 @@ alwaysApply: false
 ## Команды (из `backend/`)
 
 ```powershell
-dart_frog dev                 # http://localhost:8080, Swagger на /docs
+dart_frog dev                 # http://localhost:8080: API и сборка frontend/build/web, Swagger на /docs
 dart run dart_frog_swagger    # build/openapi.json
 dart analyze; dart test
 ```

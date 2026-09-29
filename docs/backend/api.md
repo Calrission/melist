@@ -6,7 +6,7 @@
 
 ## Общие правила
 
-- Публичные роуты: `/`, `/health`, `/auth/*`, `/docs`, `/openapi.json`.
+- Публичные роуты: `/`, `/health`, `/auth/*`, `/docs`, `/openapi.json`. Если рядом есть сборка Flutter Web (`frontend/build/web/index.html` или `frontend/.build/web/index.html`), `GET /` отдаёт Mini App, а не JSON; остальные пути из этого списка по-прежнему API.
 - Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
 - Ошибки всегда в формате `{ "error": "<сообщение>" }`.
 - Тела `POST`/`PATCH` на клиенте — модели в `melist_core` (`CreateWishlistBody`, `PatchWishBody`, …). PATCH: нет ключа — поле не менять; `null` — сбросить (`jsonOmit` в конструкторе).

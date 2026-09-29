@@ -89,7 +89,7 @@ Future<Response> onRequest(RequestContext context) async {
 ## 9. Развёртывание
 
 - `dart_frog build` собирает `build/` с `Dockerfile`; локальный стек — `backend/docker-compose.yml` и `backend/Dockerfile` (контекст сборки — корень монорепо, без frontend). Запускать `dart build/bin/server.dart` или `docker compose up --build` из `backend/`.
-- Порт берётся из `PORT` (по умолчанию `8080`), хост — `0.0.0.0` в контейнере.
+- Порт берётся из `PORT` (по умолчанию `8080`), хост — `0.0.0.0` в контейнере. Сборка Flutter Web с того же порта — `withFrontend` в `main.dart` (`WEB_ROOT` или более новый из `frontend/build/web` и `frontend/.build/web`). В `docker-compose.yml` каталог `frontend/` смонтирован в `/frontend`.
 - Перед сборкой в CI запускайте `dart run dart_frog_swagger`, иначе `/docs` покажет ошибку об отсутствующем `openapi.json`.
 
 ## Ссылки

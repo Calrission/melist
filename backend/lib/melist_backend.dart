@@ -21,6 +21,7 @@ export 'src/data/wishlist_subscription_repository.dart';
 export 'src/favorites/favorite_service.dart';
 export 'src/http/app_exception.dart';
 export 'src/http/cors.dart';
+export 'src/http/frontend_server.dart';
 export 'src/http/json_body.dart';
 export 'src/http/parse.dart';
 export 'src/http/responses.dart';

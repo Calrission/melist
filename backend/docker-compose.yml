@@ -30,6 +30,10 @@ services:
       PORT: "8080"
       # Hostname `db` is the compose network; do not use localhost from .env.
       DATABASE_URL: postgres://melist:melist@db:5432/melist?sslmode=disable
+    volumes:
+      # Host build at /frontend/build/web — the path the server resolves
+      # from WORKDIR /app (`../frontend/build/web`).
+      - ../frontend:/frontend:ro
     depends_on:
       db:
         condition: service_healthy
