@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -11,12 +12,6 @@ import 'package:provider/provider.dart';
 
 class WishlistListPage extends StatefulWidget {
   const WishlistListPage({super.key});
-
-  static GoRoute get route => GoRoute(
-    path: '/wishlists',
-    name: 'wishlists',
-    builder: (_, _) => const WishlistListPage(),
-  );
 
   @override
   State<WishlistListPage> createState() => _WishlistListPageState();
@@ -35,6 +30,12 @@ class _WishlistListPageState extends State<WishlistListPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistListController>();
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: (){
+          context.goNamed(wishlistCreateGoKey);
+        }
+      ),
       body: Column(
         children: [
           Text("Виш-листы"),
@@ -58,6 +59,7 @@ class _LoadedWishlistPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.read<WishlistListController>();
     return Expanded(
       child: (wishlists.isNotEmpty)
         ? ListView.separated(
@@ -68,6 +70,21 @@ class _LoadedWishlistPage extends StatelessWidget {
               return ListTile(
                 title: Text(e.name),
                 subtitle: Text("Кол-во вишей: ${e.items.length}"),
+                trailing: Row(
+                  spacing: 8,
+                  mainAxisSize: .min,
+                  children: [
+                    IconButton(onPressed: (){
+                      context.goNamed(
+                        wishlistEditGoKey,
+                        pathParameters: {'id': e.id.toString()}
+                      );
+                    }, icon: Icon(Icons.edit)),
+                    IconButton(onPressed: (){
+                      controller.deleteWishlists([e.id]);
+                    }, icon: Icon(Icons.delete)),
+                  ],
+                ),
               );
             },
           )

@@ -5,15 +5,13 @@ import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/profile_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
-  static GoRoute get route =>
-      GoRoute(path: '/', name: 'home', builder: (_, _) => const HomePage());
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -53,7 +51,7 @@ class _HomePageState extends State<HomePage> {
               ),
             },
             FilledButton(
-              onPressed: () => context.goNamed('wishlists'),
+              onPressed: () => context.goNamed(wishlistsGoKey),
               child: Text("TO LIST WISHLIST"),
             ),
           ],

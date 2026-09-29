@@ -7,7 +7,11 @@ enum WishlistVisibility {
   link;
 
   static WishlistVisibility fromName(Object? raw) =>
-      decodeEnum(WishlistVisibility.values, raw, 'WishlistVisibility');
+    decodeEnum(WishlistVisibility.values, raw, 'WishlistVisibility');
+
+  static WishlistVisibility fromBool(bool isPublic) => (isPublic)
+    ? WishlistVisibility.public
+    : WishlistVisibility.draft;
 }
 
 /// Status of a wish (`wish_status`).

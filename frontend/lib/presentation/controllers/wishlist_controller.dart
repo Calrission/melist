@@ -17,6 +17,14 @@ class WishlistListController extends BaseController<List<WishlistModel>> {
     }
   }
 
+  Future<void> refreshMyWishlist() async {
+    try {
+      data = await _repository.getMyWishlists();
+    } on Object catch(e) {
+      setError(e, silence: true, changeState: false);
+    }
+  }
+
   Future<void> deleteWishlists(List<int> ids) async {
     if (state != ControllerState.loaded) {
       return;
