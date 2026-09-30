@@ -6,7 +6,7 @@ import 'package:melist/presentation/controllers/app_bootstrap_controller.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
-import 'package:melist/presentation/controllers/wishlist_controller.dart';
+import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_form_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';

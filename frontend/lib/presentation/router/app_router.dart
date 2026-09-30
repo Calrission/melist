@@ -4,14 +4,17 @@ import 'package:melist/presentation/pages/error_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
 import 'package:melist/presentation/pages/wishlist_form_page.dart';
 import 'package:melist/presentation/pages/wishlist_list_page.dart';
+import 'package:melist/presentation/pages/wishlist_page.dart';
 import 'package:melist/presentation/router/session_gate.dart';
 import 'package:provider/provider.dart';
 import 'package:talker/talker.dart';
 
 const String homeGoKey = 'home';
 const String wishlistsGoKey= 'wishlists';
+const String wishlistGoKey = 'wishlist';
 const String wishlistCreateGoKey = 'wishlist_create';
 const String wishlistEditGoKey = 'wishlist_edit';
+const String wishCreateGoKey = 'wish_create';
 
 GoRouter createAppRouter() => GoRouter(
   initialLocation: '/',
@@ -42,8 +45,25 @@ GoRouter createAppRouter() => GoRouter(
                 wishlistId: int.parse(state.pathParameters['id']!),
               ),
             ),
+            GoRoute(
+              path: ':id',
+              name: wishlistGoKey,
+              builder: (context, state) => WishlistPage(
+                wishlistId: int.parse(state.pathParameters['id']!),
+              ),
+            ),
           ]
-        )
+        ),
+        // GoRoute(
+        //   path: '/wish',
+        //   routes: [
+        //     GoRoute(
+        //       path: 'new',
+        //       name: wishCreateGoKey,
+        //       builder: (context, state) =>
+        //     )
+        //   ]
+        // )
       ],
     ),
   ],

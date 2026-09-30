@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
-import 'package:melist/presentation/controllers/wishlist_controller.dart';
+import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
@@ -70,6 +70,9 @@ class _LoadedWishlistPage extends StatelessWidget {
               return ListTile(
                 title: Text(e.name),
                 subtitle: Text("Кол-во вишей: ${e.items.length}"),
+                onTap: () {
+                  context.goNamed(wishlistGoKey, pathParameters: {'id': e.id.toString()});
+                },
                 trailing: Row(
                   spacing: 8,
                   mainAxisSize: .min,
