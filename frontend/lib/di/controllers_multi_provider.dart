@@ -30,7 +30,11 @@ class ControllersMultiProvider {
     ),
 
     ChangeNotifierProvider<WishlistController>(
-      create: (ctx) => WishlistController(repository: ctx.read()),
+      create: (ctx) => WishlistController(
+        wishlistRepository: ctx.read(),
+        wishRepository: ctx.read(),
+        wishlistListController: ctx.read()
+      ),
     ),
 
     ChangeNotifierProvider<WishlistFormController>(

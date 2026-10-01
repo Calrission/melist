@@ -1,16 +1,38 @@
+import 'package:melist/domain/interfaces/i_wish_repository.dart';
 import 'package:melist/domain/interfaces/i_wishlist_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
+import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist_core/melist_core.dart';
 
 class WishlistController extends BaseController<WishlistModel> {
-  WishlistController({required this._repository});
+  WishlistController({
+    required this._wishlistRepository,
+    required this._wishRepository,
+    required this._wishlistListController
+  });
 
-  final IWishlistRepository _repository;
+  final WishlistListController _wishlistListController;
+  final IWishlistRepository _wishlistRepository;
+  final IWishRepository _wishRepository;
 
   Future<void> loadById(int id) async {
     emit(ControllerState.loading);
     try {
-      data = await _repository.getMyWishlistById(id);
+      data = await _wishlistRepository.getMyWishlistById(id);
+    } on Object catch (e) {
+      error = e;
+    }
+  }
+
+  Future<void> deleteWish(int wishId) async {
+    try {
+      await _wishRepository.deleteWishById(wishId);
+      await _wishlistListController.refreshMyWishlist();
+      if (data != null){
+        data = data!.copyWith(
+          items: data!.items.where((item) => item.id != wishId).toList()
+        );
+      }
     } on Object catch (e) {
       error = e;
     }

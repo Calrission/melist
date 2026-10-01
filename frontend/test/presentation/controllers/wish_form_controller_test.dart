@@ -11,7 +11,11 @@ void main() {
     final wishlists = _Wishlists();
     final wishes = _Wishes(wishlists);
     final list = WishlistListController(repository: wishlists);
-    final wishlist = WishlistController(repository: wishlists);
+    final wishlist = WishlistController(
+      wishlistRepository: wishlists,
+      wishRepository: wishes,
+      wishlistListController: list
+    );
     final form = WishFormController(
       repository: wishes,
       wishlists: list,

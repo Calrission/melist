@@ -83,7 +83,8 @@ class _LoadedWishlistView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final wishlist = context.watch<WishlistController>().data!;
+    final controller = context.watch<WishlistController>();
+    final wishlist = controller.data!;
     return Column(
       children: [
         Text(wishlist.name),
@@ -99,6 +100,17 @@ class _LoadedWishlistView extends StatelessWidget {
                           ? Image.network(e.coverUrl!)
                           : null,
                       subtitle: Text("${e.price.toString()} ₽"),
+                      trailing: Row(
+                        mainAxisSize: .min,
+                        children: [
+                          IconButton(
+                            onPressed: (){
+                              controller.deleteWish(e.id);
+                            },
+                            icon: Icon(Icons.delete)
+                          )
+                        ],
+                      ),
                       onTap: () {
                         // context.goNamed(, extra: {
                         //   'wishlistId': wishlistId.toString()
