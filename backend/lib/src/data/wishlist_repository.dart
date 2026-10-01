@@ -284,17 +284,31 @@ VALUES (@wishlistId, @wishId, @position)
   }
 
   Future<List<WishModel>> listItems(int wishlistId) async {
+    final grouped = await listItemsFor([wishlistId]);
+    return grouped[wishlistId] ?? const [];
+  }
+
+  /// Wishes of many wishlists, keyed by wishlist id, ordered by `position`.
+  Future<Map<int, List<WishModel>>> listItemsFor(List<int> wishlistIds) async {
+    if (wishlistIds.isEmpty) {
+      return const {};
+    }
     final rows = await _db.query(
       '''
-SELECT $_wishColumns
+SELECT ww.wishlist_id, $_wishColumns
 FROM wishes w
 JOIN wishlist_wishes ww ON ww.wish_id = w.id
-WHERE ww.wishlist_id = @wishlistId
-ORDER BY ww.position, w.id
+WHERE ww.wishlist_id = ANY(@wishlistIds)
+ORDER BY ww.wishlist_id, ww.position, w.id
 ''',
-      {'wishlistId': wishlistId},
+      {'wishlistIds': wishlistIds},
     );
-    return [for (final row in rows) WishModel.fromRow(row)];
+    final grouped = <int, List<WishModel>>{};
+    for (final row in rows) {
+      final wishlistId = (row['wishlist_id'] as num).toInt();
+      grouped.putIfAbsent(wishlistId, () => []).add(WishModel.fromRow(row));
+    }
+    return grouped;
   }
 
   Future<int> maxItemPosition(int wishlistId) {

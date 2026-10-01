@@ -8,6 +8,7 @@ import 'package:dart_frog/dart_frog.dart';
 import 'package:dart_frog_test/dart_frog_test.dart';
 import 'package:melist_backend/melist_backend.dart';
 import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
+import 'package:melist_core/melist_core.dart';
 import 'package:test/test.dart';
 
 import '../../../helpers/memory_wishlists.dart';
@@ -54,17 +55,20 @@ void main() {
       );
     });
 
-    test('GET returns own wishlists', () async {
-      await service.create(user, name: 'Birthday');
+    test('GET returns own wishlists with items', () async {
+      data.wishes[1] = const WishModel(id: 1, ownerId: 1, name: 'Headphones');
+      await service.create(user, name: 'Birthday', wishIds: [1]);
 
       final response = await handleWishlistsCollection(
         contextFor(HttpMethod.get).context,
       );
       final body = jsonDecode(await response.body()) as List<dynamic>;
+      final wishlist = body.first as Map;
 
       expect(response, isOk);
       expect(body, hasLength(1));
-      expect((body.first as Map)['name'], 'Birthday');
+      expect(wishlist['name'], 'Birthday');
+      expect((wishlist['items'] as List).single['name'], 'Headphones');
     });
 
     test('POST creates a wishlist', () async {

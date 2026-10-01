@@ -367,7 +367,12 @@ void main() {
       expect(listed, isOk);
       final lists = await jsonList(listed);
       expect(lists, hasLength(2));
-      expect((lists.first as Map)['items'], isEmpty);
+      expect((lists.first as Map)['name'], 'WL1');
+      expect(
+        ((lists.first as Map)['items'] as List).single['name'],
+        'Item',
+      );
+      expect((lists.last as Map)['items'], isEmpty);
 
       final card = await handleWishlistById(
         app.context(HttpMethod.get, '/api/wishlists/${first['id']}').context,

@@ -21,8 +21,11 @@ class _WishlistListPageState extends State<WishlistListPage> {
   @override
   void initState() {
     super.initState();
-    context.postFrame((){
-      context.read<WishlistListController>().loadMyWishlist();
+    context.postFrame(() {
+      final controller = context.read<WishlistListController>();
+      if (controller.state == ControllerState.init) {
+        controller.loadMyWishlist();
+      }
     });
   }
 
@@ -30,11 +33,18 @@ class _WishlistListPageState extends State<WishlistListPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistListController>();
     return Scaffold(
+      appBar: AppBar(
+        leading: BackButton(
+          onPressed: () {
+            context.pop();
+          },
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: (){
+        onPressed: () {
           context.goNamed(wishlistCreateGoKey);
-        }
+        },
       ),
       body: Column(
         children: [
@@ -62,36 +72,45 @@ class _LoadedWishlistPage extends StatelessWidget {
     final controller = context.read<WishlistListController>();
     return Expanded(
       child: (wishlists.isNotEmpty)
-        ? ListView.separated(
-            itemCount: wishlists.length,
-            separatorBuilder: (ctx, _) => SizedBox(height: 8),
-            itemBuilder: (ctx, index) {
-              final e = wishlists[index];
-              return ListTile(
-                title: Text(e.name),
-                subtitle: Text("Кол-во вишей: ${e.items.length}"),
-                onTap: () {
-                  context.goNamed(wishlistGoKey, pathParameters: {'id': e.id.toString()});
-                },
-                trailing: Row(
-                  spacing: 8,
-                  mainAxisSize: .min,
-                  children: [
-                    IconButton(onPressed: (){
-                      context.goNamed(
-                        wishlistEditGoKey,
-                        pathParameters: {'id': e.id.toString()}
-                      );
-                    }, icon: Icon(Icons.edit)),
-                    IconButton(onPressed: (){
-                      controller.deleteWishlists([e.id]);
-                    }, icon: Icon(Icons.delete)),
-                  ],
-                ),
-              );
-            },
-          )
-        : EmptyPlaceholderWidget()
+          ? ListView.separated(
+              itemCount: wishlists.length,
+              separatorBuilder: (ctx, _) => SizedBox(height: 8),
+              itemBuilder: (ctx, index) {
+                final e = wishlists[index];
+                return ListTile(
+                  title: Text(e.name),
+                  subtitle: Text("Кол-во вишей: ${e.items.length}"),
+                  onTap: () {
+                    context.goNamed(
+                      wishlistGoKey,
+                      pathParameters: {'id': e.id.toString()},
+                    );
+                  },
+                  trailing: Row(
+                    spacing: 8,
+                    mainAxisSize: .min,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          context.goNamed(
+                            wishlistEditGoKey,
+                            pathParameters: {'id': e.id.toString()},
+                          );
+                        },
+                        icon: Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          controller.deleteWishlists([e.id]);
+                        },
+                        icon: Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            )
+          : EmptyPlaceholderWidget(),
     );
   }
 }

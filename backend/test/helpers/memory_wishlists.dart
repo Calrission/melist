@@ -301,11 +301,19 @@ class MemoryWishlistRepository implements WishlistRepository {
 
   @override
   Future<List<WishModel>> listItems(int wishlistId) async {
-    final ids = data.items[wishlistId] ?? const <int>[];
-    return [
-      for (final id in ids)
-        if (data.wishes[id] case final wish?) wish,
-    ];
+    final grouped = await listItemsFor([wishlistId]);
+    return grouped[wishlistId] ?? const [];
+  }
+
+  @override
+  Future<Map<int, List<WishModel>>> listItemsFor(List<int> wishlistIds) async {
+    return {
+      for (final wishlistId in wishlistIds)
+        wishlistId: [
+          for (final id in data.items[wishlistId] ?? const <int>[])
+            if (data.wishes[id] case final wish?) wish,
+        ],
+    };
   }
 
   List<int> _itemIds(int wishlistId) => data.items[wishlistId] ?? const <int>[];

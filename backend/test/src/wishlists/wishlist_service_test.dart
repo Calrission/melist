@@ -74,13 +74,16 @@ void main() {
   });
 
   group('WishlistService.get and list', () {
-    test('lists own wishlists by position', () async {
-      await service.create(owner, name: 'A');
+    test('lists own wishlists by position with their wishes', () async {
+      data.wishes[1] = const WishModel(id: 1, ownerId: 7, name: 'Book');
+      await service.create(owner, name: 'A', wishIds: [1]);
       await service.create(owner, name: 'B');
       await service.create(stranger, name: 'C');
 
       final mine = await service.listMine(owner);
       expect(mine.map((item) => item.name), ['A', 'B']);
+      expect(mine.first.items.map((item) => item.name), ['Book']);
+      expect(mine.last.items, isEmpty);
     });
 
     test('returns 404 / 403 on getById', () async {

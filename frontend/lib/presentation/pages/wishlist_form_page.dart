@@ -8,7 +8,6 @@ import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
 class WishlistFormPage extends StatefulWidget {
-
   final int? wishlistId;
   bool get isEdit => wishlistId != null;
 
@@ -19,7 +18,6 @@ class WishlistFormPage extends StatefulWidget {
 }
 
 class _WishlistFormPageState extends State<WishlistFormPage> {
-
   bool isPublic = false;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -28,9 +26,11 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
   void initState() {
     super.initState();
     if (widget.isEdit) {
-      context.postFrame((){
+      context.postFrame(() {
         scheduleMicrotask(() async {
-          final model = await context.read<WishlistFormController>().loadById(widget.wishlistId!);
+          final model = await context.read<WishlistFormController>().loadById(
+            widget.wishlistId!,
+          );
           if (model == null) {
             return;
           }
@@ -44,22 +44,28 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
 
   Future<void> save() async {
     final controller = context.read<WishlistFormController>();
-    if (widget.isEdit) {
-      await controller.update(widget.wishlistId!, PatchWishlistBody(
-        name: _nameController.text,
-        description: _descriptionController.text,
-        visibility: WishlistVisibility.fromBool(isPublic)
-      ));
-    } else {
-      await controller.create(CreateWishlistBody(
-        name: _nameController.text,
-        description: _descriptionController.text,
-        visibility: WishlistVisibility.fromBool(isPublic)
-      ));
-    }
+    final saved = widget.isEdit
+        ? await controller.update(
+            widget.wishlistId!,
+            PatchWishlistBody(
+              name: _nameController.text,
+              description: _descriptionController.text,
+              visibility: WishlistVisibility.fromBool(isPublic),
+            ),
+          )
+        : await controller.create(
+            CreateWishlistBody(
+              name: _nameController.text,
+              description: _descriptionController.text,
+              visibility: WishlistVisibility.fromBool(isPublic),
+            ),
+          );
 
-    if (!mounted || controller.data == null) return;
+    if (!mounted || !saved) {
+      return;
+    }
     context.pop();
+    controller.reset();
   }
 
   @override
@@ -75,17 +81,13 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
             TextField(
               enabled: isEnabled,
               controller: _nameController,
-              decoration: InputDecoration(
-                hint: Text("Название"),
-              ),
+              decoration: InputDecoration(hint: Text("Название")),
             ),
 
             TextField(
               enabled: isEnabled,
               controller: _descriptionController,
-              decoration: InputDecoration(
-                hint: Text("Описание"),
-              ),
+              decoration: InputDecoration(hint: Text("Описание")),
             ),
 
             Row(
@@ -94,13 +96,15 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
               children: [
                 Checkbox(
                   value: isPublic,
-                  onChanged: isEnabled ? (value) {
-                    setState(() {
-                      isPublic = value ?? !isPublic;
-                    });
-                  } : null
+                  onChanged: isEnabled
+                      ? (value) {
+                          setState(() {
+                            isPublic = value ?? !isPublic;
+                          });
+                        }
+                      : null,
                 ),
-                Text("Публичный")
+                Text("Публичный"),
               ],
             ),
 
@@ -110,15 +114,15 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
               children: [
                 OutlinedButton(
                   onPressed: isEnabled
-                  ? (){
-                      context.pop();
-                    }
-                  : null,
-                  child: Text("Отмена")
+                      ? () {
+                          context.pop();
+                        }
+                      : null,
+                  child: Text("Отмена"),
                 ),
-                FilledButton(onPressed: save, child: Text("Сохранить"))
+                FilledButton(onPressed: save, child: Text("Сохранить")),
               ],
-            )
+            ),
           ],
         ),
       ),

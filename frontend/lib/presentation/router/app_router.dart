@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/pages/error_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
+import 'package:melist/presentation/pages/wish_form_page.dart';
 import 'package:melist/presentation/pages/wishlist_form_page.dart';
 import 'package:melist/presentation/pages/wishlist_list_page.dart';
 import 'package:melist/presentation/pages/wishlist_page.dart';
@@ -26,44 +27,45 @@ GoRouter createAppRouter() => GoRouter(
         GoRoute(
           path: '/',
           name: homeGoKey,
-          builder: (_, _) => const HomePage()
-        ),
-        GoRoute(
-          path: '/wishlists',
-          name: wishlistsGoKey,
-          builder: (_, _) => const WishlistListPage(),
+          builder: (_, _) => const HomePage(),
           routes: [
             GoRoute(
-              path: 'create',
-              name: wishlistCreateGoKey,
-              builder: (_, _) => const WishlistFormPage()
-            ),
-            GoRoute(
-              path: 'edit/:id',
-              name: wishlistEditGoKey,
-              builder: (context, state) => WishlistFormPage(
-                wishlistId: int.parse(state.pathParameters['id']!),
-              ),
-            ),
-            GoRoute(
-              path: ':id',
-              name: wishlistGoKey,
-              builder: (context, state) => WishlistPage(
-                wishlistId: int.parse(state.pathParameters['id']!),
-              ),
+              path: '/wishlists',
+              name: wishlistsGoKey,
+              builder: (_, _) => const WishlistListPage(),
+              routes: [
+                GoRoute(
+                  path: 'create',
+                  name: wishlistCreateGoKey,
+                  builder: (_, _) => const WishlistFormPage()
+                ),
+                GoRoute(
+                  path: 'edit/:id',
+                  name: wishlistEditGoKey,
+                  builder: (context, state) => WishlistFormPage(
+                    wishlistId: int.parse(state.pathParameters['id']!),
+                  ),
+                ),
+                GoRoute(
+                  path: ':id',
+                  name: wishlistGoKey,
+                  builder: (context, state) => WishlistPage(
+                    wishlistId: int.parse(state.pathParameters['id']!),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'wish/new',
+                      name: wishCreateGoKey,
+                      builder: (context, state) => WishFormPage(
+                        fromWishlistId: int.parse(state.pathParameters['id']!)
+                      )
+                    )
+                  ]
+                ),
+              ]
             ),
           ]
         ),
-        // GoRoute(
-        //   path: '/wish',
-        //   routes: [
-        //     GoRoute(
-        //       path: 'new',
-        //       name: wishCreateGoKey,
-        //       builder: (context, state) =>
-        //     )
-        //   ]
-        // )
       ],
     ),
   ],

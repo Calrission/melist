@@ -2,7 +2,7 @@ import 'enums.dart';
 import 'model_codec.dart';
 import 'wish_model.dart';
 
-/// Row of `wishlists`. [items] is filled when the card is loaded with wishes.
+/// Row of `wishlists`. [items] is filled for the owner's list and the card.
 class WishlistModel {
   const WishlistModel({
     required this.id,

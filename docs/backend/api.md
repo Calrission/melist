@@ -106,7 +106,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `GET /api/wishlists` (2.1)
 
-Свои вишлисты, отсортированные по `position`.
+Свои вишлисты, отсортированные по `position`. В каждом списке `items` — желания по `position`, как в карточке.
 
 ### `POST /api/wishlists` (1)
 

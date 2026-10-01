@@ -42,8 +42,18 @@ class WishlistService {
 
   WishlistRepository get _repo => _wishlists(_db);
 
-  Future<List<WishlistModel>> listMine(AuthUser user) {
-    return _repo.listByOwner(user.id);
+  Future<List<WishlistModel>> listMine(AuthUser user) async {
+    final lists = await _repo.listByOwner(user.id);
+    if (lists.isEmpty) {
+      return lists;
+    }
+    final itemsByList = await _repo.listItemsFor([
+      for (final list in lists) list.id,
+    ]);
+    return [
+      for (final list in lists)
+        list.copyWith(items: itemsByList[list.id] ?? const []),
+    ];
   }
 
   Future<WishlistModel> getById(AuthUser user, int id) async {
