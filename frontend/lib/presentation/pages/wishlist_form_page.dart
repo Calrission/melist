@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_form_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
+import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +27,7 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
   @override
   void initState() {
     super.initState();
+    context.read<WishlistFormController>().reset();
     if (widget.isEdit) {
       context.postFrame(() {
         scheduleMicrotask(() async {
@@ -34,9 +37,14 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
           if (model == null) {
             return;
           }
-          _nameController.text = model.name;
-          _descriptionController.text = model.description ?? '';
-          isPublic = model.visibility == WishlistVisibility.public;
+          if (!mounted) {
+            return;
+          }
+          setState(() {
+            _nameController.text = model.name;
+            _descriptionController.text = model.description ?? '';
+            isPublic = model.visibility == WishlistVisibility.public;
+          });
         });
       });
     }
@@ -71,60 +79,56 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistFormController>();
-    final bool isEnabled = controller.state == ControllerState.init;
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-        child: Column(
-          spacing: 12,
-          children: [
-            TextField(
-              enabled: isEnabled,
-              controller: _nameController,
-              decoration: InputDecoration(hint: Text("Название")),
-            ),
+      body: switch (controller.state) {
+        ControllerState.init || ControllerState.loaded => _buildForm(context),
+        ControllerState.loading => LoadingWidget(),
+        ControllerState.error => ErrorPlaceholderWidget(),
+      },
+    );
+  }
 
-            TextField(
-              enabled: isEnabled,
-              controller: _descriptionController,
-              decoration: InputDecoration(hint: Text("Описание")),
-            ),
-
-            Row(
-              mainAxisSize: .min,
-              spacing: 8,
-              children: [
-                Checkbox(
-                  value: isPublic,
-                  onChanged: isEnabled
-                      ? (value) {
-                          setState(() {
-                            isPublic = value ?? !isPublic;
-                          });
-                        }
-                      : null,
-                ),
-                Text("Публичный"),
-              ],
-            ),
-
-            Row(
-              mainAxisAlignment: .end,
-              spacing: 8,
-              children: [
-                OutlinedButton(
-                  onPressed: isEnabled
-                      ? () {
-                          context.pop();
-                        }
-                      : null,
-                  child: Text("Отмена"),
-                ),
-                FilledButton(onPressed: save, child: Text("Сохранить")),
-              ],
-            ),
-          ],
-        ),
+  Widget _buildForm(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
+      child: Column(
+        spacing: 12,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(hint: Text("Название")),
+          ),
+          TextField(
+            controller: _descriptionController,
+            decoration: InputDecoration(hint: Text("Описание")),
+          ),
+          Row(
+            mainAxisSize: .min,
+            spacing: 8,
+            children: [
+              Checkbox(
+                value: isPublic,
+                onChanged: (value) {
+                  setState(() {
+                    isPublic = value ?? !isPublic;
+                  });
+                },
+              ),
+              Text("Публичный"),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: .end,
+            spacing: 8,
+            children: [
+              OutlinedButton(
+                onPressed: context.pop,
+                child: Text("Отмена"),
+              ),
+              FilledButton(onPressed: save, child: Text("Сохранить")),
+            ],
+          ),
+        ],
       ),
     );
   }

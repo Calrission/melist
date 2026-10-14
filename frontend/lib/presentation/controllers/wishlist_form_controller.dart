@@ -19,7 +19,7 @@ class WishlistFormController extends BaseController<WishlistModel> {
     emit(ControllerState.loading);
     try {
       final model = await _repository.getMyWishlistById(id);
-      emit(ControllerState.init);
+      data = model;
       return model;
     } on Object catch (e) {
       error = e;
