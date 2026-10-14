@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/favorites_wishlist_controller.dart';
+import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/wish_list_tile.dart';
 import 'package:melist_core/melist_core.dart';
@@ -26,7 +27,7 @@ class FavoritesWishlistPage extends StatelessWidget {
       body: switch(controller.state) {
         ControllerState.init => LoadingWidget(),
         ControllerState.loading =>  LoadingWidget(),
-        ControllerState.error => ErrorWidget(controller.error!),
+        ControllerState.error => ErrorPlaceholderWidget(),
         ControllerState.loaded => _LoadedState(wishlists: controller.data!)
       },
     );

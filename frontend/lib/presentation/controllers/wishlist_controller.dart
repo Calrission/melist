@@ -15,6 +15,8 @@ class WishlistController extends BaseController<WishlistModel> {
   final IWishlistRepository _wishlistRepository;
   final IWishRepository _wishRepository;
 
+  List<int> get currentOrder => data!.items.map((e) => e.id).toList();
+
   Future<void> loadById(int id) async {
     emit(ControllerState.loading);
     try {
@@ -33,6 +35,24 @@ class WishlistController extends BaseController<WishlistModel> {
           items: data!.items.where((item) => item.id != wishId).toList()
         );
       }
+    } on Object catch (e) {
+      error = e;
+    }
+  }
+
+  Future<void> reorderWishes(int wishlistId, List<int> order) async {
+    if (state != ControllerState.loaded || data == null ||
+        data!.id != wishlistId) {
+      return;
+    }
+    final next = [...data!.items]
+      ..sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    data = data!.copyWith(items: next);
+    try {
+      await _wishRepository.reorderWishesInWishlist(
+        wishlistId,
+        ReorderIdsBody(order: order),
+      );
     } on Object catch (e) {
       error = e;
     }
