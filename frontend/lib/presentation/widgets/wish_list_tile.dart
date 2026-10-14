@@ -23,6 +23,7 @@ class WishListTile extends StatelessWidget {
     return ListTile(
       title: Text(wishlistModel.name),
       subtitle: Text("Кол-во вишей: ${wishlistModel.items.length}"),
+
       onTap: onTap,
       trailing: Row(
         spacing: 8,

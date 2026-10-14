@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/extensions/reorder_extension.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
@@ -73,22 +74,33 @@ class _LoadedWishlistPage extends StatelessWidget {
     final controller = context.read<WishlistListController>();
     return Expanded(
       child: (wishlists.isNotEmpty)
-        ? ListView.separated(
+        ? ReorderableListView.builder(
+            buildDefaultDragHandles: false,
+            onReorderItem: (oldIndex, newIndex) {
+              final order = controller.currentOrder;
+              if (order != null) {
+                order.reorder(oldIndex, newIndex);
+                controller.reorderWishlists(order);
+              }
+            },
             itemCount: wishlists.length,
-            separatorBuilder: (ctx, _) => SizedBox(height: 8),
             itemBuilder: (ctx, index) {
               final e = wishlists[index];
-              return WishListTile(
-                wishlistModel: e,
-                onTap: (){
-                  context.goNamed(
-                    wishlistGoKey,
-                    pathParameters: {'id': e.id.toString()},
-                  );
-                },
-                onTapDelete: (){
-                  controller.deleteWishlists([e.id]);
-                },
+              return ReorderableDelayedDragStartListener(
+                key: ValueKey(wishlists[index]),
+                index: index,
+                child: WishListTile(
+                  wishlistModel: e,
+                  onTap: (){
+                    context.goNamed(
+                      wishlistGoKey,
+                      pathParameters: {'id': e.id.toString()},
+                    );
+                  },
+                  onTapDelete: (){
+                    controller.deleteWishlists([e.id]);
+                  },
+                ),
               );
             },
           )
