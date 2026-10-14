@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:melist/presentation/controllers/app_bootstrap_controller.dart';
+import 'package:melist/presentation/controllers/favorites_wishlist_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
 import 'package:melist/presentation/controllers/wish_form_controller.dart';
@@ -27,6 +28,10 @@ class ControllersMultiProvider {
 
     ChangeNotifierProvider<WishlistListController>(
       create: (ctx) => WishlistListController(repository: ctx.read()),
+    ),
+
+    ChangeNotifierProvider<FavoritesWishlistController>(
+      create: (ctx) => FavoritesWishlistController(repository: ctx.read())..loadMyFavoriteWishlists(),
     ),
 
     ChangeNotifierProvider<WishlistController>(

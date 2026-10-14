@@ -54,6 +54,10 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => context.goNamed(wishlistsGoKey),
               child: Text("TO LIST WISHLIST"),
             ),
+            FilledButton(
+              onPressed: () => context.goNamed(wishlistFavoritesGoKey),
+              child: Text("TO FAVORITES"),
+            ),
           ],
         ),
       ),

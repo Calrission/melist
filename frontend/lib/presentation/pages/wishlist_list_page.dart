@@ -7,6 +7,7 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/wish_list_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -72,45 +73,26 @@ class _LoadedWishlistPage extends StatelessWidget {
     final controller = context.read<WishlistListController>();
     return Expanded(
       child: (wishlists.isNotEmpty)
-          ? ListView.separated(
-              itemCount: wishlists.length,
-              separatorBuilder: (ctx, _) => SizedBox(height: 8),
-              itemBuilder: (ctx, index) {
-                final e = wishlists[index];
-                return ListTile(
-                  title: Text(e.name),
-                  subtitle: Text("Кол-во вишей: ${e.items.length}"),
-                  onTap: () {
-                    context.goNamed(
-                      wishlistGoKey,
-                      pathParameters: {'id': e.id.toString()},
-                    );
-                  },
-                  trailing: Row(
-                    spacing: 8,
-                    mainAxisSize: .min,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          context.goNamed(
-                            wishlistEditGoKey,
-                            pathParameters: {'id': e.id.toString()},
-                          );
-                        },
-                        icon: Icon(Icons.edit),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          controller.deleteWishlists([e.id]);
-                        },
-                        icon: Icon(Icons.delete),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            )
-          : EmptyPlaceholderWidget(),
+        ? ListView.separated(
+            itemCount: wishlists.length,
+            separatorBuilder: (ctx, _) => SizedBox(height: 8),
+            itemBuilder: (ctx, index) {
+              final e = wishlists[index];
+              return WishListTile(
+                wishlistModel: e,
+                onTap: (){
+                  context.goNamed(
+                    wishlistGoKey,
+                    pathParameters: {'id': e.id.toString()},
+                  );
+                },
+                onTapDelete: (){
+                  controller.deleteWishlists([e.id]);
+                },
+              );
+            },
+          )
+        : EmptyPlaceholderWidget(),
     );
   }
 }

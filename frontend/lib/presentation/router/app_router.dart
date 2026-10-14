@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/pages/error_page.dart';
+import 'package:melist/presentation/pages/favorites_wishlist_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
 import 'package:melist/presentation/pages/wish_form_page.dart';
 import 'package:melist/presentation/pages/wishlist_form_page.dart';
@@ -16,6 +17,7 @@ const String wishlistGoKey = 'wishlist';
 const String wishlistCreateGoKey = 'wishlist_create';
 const String wishlistEditGoKey = 'wishlist_edit';
 const String wishCreateGoKey = 'wish_create';
+const String wishlistFavoritesGoKey = 'wishlist_favorites';
 
 GoRouter createAppRouter() => GoRouter(
   initialLocation: '/',
@@ -64,6 +66,11 @@ GoRouter createAppRouter() => GoRouter(
                 ),
               ]
             ),
+            GoRoute(
+              path: "/favorites",
+              name: wishlistFavoritesGoKey,
+              builder: (_, _) => FavoritesWishlistPage(),
+            )
           ]
         ),
       ],
