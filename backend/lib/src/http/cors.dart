@@ -7,8 +7,8 @@ import 'package:shelf_cors_headers/shelf_cors_headers.dart' as shelf;
 /// Credentialed CORS when [AppConfig.corsOrigins] is set; otherwise allow-all
 /// without credentials (same-origin proxy and curl).
 ///
-/// Allowlist entries are exact origins or a single `*` label
-/// (`https://*.ngrok-free.dev`).
+/// Allowlist entries are exact origins or one `*` (`https://*.ngrok-free.dev`,
+/// `http://*:8081`). `*` is a single DNS label or an IPv4 address.
 Handler applyCors(Handler handler) {
   return (context) {
     final config = context.read<AppConfig>();
@@ -74,6 +74,7 @@ bool _matchesOrigin(String pattern, String origin) {
   if ('*'.allMatches(pattern).length != 1) {
     return false;
   }
-  final escaped = RegExp.escape(pattern).replaceAll(r'\*', '[A-Za-z0-9-]+');
+  const star = r'(?:[A-Za-z0-9-]+|\d{1,3}(?:\.\d{1,3}){3})';
+  final escaped = RegExp.escape(pattern).replaceFirst(r'\*', star);
   return RegExp('^$escaped\$').hasMatch(origin);
 }

@@ -9,6 +9,12 @@ class WishlistListController extends BaseController<List<WishlistModel>> {
 
   List<int>? get currentOrder => data?.map((e) => e.id).toList();
 
+  final Set<int> _selectedIds = {};
+  Set<int> get selectedIds => Set.unmodifiable(_selectedIds);
+
+  bool _selectionMode = false;
+  bool get selectionMode => _selectionMode;
+
   Future<void> loadMyWishlist() async {
     emit(ControllerState.loading);
     try {
@@ -28,16 +34,35 @@ class WishlistListController extends BaseController<List<WishlistModel>> {
     }
   }
 
+  void toggleSelectionMode() {
+    _selectionMode = !_selectionMode;
+    _selectedIds.clear();
+    notifyListeners();
+  }
+
+  void toggleSelect(int id) {
+    if (!_selectedIds.remove(id)) {
+      _selectedIds.add(id);
+    }
+    notifyListeners();
+  }
+
+  Future<void> deleteSelected() async {
+    if (_selectedIds.isEmpty) {
+      return;
+    }
+    await deleteWishlists(_selectedIds.toList());
+    _selectedIds.clear();
+    _selectionMode = false;
+    notifyListeners();
+  }
+
   Future<void> deleteWishlists(List<int> ids) async {
     if (state != ControllerState.loaded || data == null) {
       return;
     }
-    try {
-      await _repository.deleteBulkWishlistsByIds(ids);
-      data = data!.where((item) => !ids.contains(item.id)).toList();
-    } on Object catch (e) {
-      error = e;
-    }
+    await _repository.deleteBulkWishlistsByIds(ids);
+    data = data!.where((item) => !ids.contains(item.id)).toList();
   }
 
   Future<void> reorderWishlists(List<int> order) async {

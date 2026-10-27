@@ -129,6 +129,20 @@ class ApiRepository
   }
 
   @override
+  Future<WishlistShareModel> shareWishlist(int wishlistId) async {
+    final response = await _dio.post('/api/wishlists/$wishlistId/share');
+    return WishlistShareModel.fromJson(_asMap(response.data));
+  }
+
+  @override
+  Future<WishlistModel> getSharedWishlist(String token) async {
+    final response = await _dio.get(
+      '/api/shared/${Uri.encodeComponent(token)}',
+    );
+    return WishlistModel.fromJson(_asMap(response.data));
+  }
+
+  @override
   Future<WishlistModel> addWishlistToFavorites(AddFavoriteBody body) async {
     final response = await _dio.post('/api/favorites', data: body.toJson());
     return WishlistModel.fromJson(response.data);
@@ -163,10 +177,19 @@ class ApiRepository
   }
 
   @override
-  Future<List<WishModel>> getMyWishes() async {
+  Future<List<WishModel>> getMyWishes({
+    String? query,
+    int? limit,
+    int? offset,
+  }) async {
     final response = await _dio.get(
       '/api/wishes',
-      queryParameters: const {'mine': 'true'},
+      queryParameters: {
+        'mine': 'true',
+        if (query != null && query.isNotEmpty) 'query': query,
+        'limit': ?limit,
+        'offset': ?offset,
+      },
     );
     return WishModel.listFromJson(response.data);
   }
@@ -214,6 +237,11 @@ class ApiRepository
     ReorderIdsBody body,
   ) async {
     await _dio.patch('/api/wishlists/$wishlistId/wishes', data: body.toJson());
+  }
+
+  @override
+  Future<void> removeWishFromWishlist(int wishlistId, int wishId) async {
+    await _dio.delete('/api/wishlists/$wishlistId/wishes/$wishId');
   }
 
   @override

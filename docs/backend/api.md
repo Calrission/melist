@@ -98,7 +98,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `GET /api/users/{id}` (25)
 
-Публичный профиль пользователя и его вишлисты с `visibility = public`. `404`, если пользователя нет.
+Публичный профиль пользователя и его вишлисты с `visibility = public`. В каждом списке `items` — желания по `position`. `404`, если пользователя нет.
 
 ## Вишлисты
 
@@ -214,8 +214,8 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Файлы: `backend/routes/api/subscriptions/`. Свой вишлист или свой профиль — `400`. Чужой черновик вишлиста — `404`. Повтор — `409`. Список — новые сверху; в списке вишлистов только `public`.
 
-- `GET /api/subscriptions/wishlists` (31) — публичные вишлисты, на которые подписан пользователь.
-- `POST /api/subscriptions/wishlists` (30) — `{ "wishlistId": 1 }` → `201` с вишлистом.
+- `GET /api/subscriptions/wishlists` (31) — публичные вишлисты, на которые подписан пользователь. В каждом списке `items` — желания по `position`.
+- `POST /api/subscriptions/wishlists` (30) — `{ "wishlistId": 1 }` → `201` с вишлистом и его `items`.
 - `DELETE /api/subscriptions/wishlists/{wishlistId}` (32) → `204`
 - `GET /api/subscriptions/users` (34) — профили, на которые подписан пользователь.
 - `POST /api/subscriptions/users` (33) — `{ "userId": 1 }` → `201` с пользователем.

@@ -31,6 +31,15 @@ class RealTelegramRepository implements ITelegramRepository {
   String get initData => _webApp.initData;
 
   @override
+  String? get startParam => _webApp.initDataUnsafe.startParam;
+
+  @override
+  void shareUrl(String url, String text) {
+    final link = Uri.https('t.me', '/share/url', {'url': url, 'text': text});
+    _webApp.openTelegramLink(url: link.toString());
+  }
+
+  @override
   UserModel getUserData() {
     final user = _webApp.initDataUnsafe.user;
     return UserModel(

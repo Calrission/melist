@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:melist/presentation/extensions/error_extension.dart';
 
 class ErrorPlaceholderWidget extends StatelessWidget {
-  const ErrorPlaceholderWidget({super.key});
+  final Object? error;
+  final VoidCallback? onRetry;
+
+  const ErrorPlaceholderWidget({super.key, this.error, this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +14,10 @@ class ErrorPlaceholderWidget extends StatelessWidget {
         mainAxisSize: .min,
         children: [
           Icon(Icons.error_outline),
-          Text("Что-то пошло не так :(")
+          Text("Что-то пошло не так :("),
+          if (error != null) Text(errorMessage(error!)),
+          if (onRetry != null)
+            TextButton(onPressed: onRetry, child: Text("Повторить")),
         ],
       ),
     );

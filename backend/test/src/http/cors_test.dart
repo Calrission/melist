@@ -42,6 +42,18 @@ void main() {
       expect(originIsAllowed('https://evil.example', listed), isFalse);
     });
 
+    test('allows any host on a listed port, including an IPv4 address', () {
+      const lan = AppConfig(
+        botToken: 'token',
+        jwtSecret: 'secret',
+        databaseUrl: 'postgres://melist@localhost/melist',
+        corsOrigins: ['http://*:8081'],
+      );
+      expect(originIsAllowed('http://192.168.1.20:8081', lan), isTrue);
+      expect(originIsAllowed('http://laptop:8081', lan), isTrue);
+      expect(originIsAllowed('http://192.168.1.20:8080', lan), isFalse);
+    });
+
     test('rejects extra subdomain labels', () {
       expect(
         originIsAllowed('https://a.b.ngrok-free.dev', listed),

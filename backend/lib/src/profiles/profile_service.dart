@@ -75,8 +75,20 @@ class ProfileService {
     if (user == null) {
       throw const NotFoundException('User not found');
     }
-    final wishlists = await _wishlists(_db).listPublicByOwner(id);
-    return PublicProfileModel(user: user, wishlists: wishlists);
+    final lists = await _wishlists(_db).listPublicByOwner(id);
+    if (lists.isEmpty) {
+      return PublicProfileModel(user: user, wishlists: lists);
+    }
+    final itemsByList = await _wishlists(_db).listItemsFor([
+      for (final list in lists) list.id,
+    ]);
+    return PublicProfileModel(
+      user: user,
+      wishlists: [
+        for (final list in lists)
+          list.copyWith(items: itemsByList[list.id] ?? const []),
+      ],
+    );
   }
 
   UiTheme _theme(String raw) {

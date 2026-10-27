@@ -43,10 +43,12 @@ abstract class BaseController<T> extends ChangeNotifier{
     notifyListeners();
   }
 
-  void reset() {
+  void reset({bool silence = false}) {
     _data = null;
     _error = null;
     _state = ControllerState.init;
-    notifyListeners();
+    if (!silence) {
+      notifyListeners();
+    }
   }
 }

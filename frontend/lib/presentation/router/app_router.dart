@@ -3,7 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/pages/error_page.dart';
 import 'package:melist/presentation/pages/favorites_wishlist_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
+import 'package:melist/presentation/pages/public_profile_page.dart';
+import 'package:melist/presentation/pages/shared_wishlist_page.dart';
+import 'package:melist/presentation/pages/subscriptions_page.dart';
 import 'package:melist/presentation/pages/wish_form_page.dart';
+import 'package:melist/presentation/pages/wish_picker_page.dart';
+import 'package:melist/presentation/pages/wishes_page.dart';
 import 'package:melist/presentation/pages/wishlist_form_page.dart';
 import 'package:melist/presentation/pages/wishlist_list_page.dart';
 import 'package:melist/presentation/pages/wishlist_page.dart';
@@ -17,7 +22,14 @@ const String wishlistGoKey = 'wishlist';
 const String wishlistCreateGoKey = 'wishlist_create';
 const String wishlistEditGoKey = 'wishlist_edit';
 const String wishCreateGoKey = 'wish_create';
+const String wishAttachGoKey = 'wish_attach';
 const String wishlistFavoritesGoKey = 'wishlist_favorites';
+const String wishesGoKey = 'wishes';
+const String wishNewGoKey = 'wish_new';
+const String wishEditGoKey = 'wish_edit';
+const String sharedWishlistGoKey = 'shared_wishlist';
+const String publicProfileGoKey = 'public_profile';
+const String subscriptionsGoKey = 'subscriptions';
 
 GoRouter createAppRouter() => GoRouter(
   initialLocation: '/',
@@ -61,16 +73,61 @@ GoRouter createAppRouter() => GoRouter(
                       builder: (context, state) => WishFormPage(
                         fromWishlistId: int.parse(state.pathParameters['id']!)
                       )
-                    )
+                    ),
+                    GoRoute(
+                      path: 'wish/attach',
+                      name: wishAttachGoKey,
+                      builder: (context, state) => WishPickerPage(
+                        wishlistId: int.parse(state.pathParameters['id']!),
+                      ),
+                    ),
                   ]
                 ),
               ]
             ),
             GoRoute(
+              path: '/wishes',
+              name: wishesGoKey,
+              builder: (_, _) => const WishesPage(),
+              routes: [
+                GoRoute(
+                  path: 'new',
+                  name: wishNewGoKey,
+                  builder: (_, _) => const WishFormPage(),
+                ),
+                GoRoute(
+                  path: ':id/edit',
+                  name: wishEditGoKey,
+                  builder: (context, state) => WishFormPage(
+                    wishId: int.parse(state.pathParameters['id']!),
+                  ),
+                ),
+              ],
+            ),
+            GoRoute(
               path: "/favorites",
               name: wishlistFavoritesGoKey,
               builder: (_, _) => FavoritesWishlistPage(),
-            )
+            ),
+            GoRoute(
+              path: '/shared/:token',
+              name: sharedWishlistGoKey,
+              builder: (context, state) => SharedWishlistPage(
+                token: state.pathParameters['token']!,
+              ),
+            ),
+            GoRoute(
+              path: '/users/:id',
+              name: publicProfileGoKey,
+              builder: (context, state) => PublicProfilePage(
+                userId: int.parse(state.pathParameters['id']!),
+              ),
+            ),
+            GoRoute(
+              path: '/subscriptions',
+              name: subscriptionsGoKey,
+              builder: (_, _) => const SubscriptionsPage(),
+            ),
           ]
         ),
       ],

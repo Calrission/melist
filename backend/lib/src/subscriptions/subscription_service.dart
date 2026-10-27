@@ -43,8 +43,18 @@ class SubscriptionService {
   final WishlistRepository Function(DbExecutor db) _wishlists;
   final UserRepository Function(DbExecutor db) _users;
 
-  Future<List<WishlistModel>> listWishlists(AuthUser user) {
-    return _wishlistSubscriptions(_db).listWishlists(user.id);
+  Future<List<WishlistModel>> listWishlists(AuthUser user) async {
+    final lists = await _wishlistSubscriptions(_db).listWishlists(user.id);
+    if (lists.isEmpty) {
+      return lists;
+    }
+    final itemsByList = await _wishlists(_db).listItemsFor([
+      for (final list in lists) list.id,
+    ]);
+    return [
+      for (final list in lists)
+        list.copyWith(items: itemsByList[list.id] ?? const []),
+    ];
   }
 
   Future<WishlistModel> subscribeWishlist(
@@ -77,7 +87,8 @@ class SubscriptionService {
 
       await _users(tx).ensure(user);
       await subscriptions.insert(userId: user.id, wishlistId: wishlist.id);
-      return wishlist;
+      final items = await _wishlists(tx).listItems(wishlist.id);
+      return wishlist.copyWith(items: items);
     });
   }
 

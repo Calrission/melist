@@ -85,7 +85,7 @@ DEBUG_USER_ID=1
 ACCESS_TOKEN_TTL_SECONDS=900     # access JWT, по умолчанию 15 минут
 REFRESH_TOKEN_TTL_SECONDS=604800 # refresh cookie, по умолчанию 7 дней
 COOKIE_SECURE=false              # true в проде (HTTPS)
-CORS_ORIGINS=http://localhost:8081,https://*.ngrok-free.dev  # origins с credentials; `*` — одна метка; пусто — allow-all без cookies
+CORS_ORIGINS=http://localhost:8081,http://*:8081,https://*.ngrok-free.dev  # origins с credentials; `*` — одна метка или IPv4; пусто — allow-all без cookies
 WEB_ROOT=           # каталог сборки Flutter Web; пусто — более новый из frontend/build/web и frontend/.build/web
 ```
 

@@ -9,4 +9,5 @@ export 'src/models/user_model.dart';
 export 'src/models/user_subscription_model.dart';
 export 'src/models/wish_model.dart';
 export 'src/models/wishlist_model.dart';
+export 'src/models/wishlist_share_model.dart';
 export 'src/models/wishlist_subscription_model.dart';

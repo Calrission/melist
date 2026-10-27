@@ -7,6 +7,8 @@ abstract class ITelegramRepository {
   Brightness getBrightness();
   bool get isAvailable;
   String get initData;
+  String? get startParam;
+  void shareUrl(String url, String text);
   Stream<Brightness> get onBrightnessChanged;
   void dispose();
 }
@@ -17,6 +19,15 @@ class MockTelegramRepository implements ITelegramRepository {
 
   @override
   String get initData => '';
+
+  /// Lets a local run emulate `startapp` via `?startapp=wl_<token>`.
+  @override
+  String? get startParam => Uri.base.queryParameters['startapp'];
+
+  @override
+  void shareUrl(String url, String text) {
+    debugPrint('Share: $text $url');
+  }
 
   @override
   Future<void> initialize() {
@@ -51,6 +62,12 @@ class UnavailableTelegramRepository implements ITelegramRepository {
 
   @override
   String get initData => '';
+
+  @override
+  String? get startParam => null;
+
+  @override
+  void shareUrl(String url, String text) {}
 
   @override
   Future<void> initialize() => Future.value();

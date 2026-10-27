@@ -26,18 +26,59 @@ class WishlistController extends BaseController<WishlistModel> {
     }
   }
 
-  Future<void> deleteWish(int wishId) async {
-    try {
-      await _wishRepository.deleteWishById(wishId);
-      await _wishlistListController.refreshMyWishlist();
-      if (data != null){
-        data = data!.copyWith(
-          items: data!.items.where((item) => item.id != wishId).toList()
-        );
-      }
-    } on Object catch (e) {
-      error = e;
+  Future<void> refresh() async {
+    final current = data;
+    if (current == null) {
+      return;
     }
+    try {
+      data = await _wishlistRepository.getMyWishlistById(current.id);
+    } on Object catch (e) {
+      setError(e, silence: true, changeState: false);
+    }
+  }
+
+  /// Removes the wish from this wishlist only; the wish stays in the catalog.
+  Future<void> removeWish(int wishId) async {
+    final current = data!;
+    await _wishRepository.removeWishFromWishlist(current.id, wishId);
+    data = current.copyWith(
+      items: current.items.where((item) => item.id != wishId).toList(),
+    );
+    await _wishlistListController.refreshMyWishlist();
+  }
+
+  Future<void> attachWish(int wishId) async {
+    final current = data!;
+    await _wishRepository.addWishToWishlist(
+      current.id,
+      AddWishlistWishBody.attach(wishId),
+    );
+    await refresh();
+    await _wishlistListController.refreshMyWishlist();
+  }
+
+  Future<WishlistShareModel> share() async {
+    final shared = await _wishlistRepository.shareWishlist(data!.id);
+    await refresh();
+    return shared;
+  }
+
+  Future<void> deleteWishlist() async {
+    await _wishlistRepository.deleteWishlistById(data!.id);
+    await _wishlistListController.refreshMyWishlist();
+    reset();
+  }
+
+  /// Drops deleted catalog wishes from the loaded card without a request.
+  void dropWishes(Set<int> wishIds) {
+    final current = data;
+    if (current == null || !current.items.any((e) => wishIds.contains(e.id))) {
+      return;
+    }
+    data = current.copyWith(
+      items: current.items.where((e) => !wishIds.contains(e.id)).toList(),
+    );
   }
 
   Future<void> reorderWishes(int wishlistId, List<int> order) async {

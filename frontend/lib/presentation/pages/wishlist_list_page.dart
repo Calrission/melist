@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/reorder_extension.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
@@ -41,6 +42,23 @@ class _WishlistListPageState extends State<WishlistListPage> {
             context.pop();
           },
         ),
+        title: Text("Виш-листы"),
+        actions: [
+          if (controller.selectionMode)
+            TextButton(
+              onPressed: controller.selectedIds.isEmpty
+                  ? null
+                  : () => context.guard(
+                      controller.deleteSelected,
+                      success: "Удалено",
+                    ),
+              child: Text("Удалить выбранные (${controller.selectedIds.length})"),
+            ),
+          TextButton(
+            onPressed: controller.toggleSelectionMode,
+            child: Text(controller.selectionMode ? "Отмена" : "Выбрать"),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -50,14 +68,16 @@ class _WishlistListPageState extends State<WishlistListPage> {
       ),
       body: Column(
         children: [
-          Text("Виш-листы"),
           switch (controller.state) {
             ControllerState.init => LoadingWidget(),
             ControllerState.loading => LoadingWidget(),
             ControllerState.loaded => _LoadedWishlistPage(
               wishlists: controller.data!,
             ),
-            ControllerState.error => ErrorPlaceholderWidget(),
+            ControllerState.error => ErrorPlaceholderWidget(
+              error: controller.error,
+              onRetry: controller.loadMyWishlist,
+            ),
           },
         ],
       ),
@@ -72,6 +92,7 @@ class _LoadedWishlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.read<WishlistListController>();
+    final selectionMode = controller.selectionMode;
     return Expanded(
       child: (wishlists.isNotEmpty)
         ? ReorderableListView.builder(
@@ -89,17 +110,26 @@ class _LoadedWishlistPage extends StatelessWidget {
               return ReorderableDelayedDragStartListener(
                 key: ValueKey(wishlists[index]),
                 index: index,
+                enabled: !selectionMode,
                 child: WishListTile(
                   wishlistModel: e,
-                  onTap: (){
-                    context.goNamed(
-                      wishlistGoKey,
-                      pathParameters: {'id': e.id.toString()},
-                    );
-                  },
-                  onTapDelete: (){
-                    controller.deleteWishlists([e.id]);
-                  },
+                  selected: selectionMode
+                      ? controller.selectedIds.contains(e.id)
+                      : null,
+                  onSelect: (_) => controller.toggleSelect(e.id),
+                  onTap: selectionMode
+                      ? () => controller.toggleSelect(e.id)
+                      : () {
+                          context.goNamed(
+                            wishlistGoKey,
+                            pathParameters: {'id': e.id.toString()},
+                          );
+                        },
+                  onTapDelete: selectionMode
+                      ? null
+                      : () => context.guard(
+                          () => controller.deleteWishlists([e.id]),
+                        ),
                 ),
               );
             },

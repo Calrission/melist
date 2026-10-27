@@ -7,6 +7,11 @@ class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
 
   FavoritesWishlistController({required this._repository});
 
+  List<int>? get currentOrder => data?.map((e) => e.id).toList();
+
+  bool contains(int wishlistId) =>
+      data?.any((item) => item.id == wishlistId) ?? false;
+
   Future<void> loadMyFavoriteWishlists() async {
     emit(ControllerState.loading);
     try {
@@ -26,30 +31,19 @@ class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
     }
   }
 
-  Future<bool> addWishlistToFavorites(AddFavoriteBody body) async {
-    try {
-      final wishlist = await _repository.addWishlistToFavorites(body);
-      final wishlists = data ?? const <WishlistModel>[];
-      if (wishlists.any((item) => item.id == wishlist.id)) {
-        data = wishlists;
-      } else {
-        data = [...wishlists, wishlist];
-      }
-      return true;
-    } on Object catch (e) {
-      error = e;
-      return false;
+  Future<void> addWishlistToFavorites(AddFavoriteBody body) async {
+    final wishlist = await _repository.addWishlistToFavorites(body);
+    final wishlists = data ?? const <WishlistModel>[];
+    if (!wishlists.any((item) => item.id == wishlist.id)) {
+      data = [...wishlists, wishlist];
     }
+    await refreshMyFavoriteWishlists();
   }
 
   Future<void> deleteFavoriteById(int wishlistId) async {
-    try {
-      await _repository.deleteFavoriteById(wishlistId);
-      if (data != null) {
-        data = data!.where((item) => item.id != wishlistId).toList();
-      }
-    } on Object catch (e) {
-      error = e;
+    await _repository.deleteFavoriteById(wishlistId);
+    if (data != null) {
+      data = data!.where((item) => item.id != wishlistId).toList();
     }
   }
 
@@ -57,11 +51,11 @@ class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
     if (state != ControllerState.loaded || data == null) {
       return;
     }
+    final next = [...data!]
+      ..sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    data = next;
     try {
       await _repository.reorderFavorites(ReorderIdsBody(order: order));
-      final next = [...data!]
-        ..sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
-      data = next;
     } on Object catch (e) {
       error = e;
     }

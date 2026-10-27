@@ -27,9 +27,4 @@ class ThemeController extends ChangeNotifier {
     _telegramUiTheme = telegramTheme;
     notifyListeners();
   }
-
-  void toggle() {
-    _profileUiTheme = (theme == UiTheme.light) ? UiTheme.dark : UiTheme.light;
-    notifyListeners();
-  }
 }

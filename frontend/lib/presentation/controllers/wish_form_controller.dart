@@ -1,5 +1,6 @@
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
+import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist_core/melist_core.dart';
@@ -9,18 +10,23 @@ class WishFormController extends BaseController<WishModel> {
     required this._repository,
     required this._wishlists,
     required this._wishlist,
+    this._wishes,
   });
 
   final IWishRepository _repository;
   final WishlistListController _wishlists;
   final WishlistController _wishlist;
+  final WishesController? _wishes;
 
-  Future<void> loadById(int wishId) async {
+  Future<WishModel?> loadById(int wishId) async {
     emit(ControllerState.loading);
     try {
-      data = await _repository.getMyWishById(wishId);
+      final model = await _repository.getMyWishById(wishId);
+      data = model;
+      return model;
     } on Object catch (e) {
       error = e;
+      return null;
     }
   }
 
@@ -30,6 +36,7 @@ class WishFormController extends BaseController<WishModel> {
       final created = await _repository.createWish(body);
       if (wishlistId == null) {
         data = created;
+        await _wishes?.refresh();
         return true;
       }
       data = await _repository.addWishToWishlist(
@@ -37,6 +44,7 @@ class WishFormController extends BaseController<WishModel> {
         AddWishlistWishBody.attach(created.id),
       );
       await _syncWishlist(wishlistId);
+      await _wishes?.refresh();
       return true;
     } on Object catch (e) {
       error = e;
@@ -44,12 +52,19 @@ class WishFormController extends BaseController<WishModel> {
     }
   }
 
-  Future<void> update(int wishId, PatchWishBody body) async {
+  Future<bool> update(int wishId, PatchWishBody body) async {
     emit(ControllerState.loading);
     try {
       data = await _repository.patchWishById(wishId, body);
+      await _wishlists.refreshMyWishlist();
+      if (_wishlist.data?.items.any((e) => e.id == wishId) ?? false) {
+        await _wishlist.refresh();
+      }
+      await _wishes?.refresh();
+      return true;
     } on Object catch (e) {
       error = e;
+      return false;
     }
   }
 

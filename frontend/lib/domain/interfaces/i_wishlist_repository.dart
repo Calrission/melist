@@ -11,4 +11,6 @@ abstract class IWishlistRepository {
   Future<void> reorderWishlists(ReorderIdsBody body);
   Future<void> deleteBulkWishlistsByIds(List<int> ids);
   Future<void> deleteWishlistById(int wishlistId);
+  Future<WishlistShareModel> shareWishlist(int wishlistId);
+  Future<WishlistModel> getSharedWishlist(String token);
 }
