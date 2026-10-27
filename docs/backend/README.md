@@ -78,7 +78,7 @@ backend/
 BOT_TOKEN=          # токен Telegram-бота, для проверки initData
 JWT_SECRET=         # секрет подписи access JWT
 DATABASE_URL=       # postgres://user:pass@host:5432/melist?sslmode=disable
-BOT_USERNAME=melist_bot  # username бота без @, для ссылок шаринга (7.1)
+BOT_USERNAME=meelist_dev_bot  # username бота без @, для ссылок шаринга (7.1); в релизе свой
 DEBUG_AUTH=false    # true — локальный логин без Telegram; в проде не включать
 DEBUG_TOKEN=dev-admin
 DEBUG_USER_ID=1

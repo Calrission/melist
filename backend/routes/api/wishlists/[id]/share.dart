@@ -23,7 +23,7 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
       },
       example: {
         'shareToken': 'k3Jd9s',
-        'url': 'https://t.me/melist_bot/app?startapp=wl_k3Jd9s',
+        'url': 'https://t.me/melist_bot?startapp=wl_k3Jd9s',
       },
     ),
     forbiddenResponse,

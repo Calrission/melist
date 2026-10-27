@@ -64,7 +64,7 @@ void main() {
       expect(body['shareToken'], isNotEmpty);
       expect(
         body['url'],
-        'https://t.me/melist_bot/app?startapp=wl_${body['shareToken']}',
+        'https://t.me/melist_bot?startapp=wl_${body['shareToken']}',
       );
     });
 

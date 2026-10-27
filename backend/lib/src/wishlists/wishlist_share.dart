@@ -13,12 +13,15 @@ String generateShareToken() {
   return base64UrlEncode(bytes).replaceAll('=', '');
 }
 
-/// Mini App deep link from a share token: `startapp=wl_<token>`.
+/// Main Mini App link: `https://t.me/<bot>?startapp=wl_<token>`.
+///
+/// The `/<shortName>` form opens a named Direct Link Mini App. Without a
+/// short name Telegram opens the bot chat instead of the Main Mini App.
 String telegramShareUrl({
   required String botUsername,
   required String token,
 }) {
-  return 'https://t.me/$botUsername/app?startapp=wl_$token';
+  return 'https://t.me/$botUsername?startapp=wl_$token';
 }
 
 String normalizeShareToken(String raw) {

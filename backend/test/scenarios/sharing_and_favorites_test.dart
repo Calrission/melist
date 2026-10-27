@@ -87,7 +87,7 @@ void main() {
       expect(first['shareToken'], second['shareToken']);
       expect(
         first['url'],
-        'https://t.me/melist_bot/app?startapp=wl_${first['shareToken']}',
+        'https://t.me/melist_bot?startapp=wl_${first['shareToken']}',
       );
 
       final forbidden = await handleWishlistShare(

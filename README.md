@@ -44,7 +44,7 @@ Copy-Item backend/.example_env backend/.env
 ```
 BOT_TOKEN=<токен бота>
 JWT_SECRET=<случайная строка>
-BOT_USERNAME=melist_bot
+BOT_USERNAME=meelist_dev_bot
 DEBUG_AUTH=true
 ```
 

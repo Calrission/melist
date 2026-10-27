@@ -115,7 +115,7 @@
 
 - **Дано:** у A вишлист `WL` (public, draft или link), `shareToken` ещё `null`.
 - **Когда:** `POST /api/wishlists/{WL}/share` дважды.
-- **Тогда:** оба раза `200`, одинаковый `shareToken` (не пустой), `url` вида `https://t.me/<bot>/app?startapp=wl_<token>`. От B на чужой `WL` без владения — `403`.
+- **Тогда:** оба раза `200`, одинаковый `shareToken` (не пустой), `url` вида `https://t.me/<bot>?startapp=wl_<token>`. От B на чужой `WL` без владения — `403`.
 
 ### 18. Поделиться в Telegram (7.2)
 

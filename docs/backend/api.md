@@ -156,7 +156,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `POST /api/wishlists/{id}/share` (7.1)
 
-Создать или вернуть ссылку доступа: `{ "shareToken": "…", "url": "https://t.me/<bot>/app?startapp=wl_<token>" }`.
+Создать или вернуть ссылку доступа: `{ "shareToken": "…", "url": "https://t.me/<bot>?startapp=wl_<token>" }`. Имя бота — `BOT_USERNAME`. Путь без short name открывает Main Mini App; `/<shortName>` открыл бы только именованное приложение.
 
 Пункт 7.2 («поделиться») — на клиенте через Telegram share.
 
