@@ -179,7 +179,13 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
                 onPressed: context.pop,
                 child: Text("Отмена"),
               ),
-              FilledButton(onPressed: save, child: Text("Сохранить")),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 60),
+                ),
+                onPressed: save,
+                child: Text("Сохранить"),
+              ),
             ],
           ),
         ],

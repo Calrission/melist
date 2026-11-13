@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -30,77 +31,60 @@ class ProfileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = ProfileController.of(context);
     final userModel = controller.profile!;
-    return Center(
-      child: Column(
-          mainAxisAlignment: .center,
-          mainAxisSize: .min,
+    final birthday = userModel.birthday;
+    final birthdayText = birthday == null
+        ? "Не указан"
+        : '${birthday.day.toString().padLeft(2, '0')}.'
+            '${birthday.month.toString().padLeft(2, '0')}.'
+            '${birthday.year.toString().padLeft(4, '0')}';
+    return Row(
+      children: [
+        ClipOval(
+          child: (userModel.avatarUrl != null)
+            ? Image.network(
+              width: 90,
+              userModel.avatarUrl!,
+              errorBuilder: (_, _, _) => const Icon(Icons.person),
+              loadingBuilder: (_, child, progress) => progress == null
+                  ? child
+                  : const CircularProgressIndicator(),
+              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+            )
+            : Container(
+              width: 90,
+              height: 90,
+              color: context.palette.container,
+            )
+        ),
+        SizedBox(width: bigSep),
+        Column(
+          crossAxisAlignment: .start,
           children: [
             Text(
-              'Hello, ${userModel.username}!',
+              '${userModel.firstName} ${userModel.lastName}',
               style: TextStyle(
                 color: context.palette.text,
               ),
             ),
-            if (userModel.avatarUrl != null)
-              ClipOval(
-                child: Image.network(
-                  width: 200,
-                  userModel.avatarUrl!,
-                  errorBuilder: (_, _, _) => const Icon(Icons.person),
-                  loadingBuilder: (_, child, progress) => progress == null
-                      ? child
-                      : const CircularProgressIndicator(),
-                  webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: TextButton(
+                onPressed: () => _changeBirthday(context),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.palette.accent,
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  alignment: Alignment.centerLeft,
+                ),
+                child: Text(
+                  "День рождения: $birthdayText",
                 ),
               ),
-            Text(
-              'id = ${userModel.id}\n'
-              'firstName = ${userModel.firstName}\n'
-              'lastName = ${userModel.lastName}\n'
-              'avatarUrl = ${userModel.avatarUrl}\n'
-              'birthday = ${userModel.birthday?.toIso8601String().substring(0, 10)}\n'
-              'theme = ${userModel.theme.name}',
-              style: TextStyle(
-                color: context.palette.text,
-              ),
-            ),
-            Row(
-              mainAxisSize: .min,
-              spacing: 8,
-              children: [
-                FilledButton(
-                  onPressed: () => _changeBirthday(context),
-                  child: Text("Указать дату рождения"),
-                ),
-                if (userModel.birthday != null)
-                  OutlinedButton(
-                    onPressed: () => context.guard(controller.clearBirthday),
-                    child: Text("Сбросить"),
-                  ),
-              ],
-            ),
-            Row(
-              mainAxisSize: .min,
-              spacing: 8,
-              children: [
-                Text("Тема:", style: TextStyle(color: context.palette.text)),
-                DropdownButton<UiTheme>(
-                  value: userModel.theme,
-                  items: [
-                    for (final theme in UiTheme.values)
-                      DropdownMenuItem(value: theme, child: Text(theme.name)),
-                  ],
-                  onChanged: (theme) {
-                    if (theme == null || theme == userModel.theme) {
-                      return;
-                    }
-                    context.guard(() => controller.updateTheme(theme));
-                  },
-                ),
-              ],
             ),
           ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -217,7 +217,13 @@ class _WishFormPageState extends State<WishFormPage> {
               spacing: 8,
               children: [
                 OutlinedButton(onPressed: context.pop, child: Text("Отмена")),
-                FilledButton(onPressed: save, child: Text("Сохранить")),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 60),
+                  ),
+                  onPressed: save,
+                  child: Text("Сохранить"),
+                ),
               ],
             ),
           ],
