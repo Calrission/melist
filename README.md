@@ -105,6 +105,15 @@ dart run dart_frog_swagger
 
 Сборка Flutter Web раздаётся тем же процессом, что и API, на порту **8080**. Mini App — [http://localhost:8080](http://localhost:8080). Пока есть `index.html` в `frontend/build/web` (build-dev) или `frontend/.build/web` (build-release), берётся более новая сборка. `/api`, `/auth`, `/health`, `/docs` и `/openapi.json` остаются API. Сборки нет — только API, `GET /` отвечает JSON.
 
+Иконочный шрифт и Dart-класс генерируются из SVG в `frontend/assets/raw_icons/` по конфигурации `frontend/icon_font.yaml`:
+
+```powershell
+cd frontend
+flutter pub run icon_font_generator:generator
+```
+
+Генератор создаёт `frontend/assets/fonts/melist_icons.otf` и `frontend/lib/presentation/icons/melist_icons.dart`. Шрифт зарегистрирован в `frontend/pubspec.yaml`.
+
 | Конфиг IDE | Каталог | Команда | Зачем |
 |---|---|---|---|
 | `build-dev` | `frontend/` | `web_cache_killer`, затем `build/` → `.build/` | Сборка Flutter Web с cache-busting → `frontend/.build/web` |

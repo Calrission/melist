@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:melist/domain/interfaces/i_telegram_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
@@ -11,6 +9,7 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
@@ -48,9 +47,11 @@ class _WishlistPageState extends State<WishlistPage> {
     }
     showDialog<void>(
       context: context,
-      builder: (dialogContext) => _ShareDialog(
-        share: shared!,
-        name: controller.data?.name ?? '',
+      builder: (dialogContext) => ShareDialog(
+        title: "Ссылка на вишлист",
+        url: shared!.url,
+        token: shared!.shareToken,
+        telegramText: "Мой вишлист «${controller.data?.name ?? ''}»",
       ),
     );
   }
@@ -115,53 +116,6 @@ class _WishlistPageState extends State<WishlistPage> {
         ],
       ),
       body: _WishlistView(wishlistId: widget.wishlistId),
-    );
-  }
-}
-
-class _ShareDialog extends StatelessWidget {
-  final WishlistShareModel share;
-  final String name;
-  const _ShareDialog({required this.share, required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text("Ссылка на вишлист"),
-      content: Text("url: ${share.url}\n\ntoken: ${share.shareToken}"),
-      actions: [
-        TextButton(
-          onPressed: () async {
-            await Clipboard.setData(ClipboardData(text: share.url));
-            if (context.mounted) {
-              context.showMessage("Ссылка скопирована");
-            }
-          },
-          child: Text("Копировать ссылку"),
-        ),
-        TextButton(
-          onPressed: () async {
-            await Clipboard.setData(ClipboardData(text: share.shareToken));
-            if (context.mounted) {
-              context.showMessage("Токен скопирован");
-            }
-          },
-          child: Text("Копировать токен"),
-        ),
-        TextButton(
-          onPressed: () {
-            context.read<ITelegramRepository>().shareUrl(
-              share.url,
-              "Мой вишлист «$name»",
-            );
-          },
-          child: Text("Отправить в Telegram"),
-        ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text("Закрыть"),
-        ),
-      ],
     );
   }
 }

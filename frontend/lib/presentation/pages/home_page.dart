@@ -6,6 +6,7 @@ import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/extensions/widget_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
@@ -69,21 +70,21 @@ class _HomePageState extends State<HomePage> {
             FilledButton.icon(
               onPressed: () => context.goNamed(wishlistsGoKey),
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("Мои вишлисты").row(),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () => context.goNamed(wishesGoKey),
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("Все мои хотелки").row(),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () => context.goNamed(wishlistFavoritesGoKey),
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("Избранные вишлисты").row(),
             ),
 
@@ -97,21 +98,21 @@ class _HomePageState extends State<HomePage> {
             FilledButton.icon(
               onPressed: () {},
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("Настройки").row(),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () => context.goNamed(subscriptionsGoKey),
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("Мои подписки").row(),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () {},
               iconAlignment: IconAlignment.end,
-              icon: Icon(Icons.arrow_right_rounded),
+              icon: Icon(MelistIcons.arrowRight),
               label: Text("О боте").row(),
             ),
           ],

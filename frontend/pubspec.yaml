@@ -28,6 +28,11 @@ dev_dependencies:
     sdk: flutter
   meta: ^1.9.0
   flutter_lints: ^6.0.0
+  icon_font_generator: ^4.1.0
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: MelistIcons
+      fonts:
+        - asset: assets/fonts/melist_icons.otf
