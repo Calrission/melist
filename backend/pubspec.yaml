@@ -6,8 +6,6 @@ publish_to: none
 environment:
   sdk: ^3.12.0
 
-resolution: workspace
-
 dependencies:
   crypto: ^3.0.7
   dart_frog: ^1.1.0
@@ -16,6 +14,7 @@ dependencies:
   dart_jsonwebtoken: ^3.1.1
   dotenv: ^4.2.0
   melist_core:
+    path: ../core
   postgres: ^3.5.15
   shelf_cors_headers: ^0.1.5
 

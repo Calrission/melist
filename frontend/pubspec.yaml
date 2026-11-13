@@ -23,6 +23,10 @@ dependencies:
   cached_network_image: ^4.0.4
   melist_core:
 
+  material_ui: ^1.4.0
+  flutter_web_plugins:
+    sdk: flutter
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

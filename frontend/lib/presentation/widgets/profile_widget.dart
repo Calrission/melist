@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';

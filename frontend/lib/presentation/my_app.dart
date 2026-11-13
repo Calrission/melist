@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/di/setup.dart';
 import 'package:melist/presentation/theme/palette.dart';

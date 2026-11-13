@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';

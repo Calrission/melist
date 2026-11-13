@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 
 class ErrorPlaceholderWidget extends StatelessWidget {

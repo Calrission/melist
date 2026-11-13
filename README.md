@@ -56,10 +56,18 @@ DEBUG_AUTH=true
 DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
 ```
 
-Зависимости workspace — если будете собирать frontend или гонять тесты:
+Зависимости frontend/core — если будете собирать frontend или гонять тесты:
 
 ```powershell
 flutter pub get
+```
+
+У backend отдельное разрешение зависимостей:
+
+```powershell
+cd backend
+dart pub get
+cd ..
 ```
 
 ## Backend (Docker)
@@ -142,7 +150,7 @@ HTTPS из ngrok указать в BotFather как Web App URL. После пр
 
 ## Тесты и анализ
 
-Нужны `flutter pub get` из корня и живой Postgres на `localhost:5433` для интеграционных тестов.
+Нужны `flutter pub get` из корня, `dart pub get` из `backend/` и живой Postgres на `localhost:5433` для интеграционных тестов.
 
 ```powershell
 cd backend
