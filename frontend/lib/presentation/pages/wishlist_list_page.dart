@@ -113,6 +113,7 @@ class _LoadedWishlistPage extends StatelessWidget {
     final selectionMode = controller.selectionMode;
     return Column(
       children: [
+        const SizedBox(height: smallSep),
         Material(
           color: context.palette.container,
           borderRadius: BorderRadius.circular(borderRadius),
