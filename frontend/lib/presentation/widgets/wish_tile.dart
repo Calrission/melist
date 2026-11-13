@@ -1,8 +1,9 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
 class WishTile extends StatelessWidget {
-
   final WishModel wishModel;
   final VoidCallback? onTapDelete;
   final VoidCallback? onTap;
@@ -24,34 +25,114 @@ class WishTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final price = wishModel.price == null ? '—' : "${wishModel.price} ₽";
-    return ListTile(
-      title: Text(wishModel.name),
-      leading: (selected != null)
-          ? Checkbox(value: selected, onChanged: onSelect)
-          : (wishModel.coverUrl != null && wishModel.coverUrl!.isNotEmpty)
-              ? Image.network(
-                  wishModel.coverUrl!,
-                  width: 48,
-                  errorBuilder: (_, _, _) => const Icon(Icons.broken_image),
-                )
-              : null,
-      subtitle: Text(
-        "$price | ${wishModel.status.name}"
-        "${wishModel.copiedFrom != null ? ' | копия #${wishModel.copiedFrom}' : ''}",
+    final palette = context.palette;
+    final coverUrl = wishModel.coverUrl;
+    final description = wishModel.description?.trim();
+    final price = wishModel.price == null ? "— ₽" : "${wishModel.price} ₽";
+    final radius = BorderRadius.circular(borderRadius);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          child: Ink(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: selected == true
+                  ? palette.accent.withValues(alpha: 0.12)
+                  : palette.container,
+              borderRadius: radius,
+              border: Border.all(
+                color: selected == true ? palette.accent : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: Row(
+              children: [
+                if (selected != null)
+                  Checkbox(value: selected, onChanged: onSelect),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  child: SizedBox(
+                    width: 62,
+                    height: 62,
+                    child: coverUrl == null || coverUrl.isEmpty
+                        ? ColoredBox(
+                            color: palette.subText.withValues(alpha: 0.12),
+                            child: Icon(Icons.image, color: palette.subText),
+                          )
+                        : Image.network(
+                            coverUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => ColoredBox(
+                              color: palette.subText.withValues(alpha: 0.12),
+                              child: Icon(
+                                Icons.broken_image,
+                                color: palette.subText,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 5,
+                    children: [
+                      Text(
+                        wishModel.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: palette.accent,
+                        ),
+                      ),
+                      Text(
+                        description ?? "",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                          color: palette.text,
+                        ),
+                      ),
+                      Text(
+                        price,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: palette.accent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (actions.isNotEmpty || onTapDelete != null)
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...actions,
+                      if (onTapDelete != null)
+                        IconButton(
+                          onPressed: onTapDelete,
+                          icon: Icon(Icons.delete),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
       ),
-      trailing: Row(
-        mainAxisSize: .min,
-        children: [
-          ...actions,
-          if (onTapDelete != null)
-            IconButton(
-              onPressed: onTapDelete,
-              icon: Icon(Icons.delete)
-            )
-        ],
-      ),
-      onTap: onTap
     );
   }
 }
