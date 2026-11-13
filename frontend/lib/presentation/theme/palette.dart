@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
 class Palette {
@@ -9,10 +10,12 @@ class Palette {
   final Color accent;
   final Color textOnAccent;
   final Color hint;
+  final Color container;
 
   Palette({
     required this.background, required this.text,
     required this.accent, required this.textOnAccent,
+    required this.container,
     required this.hint, required this.uiTheme
   });
 
@@ -20,8 +23,9 @@ class Palette {
     return Palette(
       background: Colors.white,
       text: Colors.black,
-      accent: Color(0xFF3C4FB4),
+      accent: Color(0xFFFD92C0),
       textOnAccent: Colors.white,
+      container: Color(0xFFF9F9F9),
       hint: Colors.grey,
         uiTheme: UiTheme.light
     );
@@ -31,8 +35,9 @@ class Palette {
     return Palette(
       background: Colors.black,
       text: Colors.white,
-      accent: Color(0xFF3C4FB4),
+      accent: Color(0xFFFD92C0),
       textOnAccent: Colors.white,
+      container: Color(0xFFF9F9F9),
       hint: Colors.grey,
         uiTheme: UiTheme.dark
     );
@@ -46,7 +51,7 @@ class Palette {
     };
   }
 
-  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, UiTheme? uiTheme}) {
+  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, Color? container, UiTheme? uiTheme}) {
     return Palette(
       uiTheme: uiTheme ?? this.uiTheme,
       background: background ?? this.background,
@@ -54,6 +59,7 @@ class Palette {
       accent: accent ?? this.accent,
       textOnAccent: textOnAccent ?? this.textOnAccent,
       hint: hint ?? this.hint,
+      container: container ?? this.container,
     );
   }
 
@@ -65,6 +71,7 @@ class Palette {
       textOnAccent: Color.lerp(textOnAccent, other.textOnAccent, t)!,
       hint: Color.lerp(hint, other.hint, t)!,
       uiTheme: uiTheme,
+      container: Color.lerp(container, other.container, t)!,
     );
   }
 
@@ -88,6 +95,18 @@ class Palette {
         onPrimary: textOnAccent,
         secondary: accent,
         onSecondary: textOnAccent,
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: container,
+          foregroundColor: text,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(borderRadius)
+          ),
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        ),
       ),
     );
   }

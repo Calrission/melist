@@ -56,10 +56,18 @@ DEBUG_AUTH=true
 DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
 ```
 
-Зависимости workspace — если будете собирать frontend или гонять тесты:
+Зависимости frontend/core — если будете собирать frontend или гонять тесты:
 
 ```powershell
 flutter pub get
+```
+
+У backend отдельное разрешение зависимостей:
+
+```powershell
+cd backend
+dart pub get
+cd ..
 ```
 
 ## Backend (Docker)
@@ -105,6 +113,15 @@ dart run dart_frog_swagger
 
 Сборка Flutter Web раздаётся тем же процессом, что и API, на порту **8080**. Mini App — [http://localhost:8080](http://localhost:8080). Пока есть `index.html` в `frontend/build/web` (build-dev) или `frontend/.build/web` (build-release), берётся более новая сборка. `/api`, `/auth`, `/health`, `/docs` и `/openapi.json` остаются API. Сборки нет — только API, `GET /` отвечает JSON.
 
+Иконочный шрифт и Dart-класс генерируются из SVG в `frontend/assets/raw_icons/` по конфигурации `frontend/icon_font.yaml`:
+
+```powershell
+cd frontend
+flutter pub run icon_font_generator:generator
+```
+
+Генератор создаёт `frontend/assets/fonts/melist_icons.otf` и `frontend/lib/presentation/icons/melist_icons.dart`. Шрифт зарегистрирован в `frontend/pubspec.yaml`.
+
 | Конфиг IDE | Каталог | Команда | Зачем |
 |---|---|---|---|
 | `build-dev` | `frontend/` | `web_cache_killer`, затем `build/` → `.build/` | Сборка Flutter Web с cache-busting → `frontend/.build/web` |
@@ -133,7 +150,7 @@ HTTPS из ngrok указать в BotFather как Web App URL. После пр
 
 ## Тесты и анализ
 
-Нужны `flutter pub get` из корня и живой Postgres на `localhost:5433` для интеграционных тестов.
+Нужны `flutter pub get` из корня, `dart pub get` из `backend/` и живой Postgres на `localhost:5433` для интеграционных тестов.
 
 ```powershell
 cd backend

@@ -1,0 +1,10 @@
+icon_font:
+  input_svg_dir: "assets/raw_icons/"
+  output_font_file: "assets/fonts/melist_icons.otf"
+  output_class_file: "lib/presentation/icons/melist_icons.dart"
+  class_name: "MelistIcons"
+  font_name: "MelistIcons"
+  normalize: true
+  ignore_shapes: true
+  recursive: false
+  format: true

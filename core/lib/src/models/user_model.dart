@@ -19,6 +19,8 @@ class UserModel {
     return (data as List).map((e) => UserModel.fromJson(e)).toList();
   }
 
+  String get lastNameFirstName => '$firstName${(lastName != null && lastName!.isNotEmpty) ? " $lastName" : ''}';
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: requireInt(json['id'], 'id'),

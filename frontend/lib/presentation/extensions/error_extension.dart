@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Human-readable text for an API error `{ "error": "…" }` or any exception.
 String errorMessage(Object error) {

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wish_form_controller.dart';
@@ -217,7 +217,13 @@ class _WishFormPageState extends State<WishFormPage> {
               spacing: 8,
               children: [
                 OutlinedButton(onPressed: context.pop, child: Text("Отмена")),
-                FilledButton(onPressed: save, child: Text("Сохранить")),
+                FilledButton(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 60),
+                  ),
+                  onPressed: save,
+                  child: Text("Сохранить"),
+                ),
               ],
             ),
           ],
