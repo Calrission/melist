@@ -8,6 +8,7 @@ import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist/presentation/widgets/wish_list_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -34,10 +35,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
     final wishlists = context.watch<WishlistSubscriptionsController>();
     final users = context.watch<UserSubscriptionsController>();
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: Text("Подписки"),
-      ),
+      appBar: MelistAppBar(title: Text("Подписки")),
       body: ListView(
         children: [
           Text("Вишлисты:"),

@@ -10,6 +10,7 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -54,8 +55,7 @@ class _WishesPageState extends State<WishesPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<WishesController>();
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
+      appBar: MelistAppBar(
         title: Text("Мои желания"),
         actions: [
           if (controller.selectionMode)

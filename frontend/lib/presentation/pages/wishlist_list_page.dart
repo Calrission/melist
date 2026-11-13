@@ -5,10 +5,13 @@ import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/reorder_extension.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist/presentation/widgets/wish_list_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
@@ -36,13 +39,11 @@ class _WishlistListPageState extends State<WishlistListPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistListController>();
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            context.pop();
-          },
+      appBar: MelistAppBar(
+        title: Text(
+          "Список вишлистов",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        title: Text("Виш-листы"),
         actions: [
           if (controller.selectionMode)
             TextButton(
@@ -54,9 +55,9 @@ class _WishlistListPageState extends State<WishlistListPage> {
                     ),
               child: Text("Удалить выбранные (${controller.selectedIds.length})"),
             ),
-          TextButton(
+          IconButton(
+            icon: Icon(MelistIcons.trash, color: context.palette.text),
             onPressed: controller.toggleSelectionMode,
-            child: Text(controller.selectionMode ? "Отмена" : "Выбрать"),
           ),
         ],
       ),
@@ -66,21 +67,17 @@ class _WishlistListPageState extends State<WishlistListPage> {
           context.goNamed(wishlistCreateGoKey);
         },
       ),
-      body: Column(
-        children: [
-          switch (controller.state) {
-            ControllerState.init => LoadingWidget(),
-            ControllerState.loading => LoadingWidget(),
-            ControllerState.loaded => _LoadedWishlistPage(
-              wishlists: controller.data!,
-            ),
-            ControllerState.error => ErrorPlaceholderWidget(
-              error: controller.error,
-              onRetry: controller.loadMyWishlist,
-            ),
-          },
-        ],
-      ),
+      body: switch (controller.state) {
+        ControllerState.init => LoadingWidget(),
+        ControllerState.loading => LoadingWidget(),
+        ControllerState.loaded => _LoadedWishlistPage(
+          wishlists: controller.data!,
+        ),
+        ControllerState.error => ErrorPlaceholderWidget(
+          error: controller.error,
+          onRetry: controller.loadMyWishlist,
+        ),
+      },
     );
   }
 }
