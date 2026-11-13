@@ -8,25 +8,23 @@ import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ProfileWidget extends StatelessWidget {
-
   final UserModel userModel;
 
-  const ProfileWidget({
-    super.key,
-    required this.userModel
-  });
+  const ProfileWidget({super.key, required this.userModel});
 
   void _changeBirthday(BuildContext context) async {
     final newBirthday = await showDatePicker(
-        context: context,
-        initialDate: userModel.birthday,
-        firstDate: DateTime(1900),
-        lastDate: DateTime.now()
+      context: context,
+      initialDate: userModel.birthday,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
     );
     if (newBirthday == null || !context.mounted) {
       return;
     }
-    context.guard(() => ProfileController.of(context).updateBirthday(newBirthday));
+    context.guard(
+      () => ProfileController.of(context).updateBirthday(newBirthday),
+    );
   }
 
   void _shareProfile(BuildContext context) {
@@ -49,26 +47,35 @@ class ProfileWidget extends StatelessWidget {
     final birthdayText = birthday == null
         ? "Не указан"
         : '${birthday.day.toString().padLeft(2, '0')}.'
-            '${birthday.month.toString().padLeft(2, '0')}.'
-            '${birthday.year.toString().padLeft(4, '0')}';
+              '${birthday.month.toString().padLeft(2, '0')}.'
+              '${birthday.year.toString().padLeft(4, '0')}';
     return Row(
       children: [
         ClipOval(
-          child: (userModel.avatarUrl != null)
-            ? Image.network(
-              width: 90,
-              userModel.avatarUrl!,
-              errorBuilder: (_, _, _) => const Icon(Icons.person),
-              loadingBuilder: (_, child, progress) => progress == null
-                  ? child
-                  : const CircularProgressIndicator(),
-              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
-            )
-            : Container(
-              width: 90,
-              height: 90,
-              color: context.palette.container,
-            )
+          child: SizedBox(
+            width: 90,
+            height: 90,
+            child:
+                userModel.avatarUrl != null && userModel.avatarUrl!.isNotEmpty
+                ? Image.network(
+                    userModel.avatarUrl!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => ColoredBox(
+                      color: context.palette.subText.withValues(alpha: 0.2),
+                    ),
+                    loadingBuilder: (_, child, progress) => progress == null
+                        ? child
+                        : ColoredBox(
+                            color: context.palette.subText.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                    webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+                  )
+                : ColoredBox(
+                    color: context.palette.subText.withValues(alpha: 0.2),
+                  ),
+          ),
         ),
         SizedBox(width: bigSep),
         Column(
@@ -87,12 +94,15 @@ class ProfileWidget extends StatelessWidget {
                 onPressed: () => _shareProfile(context),
                 child: Row(
                   children: [
-                    Text(userModel.lastNameFirstName, style: TextStyle(
-                      color: context.palette.text,
-                      fontWeight: FontWeight.w600
-                    )),
+                    Text(
+                      userModel.lastNameFirstName,
+                      style: TextStyle(
+                        color: context.palette.text,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     SizedBox(width: verySmallSep),
-                    Icon(MelistIcons.share, color: context.palette.text)
+                    Icon(MelistIcons.share, color: context.palette.text),
                   ],
                 ),
               ),
@@ -108,9 +118,7 @@ class ProfileWidget extends StatelessWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   alignment: Alignment.centerLeft,
                 ),
-                child: Text(
-                  "День рождения: $birthdayText",
-                ),
+                child: Text("День рождения: $birthdayText"),
               ),
             ),
           ],
