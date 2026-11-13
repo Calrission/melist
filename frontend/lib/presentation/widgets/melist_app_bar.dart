@@ -15,8 +15,10 @@ class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      scrolledUnderElevation: 0,
+      surfaceTintColor: Colors.transparent,
       leadingWidth: 56,
-      titleSpacing: 6,
+      titleSpacing: 0,
       leading: Padding(
         padding: const EdgeInsets.only(left: 8),
         child: IconButton(
@@ -25,7 +27,7 @@ class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       title: title,
-      actions: actions?..add(SizedBox(width: 20)),
+      actions: actions?..add(SizedBox(width: 10)),
     );
   }
 }
