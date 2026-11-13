@@ -87,7 +87,7 @@ class ProfileWidget extends StatelessWidget {
                 onPressed: () => _shareProfile(context),
                 child: Row(
                   children: [
-                    Text('${userModel.firstName} ${userModel.lastName}', style: TextStyle(
+                    Text(userModel.lastNameFirstName, style: TextStyle(
                       color: context.palette.text,
                       fontWeight: FontWeight.w600
                     )),

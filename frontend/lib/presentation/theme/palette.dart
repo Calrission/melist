@@ -100,7 +100,7 @@ class Palette {
         style: FilledButton.styleFrom(
           backgroundColor: container,
           foregroundColor: text,
-          minimumSize: const Size(double.infinity, 60),
+          minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius)
           ),
