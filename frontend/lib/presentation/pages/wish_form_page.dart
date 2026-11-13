@@ -9,6 +9,7 @@ import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -120,12 +121,7 @@ class _WishFormPageState extends State<WishFormPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<WishFormController>();
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            context.pop();
-          },
-        ),
+      appBar: MelistAppBar(
         title: Text(widget.isEdit ? "Редактирование желания" : "Новое желание"),
       ),
       body: _loadFailed

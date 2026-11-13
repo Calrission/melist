@@ -8,6 +8,7 @@ import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -42,10 +43,7 @@ class _WishPickerPageState extends State<WishPickerPage> {
     final wishlist = context.watch<WishlistController>().data;
     final attachedIds = {...?wishlist?.items.map((e) => e.id)};
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: Text("Добавить существующее"),
-      ),
+      appBar: MelistAppBar(title: Text("Добавить существующее")),
       body: switch (wishes.state) {
         ControllerState.init || ControllerState.loading => LoadingWidget(),
         ControllerState.error => ErrorPlaceholderWidget(error: wishes.error),

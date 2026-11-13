@@ -9,6 +9,7 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
+import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:melist_core/melist_core.dart';
@@ -88,12 +89,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget build(BuildContext context) {
     final id = widget.wishlistId.toString();
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            context.pop();
-          },
-        ),
+      appBar: MelistAppBar(
         actions: [
           IconButton(
             tooltip: "Редактировать",

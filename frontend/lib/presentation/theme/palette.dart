@@ -7,6 +7,7 @@ class Palette {
   final UiTheme uiTheme;
   final Color background;
   final Color text;
+  final Color subText;
   final Color accent;
   final Color textOnAccent;
   final Color hint;
@@ -15,7 +16,7 @@ class Palette {
   Palette({
     required this.background, required this.text,
     required this.accent, required this.textOnAccent,
-    required this.container,
+    required this.container, required this.subText,
     required this.hint, required this.uiTheme
   });
 
@@ -23,6 +24,7 @@ class Palette {
     return Palette(
       background: Colors.white,
       text: Colors.black,
+      subText: Color(0xFF939396),
       accent: Color(0xFFFD92C0),
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
@@ -35,6 +37,7 @@ class Palette {
     return Palette(
       background: Colors.black,
       text: Colors.white,
+      subText: Color(0xFF939396),
       accent: Color(0xFFFD92C0),
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
@@ -51,7 +54,7 @@ class Palette {
     };
   }
 
-  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, Color? container, UiTheme? uiTheme}) {
+  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, Color? container, Color? subText, UiTheme? uiTheme}) {
     return Palette(
       uiTheme: uiTheme ?? this.uiTheme,
       background: background ?? this.background,
@@ -60,6 +63,7 @@ class Palette {
       textOnAccent: textOnAccent ?? this.textOnAccent,
       hint: hint ?? this.hint,
       container: container ?? this.container,
+      subText: subText ?? this.subText,
     );
   }
 
@@ -70,6 +74,7 @@ class Palette {
       accent: Color.lerp(accent, other.accent, t)!,
       textOnAccent: Color.lerp(textOnAccent, other.textOnAccent, t)!,
       hint: Color.lerp(hint, other.hint, t)!,
+      subText: Color.lerp(subText, other.subText, t)!,
       uiTheme: uiTheme,
       container: Color.lerp(container, other.container, t)!,
     );
@@ -95,6 +100,10 @@ class Palette {
         onPrimary: textOnAccent,
         secondary: accent,
         onSecondary: textOnAccent,
+      ),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: text,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
