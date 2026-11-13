@@ -43,7 +43,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         controller.state == ControllerState.loaded &&
         controller.data?.user.id == widget.userId;
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Профиль пользователя")),
+      appBar: MelistAppBar(title: "Профиль пользователя"),
       body: controller.state == ControllerState.error
           ? ErrorPlaceholderWidget(
               error: controller.error,

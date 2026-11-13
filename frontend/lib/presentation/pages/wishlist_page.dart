@@ -88,8 +88,13 @@ class _WishlistPageState extends State<WishlistPage> {
   @override
   Widget build(BuildContext context) {
     final id = widget.wishlistId.toString();
+    final wishlist = context.watch<WishlistController>().data;
+    final title = wishlist != null && wishlist.id == widget.wishlistId
+        ? wishlist.name
+        : "";
     return Scaffold(
       appBar: MelistAppBar(
+        title: title,
         actions: [
           IconButton(
             tooltip: "Редактировать",

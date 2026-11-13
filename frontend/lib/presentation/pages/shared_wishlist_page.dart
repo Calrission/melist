@@ -47,7 +47,7 @@ class _SharedWishlistPageState extends State<SharedWishlistPage> {
         controller.state == ControllerState.loaded &&
         controller.token == widget.token;
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Вишлист по ссылке")),
+      appBar: MelistAppBar(title: "Вишлист по ссылке"),
       body: controller.state == ControllerState.error
           ? ErrorPlaceholderWidget(
               error: controller.error,

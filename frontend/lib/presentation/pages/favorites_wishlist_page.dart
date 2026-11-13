@@ -52,7 +52,7 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<FavoritesWishlistController>();
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Избранное")),
+      appBar: MelistAppBar(title: "Избранное"),
       body: Column(
         children: [
           Padding(

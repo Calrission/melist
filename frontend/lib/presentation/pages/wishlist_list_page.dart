@@ -9,6 +9,7 @@ import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
+import 'package:melist/presentation/widgets/add_elem_list_button.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -64,10 +65,9 @@ class _WishlistListPageState extends State<WishlistListPage> {
     final controller = context.watch<WishlistListController>();
     return Scaffold(
       appBar: MelistAppBar(
-        title: Text(
-          controller.selectionMode ? "Удаление вишлистов" : "Список вишлистов",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
+        title: controller.selectionMode
+            ? "Удаление вишлистов"
+            : "Список вишлистов",
         actions: [
           IconButton(
             icon: Icon(
@@ -114,28 +114,9 @@ class _LoadedWishlistPage extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: smallSep),
-        Material(
-          color: context.palette.container,
-          borderRadius: BorderRadius.circular(borderRadius),
-          child: InkWell(
-            onTap: () => context.goNamed(wishlistCreateGoKey),
-            borderRadius: BorderRadius.circular(borderRadius),
-            hoverColor: context.palette.subText.withValues(alpha: 0.08),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add, color: context.palette.accent),
-                  const SizedBox(width: smallSep),
-                  Text(
-                    "Добавить новый вишлист",
-                    style: TextStyle(color: context.palette.accent),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        AddElemListButton(
+          text: "Добавить новый вишлист",
+          onTap: () => context.goNamed(wishlistCreateGoKey)
         ),
         const SizedBox(height: bigSep),
         Expanded(

@@ -6,7 +6,7 @@ import 'package:melist/presentation/icons/melist_icons.dart';
 class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MelistAppBar({super.key, this.title, this.actions});
 
-  final Widget? title;
+  final String? title;
   final List<Widget>? actions;
 
   @override
@@ -26,7 +26,12 @@ class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: Icon(MelistIcons.back, color: context.palette.subText),
         ),
       ),
-      title: title,
+      title: title == null
+          ? null
+          : Text(
+              title!,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
       actions: actions?..add(SizedBox(width: 10)),
     );
   }

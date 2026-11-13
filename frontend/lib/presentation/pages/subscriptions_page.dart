@@ -35,7 +35,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
     final wishlists = context.watch<WishlistSubscriptionsController>();
     final users = context.watch<UserSubscriptionsController>();
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Подписки")),
+      appBar: MelistAppBar(title: "Подписки"),
       body: ListView(
         children: [
           Text("Вишлисты:"),
