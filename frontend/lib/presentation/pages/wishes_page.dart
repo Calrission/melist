@@ -14,6 +14,7 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
+import 'package:melist/presentation/widgets/add_elem_list_button.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:provider/provider.dart';
 
@@ -98,20 +99,32 @@ class _WishesPageState extends State<WishesPage> {
           ),
         ],
       ),
-      floatingActionButton: controller.selectionMode
-          ? null
-          : FloatingActionButton(
-              onPressed: () => context.goNamed(wishNewGoKey),
-              child: Icon(Icons.add),
+      body: Column(
+        children: [
+          if (!controller.selectionMode) ...[
+            const SizedBox(height: smallSep),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
+              child: AddElemListButton(
+                text: "Создать новую хотелку",
+                onTap: () => context.goNamed(wishNewGoKey),
+              ),
             ),
-      body: switch (controller.state) {
-        ControllerState.init || ControllerState.loading => LoadingWidget(),
-        ControllerState.error => ErrorPlaceholderWidget(
-          error: controller.error,
-          onRetry: controller.load,
-        ),
-        ControllerState.loaded => const _WishesList(),
-      },
+            const SizedBox(height: bigSep),
+          ],
+          Expanded(
+            child: switch (controller.state) {
+              ControllerState.init ||
+              ControllerState.loading => LoadingWidget(),
+              ControllerState.error => ErrorPlaceholderWidget(
+                error: controller.error,
+                onRetry: controller.load,
+              ),
+              ControllerState.loaded => const _WishesList(),
+            },
+          ),
+        ],
+      ),
     );
   }
 }
