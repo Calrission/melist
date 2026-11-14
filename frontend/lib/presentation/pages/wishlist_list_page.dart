@@ -69,6 +69,9 @@ class _WishlistListPageState extends State<WishlistListPage> {
         title: controller.selectionMode
             ? "Удаление вишлистов"
             : "Список вишлистов",
+        onBack: controller.selectionMode
+            ? controller.toggleSelectionMode
+            : context.pop,
         actions: [
           IconButton(
             icon: Icon(
