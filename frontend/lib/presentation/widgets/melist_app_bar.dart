@@ -33,7 +33,9 @@ class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
               title!,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-      actions: actions?..add(SizedBox(width: 10)),
+      actions: actions == null
+          ? null
+          : [...actions!, const SizedBox(width: 10)],
     );
   }
 }
