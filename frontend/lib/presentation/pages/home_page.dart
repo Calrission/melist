@@ -9,6 +9,7 @@ import 'package:melist/presentation/extensions/widget_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
+import 'package:melist/presentation/theme/themes.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/profile_widget.dart';
@@ -72,6 +73,7 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Мои вишлисты").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
@@ -79,6 +81,7 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Все мои хотелки").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
@@ -86,6 +89,7 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Избранные вишлисты").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
             ),
 
             SizedBox(height: singleSep),
@@ -100,6 +104,7 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Настройки").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
@@ -107,12 +112,14 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Мои подписки").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () {},
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
+              style: getMenuItemFilledButtonStyle(context.palette),
               label: Text("О боте").row(),
             ),
           ],

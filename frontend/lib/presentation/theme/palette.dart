@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/consts.dart';
+import 'package:melist/presentation/theme/themes.dart';
 import 'package:melist_core/melist_core.dart';
 
 class Palette {
@@ -106,16 +107,7 @@ class Palette {
         foregroundColor: text,
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: container,
-          foregroundColor: text,
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(borderRadius)
-          ),
-          alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 16),
-        ),
+        style: getClassicFilledButtonStyle(this)
       ),
     );
   }
