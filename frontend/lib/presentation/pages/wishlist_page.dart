@@ -13,6 +13,7 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
+import 'package:melist/presentation/widgets/melist_reorderable_list_view.dart';
 import 'package:melist/presentation/widgets/add_elem_list_button.dart';
 import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
@@ -157,8 +158,7 @@ class _LoadedWishlistView extends StatelessWidget {
           Expanded(
             child: (wishlist.items.isEmpty)
                 ? EmptyPlaceholderWidget()
-                : ReorderableListView.builder(
-                    buildDefaultDragHandles: false,
+                : MelistReorderableListView(
                     onReorderItem: (oldIndex, newIndex) {
                       final order = controller.currentOrder;
                       order.reorder(oldIndex, newIndex);

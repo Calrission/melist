@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
@@ -32,7 +33,7 @@ class WishTile extends StatelessWidget {
     final radius = BorderRadius.circular(borderRadius);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.only(bottom: 16, right: 8),
       child: Material(
         color: Colors.transparent,
         borderRadius: radius,
@@ -52,9 +53,8 @@ class WishTile extends StatelessWidget {
               ),
             ),
             child: Row(
+              crossAxisAlignment: .start,
               children: [
-                if (selected != null)
-                  Checkbox(value: selected, onChanged: onSelect),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(borderRadius),
                   child: SizedBox(
@@ -85,15 +85,29 @@ class WishTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     spacing: 5,
                     children: [
-                      Text(
-                        wishModel.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: palette.accent,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              wishModel.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: palette.accent,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          Icon(
+                            MelistIcons.link,
+                            size: 20,
+                            color: (wishModel.url != null)
+                                ? context.palette.accent
+                                : context.palette.subText,
+                          ),
+                        ],
                       ),
                       Text(
                         description ?? "",
@@ -116,18 +130,6 @@ class WishTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (actions.isNotEmpty || onTapDelete != null)
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ...actions,
-                      if (onTapDelete != null)
-                        IconButton(
-                          onPressed: onTapDelete,
-                          icon: Icon(Icons.delete),
-                        ),
-                    ],
-                  ),
               ],
             ),
           ),

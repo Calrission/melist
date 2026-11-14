@@ -14,7 +14,8 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
-import 'package:melist/presentation/widgets/wish_list_tile.dart';
+import 'package:melist/presentation/widgets/melist_reorderable_list_view.dart';
+import 'package:melist/presentation/widgets/wishlist_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -116,15 +117,13 @@ class _LoadedWishlistPage extends StatelessWidget {
         const SizedBox(height: smallSep),
         AddElemListButton(
           text: "Добавить новый вишлист",
-          onTap: () => context.goNamed(wishlistCreateGoKey)
+          onTap: () => context.goNamed(wishlistCreateGoKey),
         ),
         const SizedBox(height: bigSep),
         Expanded(
           child: wishlists.isNotEmpty
-              ? ReorderableListView.builder(
+              ? MelistReorderableListView(
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 32),
-                  clipBehavior: Clip.hardEdge,
-                  buildDefaultDragHandles: false,
                   onReorderItem: (oldIndex, newIndex) {
                     final order = controller.currentOrder;
                     if (order != null) {
