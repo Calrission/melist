@@ -44,10 +44,12 @@ class LabeledBottomSheetSelector<T> extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(borderRadius),
-                  child: Container(
+                  child: Material(
                     color: value == option
                         ? sheetContext.palette.lightAccent
                         : Colors.transparent,
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    clipBehavior: Clip.antiAlias,
                     child: ListTile(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(borderRadius),

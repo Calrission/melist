@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/consts.dart';
 
@@ -9,12 +10,22 @@ class LabeledTextField extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.maxLines = 1,
+    this.onChanged,
+    this.trailing,
+    this.focusNode,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   final String label;
   final String hint;
   final TextEditingController controller;
   final int? maxLines;
+  final ValueChanged<String>? onChanged;
+  final Widget? trailing;
+  final FocusNode? focusNode;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -35,22 +46,33 @@ class LabeledTextField extends StatelessWidget {
             color: context.palette.container,
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          child: TextField(
-            controller: controller,
-            maxLines: maxLines,
-            style: TextStyle(fontSize: 14, color: context.palette.text),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              hintText: hint,
-              hintStyle: TextStyle(
-                fontSize: 14,
-                color: context.palette.subText,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  maxLines: maxLines,
+                  focusNode: focusNode,
+                  keyboardType: keyboardType,
+                  inputFormatters: inputFormatters,
+                  onChanged: onChanged,
+                  style: TextStyle(fontSize: 14, color: context.palette.text),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: context.palette.subText,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-            ),
+              ?trailing,
+            ],
           ),
         ),
       ],

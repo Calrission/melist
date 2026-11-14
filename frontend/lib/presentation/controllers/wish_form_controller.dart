@@ -30,20 +30,18 @@ class WishFormController extends BaseController<WishModel> {
     }
   }
 
-  Future<bool> create(CreateWishBody body, [int? wishlistId]) async {
+  Future<bool> create(CreateWishBody body, Set<int> wishlistIds) async {
     emit(ControllerState.loading);
     try {
       final created = await _repository.createWish(body);
-      if (wishlistId == null) {
-        data = created;
-        await _wishes?.refresh();
-        return true;
+      data = created;
+      for (final wishlistId in wishlistIds) {
+        await _repository.addWishToWishlist(
+          wishlistId,
+          AddWishlistWishBody.attach(created.id),
+        );
       }
-      data = await _repository.addWishToWishlist(
-        wishlistId,
-        AddWishlistWishBody.attach(created.id),
-      );
-      await _syncWishlist(wishlistId);
+      await _refreshWishlists();
       await _wishes?.refresh();
       return true;
     } on Object catch (e) {
@@ -52,13 +50,34 @@ class WishFormController extends BaseController<WishModel> {
     }
   }
 
-  Future<bool> update(int wishId, PatchWishBody body) async {
+  Future<bool> update(
+    int wishId,
+    PatchWishBody body,
+    Set<int> selectedWishlistIds,
+  ) async {
     emit(ControllerState.loading);
     try {
       final updatedWish = await _repository.patchWishById(wishId, body);
       data = updatedWish;
+      final currentWishlistIds = (_wishlists.data ?? const <WishlistModel>[])
+          .where((wishlist) => wishlist.items.any((item) => item.id == wishId))
+          .map((wishlist) => wishlist.id)
+          .toSet();
+      for (final wishlistId in currentWishlistIds.difference(
+        selectedWishlistIds,
+      )) {
+        await _repository.removeWishFromWishlist(wishlistId, wishId);
+      }
+      for (final wishlistId in selectedWishlistIds.difference(
+        currentWishlistIds,
+      )) {
+        await _repository.addWishToWishlist(
+          wishlistId,
+          AddWishlistWishBody.attach(wishId),
+        );
+      }
       _wishlist.updateWish(updatedWish);
-      await _wishlists.refreshMyWishlist();
+      await _refreshWishlists();
       await _wishes?.refresh();
       return true;
     } on Object catch (e) {
@@ -67,17 +86,21 @@ class WishFormController extends BaseController<WishModel> {
     }
   }
 
-  Future<void> _syncWishlist(int wishlistId) async {
+  Future<void> _refreshWishlists() async {
     final refreshed = await _wishlists.refreshMyWishlist();
     if (refreshed) {
+      final activeId = _wishlist.data?.id;
       final updated = _wishlists.data
-          ?.where((item) => item.id == wishlistId)
+          ?.where((item) => item.id == activeId)
           .firstOrNull;
       if (updated != null) {
         _wishlist.show(updated);
         return;
       }
     }
-    await _wishlist.loadById(wishlistId);
+    final activeId = _wishlist.data?.id;
+    if (activeId != null) {
+      await _wishlist.loadById(activeId);
+    }
   }
 }
