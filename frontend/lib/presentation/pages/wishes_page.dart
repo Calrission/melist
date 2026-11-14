@@ -6,7 +6,10 @@ import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -42,13 +45,29 @@ class _WishesPageState extends State<WishesPage> {
     super.dispose();
   }
 
-  void _onSearchChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
-      if (mounted) {
-        context.read<WishesController>().load(query: value.trim());
-      }
-    });
+  Future<void> _confirmDeleteSelected(WishesController controller) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: const Text(
+          "Вы уверены, что хотите удалить выбранные желания?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text("Нет"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text("Да"),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
+    await context.guard(controller.deleteSelected, success: "Удалено");
   }
 
   @override
@@ -56,50 +75,43 @@ class _WishesPageState extends State<WishesPage> {
     final controller = context.watch<WishesController>();
     return Scaffold(
       appBar: MelistAppBar(
-        title: "Мои желания",
+        title: controller.selectionMode
+            ? "Удаление желаний"
+            : "Все мои хотелки",
+        onBack: controller.selectionMode
+            ? controller.toggleSelectionMode
+            : context.pop,
         actions: [
-          if (controller.selectionMode)
-            TextButton(
-              onPressed: controller.selectedIds.isEmpty
-                  ? null
-                  : () => context.guard(
-                      controller.deleteSelected,
-                      success: "Удалено",
-                    ),
-              child: Text("Удалить выбранные (${controller.selectedIds.length})"),
+          IconButton(
+            icon: Icon(
+              MelistIcons.trash,
+              color: controller.selectedIds.isNotEmpty
+                  ? context.palette.accent
+                  : controller.selectionMode
+                  ? context.palette.subText
+                  : context.palette.text,
             ),
-          TextButton(
-            onPressed: controller.toggleSelectionMode,
-            child: Text(controller.selectionMode ? "Отмена" : "Выбрать"),
+            onPressed:
+                controller.selectionMode && controller.selectedIds.isNotEmpty
+                ? () => _confirmDeleteSelected(controller)
+                : controller.toggleSelectionMode,
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.goNamed(wishNewGoKey),
-        child: Icon(Icons.add),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              decoration: InputDecoration(hintText: 'Поиск по названию'),
+      floatingActionButton: controller.selectionMode
+          ? null
+          : FloatingActionButton(
+              onPressed: () => context.goNamed(wishNewGoKey),
+              child: Icon(Icons.add),
             ),
-          ),
-          Expanded(
-            child: switch (controller.state) {
-              ControllerState.init || ControllerState.loading => LoadingWidget(),
-              ControllerState.error => ErrorPlaceholderWidget(
-                error: controller.error,
-                onRetry: controller.load,
-              ),
-              ControllerState.loaded => const _WishesList(),
-            },
-          ),
-        ],
-      ),
+      body: switch (controller.state) {
+        ControllerState.init || ControllerState.loading => LoadingWidget(),
+        ControllerState.error => ErrorPlaceholderWidget(
+          error: controller.error,
+          onRetry: controller.load,
+        ),
+        ControllerState.loaded => const _WishesList(),
+      },
     );
   }
 }
@@ -115,37 +127,39 @@ class _WishesList extends StatelessWidget {
       return EmptyPlaceholderWidget();
     }
     final selectionMode = controller.selectionMode;
-    return ListView.builder(
-      itemCount: wishes.length,
-      itemBuilder: (context, index) {
-        final e = wishes[index];
-        return WishTile(
-          key: ValueKey(e.id),
-          wishModel: e,
-          selected: selectionMode ? controller.selectedIds.contains(e.id) : null,
-          onSelect: (_) => controller.toggleSelect(e.id),
-          onTap: selectionMode
-              ? () => controller.toggleSelect(e.id)
-              : () => context.goNamed(
-                  wishEditGoKey,
-                  pathParameters: {'id': e.id.toString()},
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
+      child: ListView.builder(
+        itemCount: wishes.length,
+        itemBuilder: (context, index) {
+          final e = wishes[index];
+          return WishTile(
+            key: ValueKey(e.id),
+            wishModel: e,
+            selected: selectionMode
+                ? controller.selectedIds.contains(e.id)
+                : null,
+            onSelect: (_) => controller.toggleSelect(e.id),
+            onTap: selectionMode
+                ? () => controller.toggleSelect(e.id)
+                : () => context.goNamed(
+                    wishEditGoKey,
+                    pathParameters: {'id': e.id.toString()},
+                  ),
+            actions: [
+              if (!selectionMode)
+                IconButton(
+                  tooltip: "Дублировать",
+                  onPressed: () => context.guard(
+                    () => controller.duplicate(e.id),
+                    success: "Копия создана",
+                  ),
+                  icon: Icon(Icons.copy),
                 ),
-          actions: [
-            if (!selectionMode)
-              IconButton(
-                tooltip: "Дублировать",
-                onPressed: () => context.guard(
-                  () => controller.duplicate(e.id),
-                  success: "Копия создана",
-                ),
-                icon: Icon(Icons.copy),
-              ),
-          ],
-          onTapDelete: selectionMode
-              ? null
-              : () => context.guard(() => controller.delete(e.id)),
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 }
