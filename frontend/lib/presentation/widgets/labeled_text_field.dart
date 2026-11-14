@@ -8,11 +8,13 @@ class LabeledTextField extends StatelessWidget {
     required this.label,
     required this.hint,
     required this.controller,
+    this.maxLines = 1,
   });
 
   final String label;
   final String hint;
   final TextEditingController controller;
+  final int? maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,7 @@ class LabeledTextField extends StatelessWidget {
           ),
           child: TextField(
             controller: controller,
+            maxLines: maxLines,
             style: TextStyle(fontSize: 14, color: context.palette.text),
             decoration: InputDecoration(
               border: InputBorder.none,

@@ -10,6 +10,7 @@ class Palette {
   final Color text;
   final Color subText;
   final Color accent;
+  final Color lightAccent;
   final Color textOnAccent;
   final Color hint;
   final Color container;
@@ -18,7 +19,8 @@ class Palette {
     required this.background, required this.text,
     required this.accent, required this.textOnAccent,
     required this.container, required this.subText,
-    required this.hint, required this.uiTheme
+    required this.hint, required this.lightAccent,
+    required this.uiTheme
   });
 
   factory Palette.light() {
@@ -27,10 +29,11 @@ class Palette {
       text: Colors.black,
       subText: Color(0xFF939396),
       accent: Color(0xFFFD92C0),
+      lightAccent: Color(0xFFFFEAF4),
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
       hint: Colors.grey,
-        uiTheme: UiTheme.light
+      uiTheme: UiTheme.light
     );
   }
 
@@ -40,6 +43,7 @@ class Palette {
       text: Colors.white,
       subText: Color(0xFF939396),
       accent: Color(0xFFFD92C0),
+      lightAccent: Color(0xFFFFEAF4),
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
       hint: Colors.grey,
@@ -55,7 +59,11 @@ class Palette {
     };
   }
 
-  Palette copyWith({Color? background, Color? text, Color? accent, Color? textOnAccent, Color? hint, Color? container, Color? subText, UiTheme? uiTheme}) {
+  Palette copyWith({
+    Color? background, Color? text, Color? accent, Color? textOnAccent,
+    Color? hint, Color? container, Color? subText, Color? lightAccent,
+    UiTheme? uiTheme
+  }) {
     return Palette(
       uiTheme: uiTheme ?? this.uiTheme,
       background: background ?? this.background,
@@ -63,6 +71,7 @@ class Palette {
       accent: accent ?? this.accent,
       textOnAccent: textOnAccent ?? this.textOnAccent,
       hint: hint ?? this.hint,
+      lightAccent: lightAccent ?? this.lightAccent,
       container: container ?? this.container,
       subText: subText ?? this.subText,
     );
@@ -78,6 +87,7 @@ class Palette {
       subText: Color.lerp(subText, other.subText, t)!,
       uiTheme: uiTheme,
       container: Color.lerp(container, other.container, t)!,
+      lightAccent: Color.lerp(lightAccent, other.lightAccent, t)!,
     );
   }
 

@@ -6,9 +6,9 @@ import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_form_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
-import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/wishlist_palette.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
+import 'package:melist/presentation/widgets/labeled_bottom_sheet_selector.dart';
 import 'package:melist/presentation/widgets/labeled_text_field.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
@@ -104,6 +104,12 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
     controller.reset();
   }
 
+  String _visibilityLabel(WishlistVisibility value) => switch (value) {
+    WishlistVisibility.public => "Публичный",
+    WishlistVisibility.draft => "Черновик",
+    WishlistVisibility.link => "По ссылке",
+  };
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistFormController>();
@@ -139,44 +145,21 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
                     label: "Описание",
                     hint: "Введите описание",
                     controller: _descriptionController,
+                    maxLines: null,
                   ),
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Text("Видимость:"),
-                      DropdownButton<WishlistVisibility>(
-                        value: visibility,
-                        items: [
-                          for (final value in WishlistVisibility.values)
-                            DropdownMenuItem(
-                              value: value,
-                              child: Text(value.name),
-                            ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setState(() => visibility = value);
-                          }
-                        },
-                      ),
-                    ],
+                  LabeledBottomSheetSelector<WishlistVisibility>(
+                    label: "Видимость",
+                    value: visibility,
+                    options: WishlistVisibility.values,
+                    optionLabel: _visibilityLabel,
+                    onChanged: (value) => setState(() => visibility = value),
                   ),
+                  SizedBox(height: 18)
                 ],
               ),
             ),
           ),
-          FilledButton(
-            onPressed: save,
-            style: FilledButton.styleFrom(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              minimumSize: null,
-              maximumSize: null,
-              backgroundColor: context.palette.accent,
-              foregroundColor: context.palette.textOnAccent,
-            ),
-            child: Text("Сохранить"),
-          ),
+          FilledButton(onPressed: save, child: Text("Сохранить")),
         ],
       ),
     );
