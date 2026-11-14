@@ -13,6 +13,7 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
+import 'package:melist/presentation/widgets/add_elem_list_button.dart';
 import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:melist_core/melist_core.dart';
@@ -76,16 +77,11 @@ class _WishlistPageState extends State<WishlistPage> {
         title: title,
         actions: [
           IconButton(
-            onPressed: () => context.goNamed(
-              wishlistEditGoKey,
-              pathParameters: {'id': id},
-            ),
+            onPressed: () =>
+                context.goNamed(wishlistEditGoKey, pathParameters: {'id': id}),
             icon: Icon(MelistIcons.edit),
           ),
-          IconButton(
-            onPressed: _share,
-            icon: Icon(MelistIcons.share),
-          ),
+          IconButton(onPressed: _share, icon: Icon(MelistIcons.share)),
         ],
       ),
       body: controller.state == ControllerState.error
@@ -104,6 +100,36 @@ class _LoadedWishlistView extends StatelessWidget {
   final int wishlistId;
   const _LoadedWishlistView({required this.wishlistId});
 
+  Future<void> _showAddWishDialog(
+    BuildContext context,
+    String wishlistId,
+  ) async {
+    final createNew = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text("Добавить желание"),
+        content: Text("Создать новое желание или добавить существующее?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: Text("Создать новое"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text("Добавить существующее"),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || createNew == null) {
+      return;
+    }
+    context.goNamed(
+      createNew ? wishCreateGoKey : wishAttachGoKey,
+      pathParameters: {'id': wishlistId},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<WishlistController>();
@@ -121,41 +147,49 @@ class _LoadedWishlistView extends StatelessWidget {
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
               ),
             ),
-          SizedBox(height: 24),
+          const SizedBox(height: 16),
+          AddElemListButton(
+            text: "Добавить желание",
+            onTap: () => _showAddWishDialog(context, id),
+          ),
+          const SizedBox(height: 16),
           Expanded(
             child: (wishlist.items.isEmpty)
-              ? EmptyPlaceholderWidget()
-              : ReorderableListView.builder(
-                  buildDefaultDragHandles: false,
-                  onReorderItem: (oldIndex, newIndex) {
-                    final order = controller.currentOrder;
-                    order.reorder(oldIndex, newIndex);
-                    controller.reorderWishes(wishlistId, order);
-                  },
-                  itemBuilder: (ctx, index) {
-                    final e = wishlist.items[index];
-                    return ReorderableDragStartListener(
-                      key: ValueKey(e),
-                      index: index,
-                      child: WishTile(
-                        wishModel: e,
-                        onTap: () => context.pushNamed(
-                          wishEditGoKey,
-                          pathParameters: {'id': e.id.toString()},
-                        ),
-                        actions: [
-                          IconButton(
-                            onPressed: () => context.guard(
-                              () => controller.removeWish(e.id),
-                            ),
-                            icon: Icon(Icons.remove_circle_outline, color: context.palette.text),
+                ? EmptyPlaceholderWidget()
+                : ReorderableListView.builder(
+                    buildDefaultDragHandles: false,
+                    onReorderItem: (oldIndex, newIndex) {
+                      final order = controller.currentOrder;
+                      order.reorder(oldIndex, newIndex);
+                      controller.reorderWishes(wishlistId, order);
+                    },
+                    itemBuilder: (ctx, index) {
+                      final e = wishlist.items[index];
+                      return ReorderableDragStartListener(
+                        key: ValueKey(e),
+                        index: index,
+                        child: WishTile(
+                          wishModel: e,
+                          onTap: () => context.pushNamed(
+                            wishEditGoKey,
+                            pathParameters: {'id': e.id.toString()},
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                  itemCount: wishlist.items.length,
-                ),
+                          actions: [
+                            IconButton(
+                              onPressed: () => context.guard(
+                                () => controller.removeWish(e.id),
+                              ),
+                              icon: Icon(
+                                Icons.remove_circle_outline,
+                                color: context.palette.text,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    itemCount: wishlist.items.length,
+                  ),
           ),
         ],
       ),

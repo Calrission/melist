@@ -19,7 +19,7 @@ class AddElemListButton extends StatelessWidget{
         borderRadius: BorderRadius.circular(borderRadius),
         hoverColor: context.palette.subText.withValues(alpha: 0.08),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 18),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
