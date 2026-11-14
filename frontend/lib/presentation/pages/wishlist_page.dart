@@ -138,6 +138,7 @@ class _LoadedWishlistView extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
       child: Column(
+        crossAxisAlignment: .start,
         children: [
           if (wishlist.description != null)
             Padding(

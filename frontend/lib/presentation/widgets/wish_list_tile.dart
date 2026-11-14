@@ -42,7 +42,7 @@ class WishListTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           hoverColor: context.palette.subText.withValues(alpha: 0.08),
           child: Ink(
-            padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 30),
+            padding: EdgeInsets.only(left: 20, right: 8, top: 14, bottom: 30),
             decoration: BoxDecoration(
               color: selected == true
                   ? context.palette.accent.withValues(alpha: 0.12)
