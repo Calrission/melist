@@ -29,7 +29,7 @@ void main() {
 
     final created = await form.create(
       const CreateWishBody(name: 'Headphones'),
-      8,
+      {8},
     );
 
     expect(created, isTrue);
@@ -60,11 +60,13 @@ void main() {
       description: 'Old description',
     );
     wishlists.stored = wishlists.stored.copyWith(items: [wish]);
+    await list.loadMyWishlist();
     await wishlist.loadById(8);
 
     final updated = await form.update(
       wish.id,
       const PatchWishBody(description: 'New description'),
+      {8},
     );
 
     expect(updated, isTrue);
@@ -96,12 +98,19 @@ class _Wishes implements IWishRepository {
 
   @override
   Future<WishModel> patchWishById(int wishId, PatchWishBody body) async {
-    return WishModel(
+    final updatedWish = WishModel(
       id: wishId,
       ownerId: 1,
       name: 'Headphones',
       description: 'New description',
     );
+    wishlists.stored = wishlists.stored.copyWith(
+      items: [
+        for (final wish in wishlists.stored.items)
+          if (wish.id == wishId) updatedWish else wish,
+      ],
+    );
+    return updatedWish;
   }
 
   @override

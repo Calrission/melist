@@ -207,15 +207,15 @@ class _WishFormPageState extends State<WishFormPage> {
             ),
             actions: [
               TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text("Отмена"),
+              ),
+              TextButton(
                 onPressed: controller.text.trim().isEmpty
                     ? null
                     : () =>
                           Navigator.pop(dialogContext, controller.text.trim()),
                 child: const Text("Ок"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: const Text("Отмена"),
               ),
             ],
           ),
