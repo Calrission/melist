@@ -43,7 +43,7 @@ class _WishPickerPageState extends State<WishPickerPage> {
     final wishlist = context.watch<WishlistController>().data;
     final attachedIds = {...?wishlist?.items.map((e) => e.id)};
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Добавить существующее")),
+      appBar: MelistAppBar(title: "Добавить существующее"),
       body: switch (wishes.state) {
         ControllerState.init || ControllerState.loading => LoadingWidget(),
         ControllerState.error => ErrorPlaceholderWidget(error: wishes.error),

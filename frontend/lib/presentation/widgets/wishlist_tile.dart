@@ -6,6 +6,22 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
+String _giftCountLabel(int count) {
+  final lastTwoDigits = count % 100;
+  final lastDigit = count % 10;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return '$count подарков';
+  }
+  if (lastDigit == 1) {
+    return '$count подарок';
+  }
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return '$count подарка';
+  }
+  return '$count подарков';
+}
+
 class WishListTile extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onTapDelete;
@@ -42,7 +58,7 @@ class WishListTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           hoverColor: context.palette.subText.withValues(alpha: 0.08),
           child: Ink(
-            padding: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 30),
+            padding: EdgeInsets.only(left: 20, right: 8, top: 14, bottom: 30),
             decoration: BoxDecoration(
               color: selected == true
                   ? context.palette.accent.withValues(alpha: 0.12)
@@ -72,7 +88,7 @@ class WishListTile extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "${wishlistModel.items.length} подарков",
+                            _giftCountLabel(wishlistModel.items.length),
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,

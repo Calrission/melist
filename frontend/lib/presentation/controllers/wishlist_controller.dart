@@ -8,7 +8,7 @@ class WishlistController extends BaseController<WishlistModel> {
   WishlistController({
     required this._wishlistRepository,
     required this._wishRepository,
-    required this._wishlistListController
+    required this._wishlistListController,
   });
 
   final WishlistListController _wishlistListController;
@@ -82,7 +82,8 @@ class WishlistController extends BaseController<WishlistModel> {
   }
 
   Future<void> reorderWishes(int wishlistId, List<int> order) async {
-    if (state != ControllerState.loaded || data == null ||
+    if (state != ControllerState.loaded ||
+        data == null ||
         data!.id != wishlistId) {
       return;
     }
@@ -101,5 +102,17 @@ class WishlistController extends BaseController<WishlistModel> {
 
   void show(WishlistModel wishlist) {
     data = wishlist;
+  }
+
+  void updateWish(WishModel wish) {
+    final current = data;
+    if (current == null || !current.items.any((item) => item.id == wish.id)) {
+      return;
+    }
+    data = current.copyWith(
+      items: [
+        for (final item in current.items) item.id == wish.id ? wish : item,
+      ],
+    );
   }
 }

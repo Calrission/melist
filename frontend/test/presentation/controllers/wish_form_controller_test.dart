@@ -14,7 +14,7 @@ void main() {
     final wishlist = WishlistController(
       wishlistRepository: wishlists,
       wishRepository: wishes,
-      wishlistListController: list
+      wishlistListController: list,
     );
     final form = WishFormController(
       repository: wishes,
@@ -38,6 +38,38 @@ void main() {
     expect(wishlist.data!.id, 8);
     expect(wishlist.data!.items.single.name, 'Headphones');
   });
+
+  test('updating a wish replaces it in the loaded wishlist', () async {
+    final wishlists = _Wishlists();
+    final wishes = _Wishes(wishlists);
+    final list = WishlistListController(repository: wishlists);
+    final wishlist = WishlistController(
+      wishlistRepository: wishlists,
+      wishRepository: wishes,
+      wishlistListController: list,
+    );
+    final form = WishFormController(
+      repository: wishes,
+      wishlists: list,
+      wishlist: wishlist,
+    );
+    const wish = WishModel(
+      id: 5,
+      ownerId: 1,
+      name: 'Headphones',
+      description: 'Old description',
+    );
+    wishlists.stored = wishlists.stored.copyWith(items: [wish]);
+    await wishlist.loadById(8);
+
+    final updated = await form.update(
+      wish.id,
+      const PatchWishBody(description: 'New description'),
+    );
+
+    expect(updated, isTrue);
+    expect(wishlist.data!.items.single.description, 'New description');
+  });
 }
 
 class _Wishes implements IWishRepository {
@@ -60,6 +92,16 @@ class _Wishes implements IWishRepository {
     final wish = WishModel(id: body.wishId!, ownerId: 1, name: 'Headphones');
     wishlists.stored = wishlists.stored.copyWith(items: [wish]);
     return wish;
+  }
+
+  @override
+  Future<WishModel> patchWishById(int wishId, PatchWishBody body) async {
+    return WishModel(
+      id: wishId,
+      ownerId: 1,
+      name: 'Headphones',
+      description: 'New description',
+    );
   }
 
   @override

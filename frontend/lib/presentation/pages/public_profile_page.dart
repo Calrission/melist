@@ -12,7 +12,7 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
-import 'package:melist/presentation/widgets/wish_list_tile.dart';
+import 'package:melist/presentation/widgets/wishlist_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +43,7 @@ class _PublicProfilePageState extends State<PublicProfilePage> {
         controller.state == ControllerState.loaded &&
         controller.data?.user.id == widget.userId;
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Профиль пользователя")),
+      appBar: MelistAppBar(title: "Профиль пользователя"),
       body: controller.state == ControllerState.error
           ? ErrorPlaceholderWidget(
               error: controller.error,

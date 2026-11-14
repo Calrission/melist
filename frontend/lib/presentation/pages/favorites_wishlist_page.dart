@@ -9,7 +9,8 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
-import 'package:melist/presentation/widgets/wish_list_tile.dart';
+import 'package:melist/presentation/widgets/melist_reorderable_list_view.dart';
+import 'package:melist/presentation/widgets/wishlist_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -52,7 +53,7 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
   Widget build(BuildContext context) {
     final controller = context.watch<FavoritesWishlistController>();
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Избранное")),
+      appBar: MelistAppBar(title: "Избранное"),
       body: Column(
         children: [
           Padding(
@@ -73,14 +74,16 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
             ),
           ),
           Expanded(
-            child: switch(controller.state) {
+            child: switch (controller.state) {
               ControllerState.init => LoadingWidget(),
-              ControllerState.loading =>  LoadingWidget(),
+              ControllerState.loading => LoadingWidget(),
               ControllerState.error => ErrorPlaceholderWidget(
                 error: controller.error,
                 onRetry: controller.loadMyFavoriteWishlists,
               ),
-              ControllerState.loaded => _LoadedState(wishlists: controller.data!)
+              ControllerState.loaded => _LoadedState(
+                wishlists: controller.data!,
+              ),
             },
           ),
         ],
@@ -90,7 +93,6 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
 }
 
 class _LoadedState extends StatelessWidget {
-
   final List<WishlistModel> _wishlists;
   const _LoadedState({required this._wishlists});
 
@@ -100,8 +102,7 @@ class _LoadedState extends StatelessWidget {
       return EmptyPlaceholderWidget();
     }
     final controller = context.read<FavoritesWishlistController>();
-    return ReorderableListView.builder(
-      buildDefaultDragHandles: false,
+    return MelistReorderableListView(
       onReorderItem: (oldIndex, newIndex) {
         final order = controller.currentOrder;
         if (order != null) {

@@ -9,7 +9,7 @@ import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
-import 'package:melist/presentation/widgets/wish_list_tile.dart';
+import 'package:melist/presentation/widgets/wishlist_tile.dart';
 import 'package:provider/provider.dart';
 
 /// Wishlist and profile subscriptions (31, 32, 34, 35).
@@ -35,7 +35,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
     final wishlists = context.watch<WishlistSubscriptionsController>();
     final users = context.watch<UserSubscriptionsController>();
     return Scaffold(
-      appBar: MelistAppBar(title: Text("Подписки")),
+      appBar: MelistAppBar(title: "Подписки"),
       body: ListView(
         children: [
           Text("Вишлисты:"),

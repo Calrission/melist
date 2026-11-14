@@ -107,9 +107,7 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
     final controller = context.watch<WishlistFormController>();
     return Scaffold(
       appBar: MelistAppBar(
-        title: Text(
-          widget.isEdit ? "Редактирование вишлиста" : "Новый вишлист",
-        ),
+        title: widget.isEdit ? "Редактирование вишлиста" : "Новый вишлист",
       ),
       body: loadFailed
           ? ErrorPlaceholderWidget(error: controller.error)

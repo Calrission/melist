@@ -4,10 +4,11 @@ import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 
 class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MelistAppBar({super.key, this.title, this.actions});
+  const MelistAppBar({super.key, this.title, this.actions, this.onBack});
 
-  final Widget? title;
+  final String? title;
   final List<Widget>? actions;
+  final VoidCallback? onBack;
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
@@ -22,11 +23,16 @@ class MelistAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: Padding(
         padding: const EdgeInsets.only(left: 8),
         child: IconButton(
-          onPressed: context.pop,
+          onPressed: onBack ?? context.pop,
           icon: Icon(MelistIcons.back, color: context.palette.subText),
         ),
       ),
-      title: title,
+      title: title == null
+          ? null
+          : Text(
+              title!,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
       actions: actions?..add(SizedBox(width: 10)),
     );
   }

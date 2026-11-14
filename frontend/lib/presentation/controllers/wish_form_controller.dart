@@ -55,11 +55,10 @@ class WishFormController extends BaseController<WishModel> {
   Future<bool> update(int wishId, PatchWishBody body) async {
     emit(ControllerState.loading);
     try {
-      data = await _repository.patchWishById(wishId, body);
+      final updatedWish = await _repository.patchWishById(wishId, body);
+      data = updatedWish;
+      _wishlist.updateWish(updatedWish);
       await _wishlists.refreshMyWishlist();
-      if (_wishlist.data?.items.any((e) => e.id == wishId) ?? false) {
-        await _wishlist.refresh();
-      }
       await _wishes?.refresh();
       return true;
     } on Object catch (e) {

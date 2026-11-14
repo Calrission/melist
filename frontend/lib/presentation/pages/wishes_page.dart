@@ -56,7 +56,7 @@ class _WishesPageState extends State<WishesPage> {
     final controller = context.watch<WishesController>();
     return Scaffold(
       appBar: MelistAppBar(
-        title: Text("Мои желания"),
+        title: "Мои желания",
         actions: [
           if (controller.selectionMode)
             TextButton(
