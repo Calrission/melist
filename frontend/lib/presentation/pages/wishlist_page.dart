@@ -5,7 +5,6 @@ import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/reorder_extension.dart';
-import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
@@ -171,21 +170,12 @@ class _LoadedWishlistView extends StatelessWidget {
                         index: index,
                         child: WishTile(
                           wishModel: e,
+                          onTapDelete: () =>
+                              context.guard(() => controller.removeWish(e.id)),
                           onTap: () => context.pushNamed(
                             wishEditGoKey,
                             pathParameters: {'id': e.id.toString()},
                           ),
-                          actions: [
-                            IconButton(
-                              onPressed: () => context.guard(
-                                () => controller.removeWish(e.id),
-                              ),
-                              icon: Icon(
-                                Icons.remove_circle_outline,
-                                color: context.palette.text,
-                              ),
-                            ),
-                          ],
                         ),
                       );
                     },
