@@ -6,6 +6,7 @@ import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_form_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/theme/wishlist_palette.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/labeled_bottom_sheet_selector.dart';
@@ -104,6 +105,40 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
     controller.reset();
   }
 
+  Future<void> _confirmDelete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        content: const Text("Вы уверены, что хотите удалить этот вишлист?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text("Нет"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text("Да"),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    final controller = context.read<WishlistFormController>();
+    final deleted = await controller.delete(widget.wishlistId!);
+    if (!mounted) {
+      return;
+    }
+    if (!deleted) {
+      context.showError(controller.error!);
+      return;
+    }
+    context.pop();
+    controller.reset();
+  }
+
   String _visibilityLabel(WishlistVisibility value) => switch (value) {
     WishlistVisibility.public => "Публичный",
     WishlistVisibility.draft => "Черновик",
@@ -116,6 +151,14 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
     return Scaffold(
       appBar: MelistAppBar(
         title: widget.isEdit ? "Редактирование вишлиста" : "Новый вишлист",
+        actions: widget.isEdit
+            ? [
+                IconButton(
+                  onPressed: _confirmDelete,
+                  icon: const Icon(MelistIcons.trash),
+                ),
+              ]
+            : null,
       ),
       body: loadFailed
           ? ErrorPlaceholderWidget(error: controller.error)
@@ -154,7 +197,7 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
                     optionLabel: _visibilityLabel,
                     onChanged: (value) => setState(() => visibility = value),
                   ),
-                  SizedBox(height: 18)
+                  SizedBox(height: 18),
                 ],
               ),
             ),

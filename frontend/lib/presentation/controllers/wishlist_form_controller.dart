@@ -54,4 +54,19 @@ class WishlistFormController extends BaseController<WishlistModel> {
       return false;
     }
   }
+
+  Future<bool> delete(int id) async {
+    emit(ControllerState.loading);
+    try {
+      await _repository.deleteWishlistById(id);
+      await _wishlists.refreshMyWishlist();
+      if (_wishlist.data?.id == id) {
+        _wishlist.reset();
+      }
+      return true;
+    } on Object catch (e) {
+      error = e;
+      return false;
+    }
+  }
 }
