@@ -5,6 +5,7 @@ import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -56,6 +57,7 @@ class _WishPickerPageState extends State<WishPickerPage> {
               return EmptyPlaceholderWidget();
             }
             return ListView(
+              padding: EdgeInsets.only(left: horPagePadding, right: horPagePadding, bottom: horPagePadding),
               children: [
                 for (final e in available)
                   WishTile(wishModel: e, onTap: () => _attach(e.id)),

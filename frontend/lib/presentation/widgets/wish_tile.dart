@@ -33,7 +33,7 @@ class WishTile extends StatelessWidget {
     final radius = BorderRadius.circular(borderRadius);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16, right: 8),
+      padding: const EdgeInsets.only(bottom: 16),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
