@@ -234,10 +234,7 @@ class _LoadedShared extends StatelessWidget {
                         onTap: () => context.pushNamed(
                           wishDetailsGoKey,
                           pathParameters: {'id': wish.id.toString()},
-                          extra: WishDetailsArguments(
-                            wish: wish,
-                            sourceWishlistName: wishlist.name,
-                          ),
+                          extra: WishDetailsArguments(wish: wish),
                         ),
                         actions: [
                           if (!isOwn)

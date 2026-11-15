@@ -111,9 +111,6 @@ GoRouter createAppRouter() => GoRouter(
                       initialWish: extra is WishDetailsArguments
                           ? extra.wish
                           : null,
-                      sourceWishlistName: extra is WishDetailsArguments
-                          ? extra.sourceWishlistName
-                          : null,
                     );
                   },
                 ),

@@ -1,40 +1,26 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:go_router/go_router.dart';
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
-import 'package:melist/presentation/controllers/base_controller.dart';
-import 'package:melist/presentation/controllers/profile_controller.dart';
-import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
-import 'package:melist/presentation/icons/melist_icons.dart';
-import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
-import 'package:melist/presentation/widgets/labeled_text_field.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
 class WishDetailsArguments {
-  const WishDetailsArguments({required this.wish, this.sourceWishlistName});
+  const WishDetailsArguments({required this.wish});
 
   final WishModel wish;
-  final String? sourceWishlistName;
 }
 
 class WishDetailsPage extends StatefulWidget {
-  const WishDetailsPage({
-    super.key,
-    required this.wishId,
-    this.initialWish,
-    this.sourceWishlistName,
-  });
+  const WishDetailsPage({super.key, required this.wishId, this.initialWish});
 
   final int wishId;
   final WishModel? initialWish;
-  final String? sourceWishlistName;
 
   @override
   State<WishDetailsPage> createState() => _WishDetailsPageState();
@@ -43,31 +29,40 @@ class WishDetailsPage extends StatefulWidget {
 class _WishDetailsPageState extends State<WishDetailsPage> {
   WishModel? _wish;
   Object? _error;
-  var _loading = true;
-
-  final _nameController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _urlController = TextEditingController();
-  final _statusController = TextEditingController();
-  final _wishlistsController = TextEditingController();
+  var _loading = false;
 
   @override
   void initState() {
     super.initState();
     _wish = widget.initialWish;
-    context.postFrame(() => _load());
+    if (_wish == null) {
+      _loading = true;
+      context.postFrame(_load);
+    }
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _descriptionController.dispose();
-    _priceController.dispose();
-    _urlController.dispose();
-    _statusController.dispose();
-    _wishlistsController.dispose();
-    super.dispose();
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final wish = await context.read<IWishRepository>().getMyWishById(
+        widget.wishId,
+      );
+      if (!mounted) return;
+      setState(() {
+        _wish = wish;
+        _loading = false;
+      });
+    } on Object catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _error = error;
+        _loading = false;
+      });
+    }
   }
 
   String _statusLabel(WishStatus status) => switch (status) {
@@ -76,98 +71,11 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
     WishStatus.reserved => "Зарезервировано",
   };
 
-  void _applyWish(WishModel wish) {
-    _wish = wish;
-    _nameController.text = wish.name;
-    _descriptionController.text = wish.description ?? '';
-    _priceController.text = wish.price == null ? '' : '${wish.price} ₽';
-    _urlController.text = wish.url ?? '';
-    _statusController.text = _statusLabel(wish.status);
-  }
-
-  Future<void> _load({bool refresh = false}) async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
-    try {
-      final profileController = context.read<ProfileController>();
-      final wishRepository = context.read<IWishRepository>();
-      final wishlistsController = context.read<WishlistListController>();
-      if (profileController.profile == null) {
-        await profileController.loadProfile();
-      }
-
-      final profileId = profileController.profile?.id;
-      final currentWish = _wish;
-      final isOwn = currentWish != null && currentWish.ownerId == profileId;
-      final wish = currentWish == null || (refresh && isOwn)
-          ? await wishRepository.getMyWishById(widget.wishId)
-          : currentWish;
-
-      if (!mounted) return;
-      setState(() {
-        _applyWish(wish);
-        _loading = false;
-      });
-
-      if (wish.ownerId == profileId) {
-        if (wishlistsController.state != ControllerState.loaded) {
-          await wishlistsController.loadMyWishlist();
-        }
-        if (mounted) _updateWishlistsField(wishlistsController.data);
-      } else {
-        _updateWishlistsField(null);
-      }
-    } on Object catch (error) {
-      if (mounted) {
-        setState(() {
-          _error = error;
-          _loading = false;
-        });
-      }
-    }
-  }
-
-  void _updateWishlistsField(List<WishlistModel>? wishlists) {
-    final wish = _wish;
-    if (wish == null) return;
-    final names = wishlists
-        ?.where((wishlist) => wishlist.items.any((item) => item.id == wish.id))
-        .map((wishlist) => wishlist.name)
-        .toList();
-    _wishlistsController.text = names?.isNotEmpty == true
-        ? names!.join(', ')
-        : widget.sourceWishlistName ?? '';
-  }
-
-  Future<void> _edit() async {
-    await context.pushNamed<void>(
-      wishEditGoKey,
-      pathParameters: {'id': widget.wishId.toString()},
-    );
-    if (mounted) await _load(refresh: true);
-  }
-
   @override
   Widget build(BuildContext context) {
     final wish = _wish;
-    final profileId = context.watch<ProfileController>().profile?.id;
-    final isOwn = wish != null && wish.ownerId == profileId;
-
     return Scaffold(
-      appBar: MelistAppBar(
-        title: wish?.name ?? "Желание",
-        actions: [
-          if (isOwn)
-            IconButton(
-              tooltip: "Редактировать",
-              onPressed: _edit,
-              icon: Icon(MelistIcons.edit),
-            ),
-        ],
-      ),
+      appBar: MelistAppBar(title: wish?.name ?? "Желание"),
       body: _error != null
           ? ErrorPlaceholderWidget(error: _error!, onRetry: _load)
           : _loading || wish == null
@@ -225,46 +133,57 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
               ),
             ),
           ),
-          LabeledTextField(
-            label: "Название",
-            hint: "",
-            controller: _nameController,
-            enabled: false,
-          ),
-          LabeledTextField(
-            label: "Описание",
-            hint: "",
-            controller: _descriptionController,
-            maxLines: null,
-            enabled: false,
-          ),
-          LabeledTextField(
-            label: "Статус",
-            hint: "",
-            controller: _statusController,
-            enabled: false,
-          ),
-          LabeledTextField(
+          if (wish.description?.isNotEmpty ?? false)
+            Text(wish.description!, style: TextStyle(
+                fontWeight: FontWeight.w300,
+                color: context.palette.text,
+                fontSize: 12
+            )),
+          _WishDetailField(label: "Статус", value: _statusLabel(wish.status)),
+          _WishDetailField(
             label: "Цена",
-            hint: "",
-            controller: _priceController,
-            enabled: false,
+            value: wish.price == null ? "—" : "${wish.price} ₽",
           ),
-          LabeledTextField(
-            label: "Ссылка",
-            hint: "",
-            controller: _urlController,
-            enabled: false,
-          ),
-          LabeledTextField(
-            label: "Вишлисты",
-            hint: "",
-            controller: _wishlistsController,
-            maxLines: null,
-            enabled: false,
-          ),
+          _WishDetailField(label: "Ссылка", value: wish.url ?? "—"),
         ],
       ),
+    );
+  }
+}
+
+class _WishDetailField extends StatelessWidget {
+  const _WishDetailField({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: context.palette.accent,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            color: context.palette.container,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: Text(
+            value,
+            style: TextStyle(fontSize: 14, color: context.palette.text),
+          ),
+        ),
+      ],
     );
   }
 }

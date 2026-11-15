@@ -176,10 +176,7 @@ class _LoadedWishlistView extends StatelessWidget {
                           onTap: () => context.pushNamed(
                             wishDetailsGoKey,
                             pathParameters: {'id': e.id.toString()},
-                            extra: WishDetailsArguments(
-                              wish: e,
-                              sourceWishlistName: controller.data?.name,
-                            ),
+                            extra: WishDetailsArguments(wish: e),
                           ),
                         ),
                       );
