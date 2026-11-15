@@ -54,9 +54,7 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _refreshScheduled = false;
       if (mounted && _isCurrentRoute) {
-        context
-            .read<FavoritesWishlistController>()
-            .loadMyFavoriteWishlists();
+        context.read<FavoritesWishlistController>().loadMyFavoriteWishlists();
       }
     });
   }
@@ -84,8 +82,7 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
             child: const Text("Отмена"),
           ),
           TextButton(
-            onPressed: () =>
-                Navigator.pop(dialogContext, tokenController.text),
+            onPressed: () => Navigator.pop(dialogContext, tokenController.text),
             child: const Text("Добавить"),
           ),
         ],
@@ -103,9 +100,9 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
     }
 
     await context.guard(
-      () => context
-          .read<FavoritesWishlistController>()
-          .addWishlistToFavorites(AddFavoriteBody(shareToken: token)),
+      () => context.read<FavoritesWishlistController>().addWishlistToFavorites(
+        AddFavoriteBody(shareToken: token),
+      ),
       success: "Добавлено в избранное",
     );
   }
@@ -149,9 +146,7 @@ class _FavoritesWishlistPageState extends State<FavoritesWishlistPage> {
           error: controller.error,
           onRetry: controller.loadMyFavoriteWishlists,
         ),
-        ControllerState.loaded => _LoadedState(
-          wishlists: controller.data!,
-        ),
+        ControllerState.loaded => _LoadedState(wishlists: controller.data!),
       },
     );
   }
@@ -168,7 +163,11 @@ class _LoadedState extends StatelessWidget {
     }
     final controller = context.read<FavoritesWishlistController>();
     return MelistReorderableListView(
-      padding: EdgeInsets.only(left: horPagePadding, right: horPagePadding, bottom: horPagePadding),
+      padding: EdgeInsets.only(
+        left: horPagePadding,
+        right: horPagePadding,
+        bottom: horPagePadding,
+      ),
       onReorderItem: (oldIndex, newIndex) {
         final order = controller.currentOrder;
         if (order != null) {
@@ -182,14 +181,19 @@ class _LoadedState extends StatelessWidget {
         return ReorderableDelayedDragStartListener(
           key: ValueKey(e),
           index: index,
-          child: FavoriteWishlistTile(
+          child: WishListTile(
             wishlistModel: e,
-            onTap: e.shareToken == null
-                ? null
-                : () => context.pushNamed(
-                    sharedWishlistGoKey,
-                    pathParameters: {'token': e.shareToken!},
-                  ),
+            showOwner: true,
+            onTapOwner: () => context.pushNamed(
+              publicProfileGoKey,
+              pathParameters: {'id': e.ownerId.toString()},
+            ),
+            showFavoriteAction: true,
+            showEdit: false,
+            onTap: () => context.pushNamed(
+              favoriteWishlistGoKey,
+              pathParameters: {'id': e.id.toString()},
+            ),
             onToggleFavorite: (isFavorite) async {
               if (isFavorite) {
                 return context.guard(

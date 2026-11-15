@@ -22,10 +22,15 @@ String _giftCountLabel(int count) {
   return '$count подарков';
 }
 
-class WishListTile extends StatelessWidget {
+class WishListTile extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onTapDelete;
   final bool showEdit;
+  final bool showOwner;
+  final VoidCallback? onTapOwner;
+  final bool showFavoriteAction;
+  final bool isFavorite;
+  final Future<bool> Function(bool isFavorite)? onToggleFavorite;
 
   /// Non-null turns on the selection checkbox.
   final bool? selected;
@@ -39,6 +44,11 @@ class WishListTile extends StatelessWidget {
     this.onTap,
     this.onTapDelete,
     this.showEdit = true,
+    this.showOwner = false,
+    this.onTapOwner,
+    this.showFavoriteAction = false,
+    this.isFavorite = true,
+    this.onToggleFavorite,
     this.selected,
     this.onSelect,
     this.actions = const [],
@@ -46,15 +56,39 @@ class WishListTile extends StatelessWidget {
   });
 
   @override
+  State<WishListTile> createState() => _WishListTileState();
+}
+
+class _WishListTileState extends State<WishListTile> {
+  late bool _isFavorite = widget.isFavorite;
+
+  @override
+  void didUpdateWidget(covariant WishListTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isFavorite != oldWidget.isFavorite) {
+      _isFavorite = widget.isFavorite;
+    }
+  }
+
+  Future<void> _toggleFavorite() async {
+    final succeeded = await widget.onToggleFavorite?.call(_isFavorite) ?? false;
+    if (succeeded && mounted) {
+      setState(() => _isFavorite = !_isFavorite);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final wishlistModel = widget.wishlistModel;
     final previewItems = wishlistModel.items.take(4).toList();
+    final selected = widget.selected;
     return _Wiggle(
       enabled: selected == true,
       child: Material(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(borderRadius),
         child: InkWell(
-          onTap: onTap,
+          onTap: widget.onTap,
           borderRadius: BorderRadius.circular(borderRadius),
           hoverColor: context.palette.subText.withValues(alpha: 0.08),
           child: Ink(
@@ -87,17 +121,52 @@ class WishListTile extends StatelessWidget {
                               color: context.palette.accent,
                             ),
                           ),
-                          Text(
-                            _giftCountLabel(wishlistModel.items.length),
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          if (widget.showOwner && widget.onTapOwner != null)
+                            TextButton(
+                              onPressed: widget.onTapOwner,
+                              style: TextButton.styleFrom(
+                                foregroundColor: context.palette.subText,
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                alignment: Alignment.centerLeft,
+                              ),
+                              child: Text(
+                                'Владелец: ${wishlistModel.ownerId}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            )
+                          else
+                            Text(
+                              widget.showOwner
+                                  ? 'Владелец: ${wishlistModel.ownerId}'
+                                  : _giftCountLabel(wishlistModel.items.length),
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
-                    if (showEdit)
+                    for (final itemAction in widget.actions) itemAction,
+                    if (widget.showFavoriteAction)
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: widget.onToggleFavorite == null
+                            ? null
+                            : _toggleFavorite,
+                        icon: Icon(
+                          _isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: _isFavorite
+                              ? context.palette.accent
+                              : context.palette.subText,
+                        ),
+                      ),
+                    if (widget.showEdit)
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: selected == null
@@ -131,108 +200,6 @@ class WishListTile extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class FavoriteWishlistTile extends StatefulWidget {
-  final VoidCallback? onTap;
-  final Future<bool> Function(bool isFavorite)? onToggleFavorite;
-  final WishlistModel wishlistModel;
-
-  const FavoriteWishlistTile({
-    super.key,
-    this.onTap,
-    this.onToggleFavorite,
-    required this.wishlistModel,
-  });
-
-  @override
-  State<FavoriteWishlistTile> createState() => _FavoriteWishlistTileState();
-}
-
-class _FavoriteWishlistTileState extends State<FavoriteWishlistTile> {
-  bool _isFavorite = true;
-
-  Future<void> _toggleFavorite() async {
-    final succeeded =
-        await widget.onToggleFavorite?.call(_isFavorite) ?? false;
-    if (succeeded && mounted) {
-      setState(() => _isFavorite = !_isFavorite);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final wishlistModel = widget.wishlistModel;
-    final previewItems = wishlistModel.items.take(4).toList();
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        hoverColor: context.palette.subText.withValues(alpha: 0.08),
-        child: Ink(
-          padding: EdgeInsets.only(left: 20, right: 8, top: 14, bottom: 30),
-          decoration: BoxDecoration(
-            color: context.palette.container,
-            borderRadius: BorderRadius.circular(borderRadius),
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: .start,
-                      children: [
-                        Text(
-                          wishlistModel.name,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: context.palette.accent,
-                          ),
-                        ),
-                        Text(
-                          'Владелец: ${wishlistModel.ownerId}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: widget.onToggleFavorite == null
-                        ? null
-                        : _toggleFavorite,
-                    icon: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: _isFavorite
-                          ? context.palette.accent
-                          : context.palette.subText,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Row(
-                spacing: 12,
-                children: previewItems.isEmpty
-                    ? List.generate(4, (_) => _WishlistItemPreview())
-                    : [
-                        for (final item in previewItems)
-                          _WishlistItemPreview(coverUrl: item.coverUrl),
-                      ],
-              ),
-            ],
           ),
         ),
       ),

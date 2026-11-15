@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:talker/talker.dart';
 
 const String homeGoKey = 'home';
-const String wishlistsGoKey= 'wishlists';
+const String wishlistsGoKey = 'wishlists';
 const String wishlistGoKey = 'wishlist';
 const String wishlistCreateGoKey = 'wishlist_create';
 const String wishlistEditGoKey = 'wishlist_edit';
@@ -29,6 +29,8 @@ const String wishNewGoKey = 'wish_new';
 const String wishEditGoKey = 'wish_edit';
 const String sharedWishlistGoKey = 'shared_wishlist';
 const String publicProfileGoKey = 'public_profile';
+const String favoriteWishlistGoKey = 'favorite_wishlist';
+const String publicProfileWishlistGoKey = 'public_profile_wishlist';
 const String subscriptionsGoKey = 'subscriptions';
 
 GoRouter createAppRouter() => GoRouter(
@@ -51,7 +53,7 @@ GoRouter createAppRouter() => GoRouter(
                 GoRoute(
                   path: 'create',
                   name: wishlistCreateGoKey,
-                  builder: (_, _) => const WishlistFormPage()
+                  builder: (_, _) => const WishlistFormPage(),
                 ),
                 GoRoute(
                   path: 'edit/:id',
@@ -71,8 +73,8 @@ GoRouter createAppRouter() => GoRouter(
                       path: 'wish/new',
                       name: wishCreateGoKey,
                       builder: (context, state) => WishFormPage(
-                        fromWishlistId: int.parse(state.pathParameters['id']!)
-                      )
+                        fromWishlistId: int.parse(state.pathParameters['id']!),
+                      ),
                     ),
                     GoRoute(
                       path: 'wish/attach',
@@ -81,9 +83,9 @@ GoRouter createAppRouter() => GoRouter(
                         wishlistId: int.parse(state.pathParameters['id']!),
                       ),
                     ),
-                  ]
+                  ],
                 ),
-              ]
+              ],
             ),
             GoRoute(
               path: '/wishes',
@@ -110,11 +112,17 @@ GoRouter createAppRouter() => GoRouter(
               builder: (_, _) => FavoritesWishlistPage(),
             ),
             GoRoute(
+              path: '/favorites/:id',
+              name: favoriteWishlistGoKey,
+              builder: (context, state) => SharedWishlistPage.fromFavorite(
+                wishlistId: int.parse(state.pathParameters['id']!),
+              ),
+            ),
+            GoRoute(
               path: '/shared/:token',
               name: sharedWishlistGoKey,
-              builder: (context, state) => SharedWishlistPage(
-                token: state.pathParameters['token']!,
-              ),
+              builder: (context, state) =>
+                  SharedWishlistPage(token: state.pathParameters['token']!),
             ),
             GoRoute(
               path: '/users/:id',
@@ -124,11 +132,17 @@ GoRouter createAppRouter() => GoRouter(
               ),
             ),
             GoRoute(
+              path: '/users/:id/wishlists/:token',
+              name: publicProfileWishlistGoKey,
+              builder: (context, state) =>
+                  SharedWishlistPage(token: state.pathParameters['token']!),
+            ),
+            GoRoute(
               path: '/subscriptions',
               name: subscriptionsGoKey,
               builder: (_, _) => const SubscriptionsPage(),
             ),
-          ]
+          ],
         ),
       ],
     ),

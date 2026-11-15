@@ -11,8 +11,13 @@ import 'package:provider/provider.dart';
 
 class ProfileWidget extends StatelessWidget {
   final UserModel userModel;
+  final bool allowBirthdayEdit;
 
-  const ProfileWidget({super.key, required this.userModel});
+  const ProfileWidget({
+    super.key,
+    required this.userModel,
+    this.allowBirthdayEdit = true,
+  });
 
   void _changeBirthday(BuildContext context) async {
     final newBirthday = await showDatePicker(
@@ -56,8 +61,6 @@ class ProfileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = ProfileController.of(context);
-    final userModel = controller.profile!;
     final birthday = userModel.birthday;
     final birthdayText = birthday == null
         ? "Не указан"
@@ -113,7 +116,7 @@ class ProfileWidget extends StatelessWidget {
                       userModel.lastNameFirstName,
                       style: TextStyle(
                         color: context.palette.text,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(width: verySmallSep),
@@ -122,20 +125,27 @@ class ProfileWidget extends StatelessWidget {
                 ),
               ),
             ),
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: TextButton(
-                onPressed: () => _changeBirthday(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: context.palette.accent,
-                  padding: EdgeInsets.zero,
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  alignment: Alignment.centerLeft,
+            if (allowBirthdayEdit)
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: TextButton(
+                  onPressed: () => _changeBirthday(context),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    disabledForegroundColor: context.palette.accent,
+                    foregroundColor: context.palette.accent,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    alignment: Alignment.centerLeft,
+                  ),
+                  child: Text("День рождения: $birthdayText"),
                 ),
-                child: Text("День рождения: $birthdayText"),
-              ),
-            ),
+              )
+            else
+              Text("День рождения: $birthdayText", style: TextStyle(
+                color: context.palette.accent,
+                fontWeight: FontWeight.bold
+              )),
           ],
         ),
       ],

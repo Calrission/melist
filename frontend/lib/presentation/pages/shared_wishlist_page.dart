@@ -20,18 +20,33 @@ import 'package:provider/provider.dart';
 /// Read-only view of a wishlist opened by share token (7, 8.1, 4.3, 30).
 class SharedWishlistPage extends StatefulWidget {
   final String token;
-  const SharedWishlistPage({super.key, required this.token});
+  final int? favoriteWishlistId;
+
+  const SharedWishlistPage({super.key, required this.token})
+    : favoriteWishlistId = null;
+
+  const SharedWishlistPage.fromFavorite({super.key, required int wishlistId})
+    : token = '',
+      favoriteWishlistId = wishlistId;
 
   @override
   State<SharedWishlistPage> createState() => _SharedWishlistPageState();
 }
 
 class _SharedWishlistPageState extends State<SharedWishlistPage> {
+  String? _token;
+  Object? _favoriteLoadError;
+
   @override
   void initState() {
     super.initState();
     context.postFrame(() {
-      context.read<SharedWishlistController>().loadByToken(widget.token);
+      final favoriteWishlistId = widget.favoriteWishlistId;
+      if (favoriteWishlistId != null) {
+        _loadFavoriteWishlist(favoriteWishlistId);
+      } else {
+        _loadByToken(widget.token);
+      }
       context.read<WishlistSubscriptionsController>().ensureLoaded();
       final profile = context.read<ProfileController>();
       if (profile.profile == null) {
@@ -40,22 +55,72 @@ class _SharedWishlistPageState extends State<SharedWishlistPage> {
     });
   }
 
+  Future<void> _loadFavoriteWishlist(int wishlistId) async {
+    final favorites = context.read<FavoritesWishlistController>();
+    await favorites.loadMyFavoriteWishlists();
+    if (!mounted) {
+      return;
+    }
+
+    if (favorites.state == ControllerState.error) {
+      setState(() => _favoriteLoadError = favorites.error);
+      return;
+    }
+
+    WishlistModel? wishlist;
+    for (final item in favorites.data ?? const <WishlistModel>[]) {
+      if (item.id == wishlistId) {
+        wishlist = item;
+        break;
+      }
+    }
+    final token = wishlist?.shareToken;
+    if (token == null) {
+      setState(
+        () => _favoriteLoadError = StateError(
+          "Не удалось открыть избранный вишлист",
+        ),
+      );
+      return;
+    }
+    _loadByToken(token);
+  }
+
+  void _loadByToken(String token) {
+    _token = token;
+    context.read<SharedWishlistController>().loadByToken(token);
+  }
+
+  void _retry() {
+    final favoriteWishlistId = widget.favoriteWishlistId;
+    if (favoriteWishlistId != null) {
+      setState(() => _favoriteLoadError = null);
+      _loadFavoriteWishlist(favoriteWishlistId);
+    } else {
+      _loadByToken(widget.token);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SharedWishlistController>();
+    final token = _token;
     final ready =
+        token != null &&
         controller.state == ControllerState.loaded &&
-        controller.token == widget.token;
+        controller.token == token;
+    final error =
+        _favoriteLoadError ??
+        (token != null && controller.token == token ? controller.error : null);
     return Scaffold(
-      appBar: MelistAppBar(title: "Вишлист по ссылке"),
-      body: controller.state == ControllerState.error
-          ? ErrorPlaceholderWidget(
-              error: controller.error,
-              onRetry: () => controller.loadByToken(widget.token),
-            )
+      appBar: MelistAppBar(
+        title: ready ? controller.data!.name : "Вишлист по ссылке",
+      ),
+      body: error != null
+          ? ErrorPlaceholderWidget(error: error, onRetry: _retry)
           : ready
-              ? _LoadedShared(wishlist: controller.data!, token: widget.token)
-              : LoadingWidget(),
+          ? _LoadedShared(wishlist: controller.data!, token: token)
+          : LoadingWidget(),
     );
   }
 }
@@ -95,7 +160,10 @@ class _LoadedShared extends StatelessWidget {
       return;
     }
     context.guard(
-      () => context.read<SharedWishlistController>().copyWishTo(wish.id, targetId),
+      () => context.read<SharedWishlistController>().copyWishTo(
+        wish.id,
+        targetId,
+      ),
       success: "Скопировано",
     );
   }
@@ -139,7 +207,9 @@ class _LoadedShared extends StatelessWidget {
                       ? "Удалено из избранного"
                       : "Добавлено в избранное",
                 ),
-                child: Text(inFavorites ? "Убрать из избранного" : "В избранное"),
+                child: Text(
+                  inFavorites ? "Убрать из избранного" : "В избранное",
+                ),
               ),
             if (!isOwn && wishlist.visibility == WishlistVisibility.public)
               OutlinedButton(
