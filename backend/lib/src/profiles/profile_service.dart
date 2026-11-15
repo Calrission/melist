@@ -38,10 +38,12 @@ class ProfileService {
   Future<UserModel> update(
     AuthUser user, {
     Object? birthday = unset,
+    Object? nickname = unset,
     String? theme,
   }) async {
     final hasBirthday = !identical(birthday, unset);
-    if (!hasBirthday && theme == null) {
+    final hasNickname = !identical(nickname, unset);
+    if (!hasBirthday && !hasNickname && theme == null) {
       throw const BadRequestException('No fields to update');
     }
 
@@ -56,12 +58,15 @@ class ProfileService {
     }
 
     final parsedTheme = theme == null ? null : _theme(theme);
+    final nicknamePatch = hasNickname ? _nickname(nickname) : null;
 
     await _repo.ensure(user);
     final updated = await _repo.update(
       id: user.id,
       birthday: parsedBirthday,
       clearBirthday: clearBirthday,
+      nickname: nicknamePatch?.value,
+      clearNickname: nicknamePatch?.clear ?? false,
       theme: parsedTheme,
     );
     if (updated == null) {
@@ -98,4 +103,28 @@ class ProfileService {
       throw const BadRequestException('theme must be system, light or dark');
     }
   }
+
+  _NicknamePatch _nickname(Object? value) {
+    if (value == null) {
+      return const _NicknamePatch(clear: true);
+    }
+    if (value is! String) {
+      throw const BadRequestException('nickname must be a string or null');
+    }
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) {
+      return const _NicknamePatch(clear: true);
+    }
+    if (trimmed.length > 100) {
+      throw const BadRequestException('nickname is too long');
+    }
+    return _NicknamePatch(value: trimmed);
+  }
+}
+
+class _NicknamePatch {
+  const _NicknamePatch({this.value, this.clear = false});
+
+  final String? value;
+  final bool clear;
 }

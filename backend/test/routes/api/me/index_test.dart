@@ -60,6 +60,7 @@ void main() {
       expect(response, isOk);
       expect(body['id'], 1);
       expect(body['firstName'], 'Ann');
+      expect(body['nickname'], 'Ann');
       expect(body['username'], 'ann');
       expect(body['theme'], 'system');
       expect(body['birthday'], isNull);

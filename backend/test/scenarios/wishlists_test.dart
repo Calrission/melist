@@ -281,7 +281,7 @@ void main() {
       expect((await jsonMap(sub))['error'], 'Wishlist not found');
     });
 
-    test('5. create wishlist name, color, visibility', () async {
+    test('5. create wishlist name, visibility and cover', () async {
       final first = await handleWishlistsCollection(
         app
             .context(
@@ -290,7 +290,7 @@ void main() {
               body: {
                 'name': 'НГ',
                 'visibility': 'draft',
-                'color': '#42A5F5',
+                'coverUrl': 'https://example.com/c.png',
               },
             )
             .context,
@@ -298,7 +298,7 @@ void main() {
       expect(first, isCreated);
       final firstBody = await jsonMap(first);
       expect(firstBody['visibility'], 'draft');
-      expect(firstBody['color'], '#42A5F5');
+      expect(firstBody['coverUrl'], 'https://example.com/c.png');
 
       final second = await jsonMap(
         await handleWishlistsCollection(
@@ -312,19 +312,19 @@ void main() {
         ),
       );
       expect(second['visibility'], 'draft');
-      expect(second['color'], '#FFB74D');
+      expect(second['coverUrl'], isNull);
 
       final bad = await handleWishlistsCollection(
         app
             .context(
               HttpMethod.post,
               '/api/wishlists',
-              body: {'name': 'НГ', 'color': '#000000'},
+              body: {'visibility': 'draft'},
             )
             .context,
       );
       expect(bad, isBadRequest);
-      expect((await jsonMap(bad))['error'], 'color is not in the palette');
+      expect((await jsonMap(bad))['error'], 'name is required');
     });
 
     test('6. list own wishlists and open a card with items', () async {
@@ -404,7 +404,7 @@ void main() {
               body: {
                 'name': 'Новое',
                 'visibility': 'public',
-                'color': '#EF5350',
+                'coverUrl': 'https://example.com/c.png',
               },
             )
             .context,
@@ -414,7 +414,22 @@ void main() {
       final body = await jsonMap(updated);
       expect(body['name'], 'Новое');
       expect(body['visibility'], 'public');
-      expect(body['color'], '#EF5350');
+      expect(body['coverUrl'], 'https://example.com/c.png');
+
+      final cleared = await handleWishlistById(
+        app
+            .context(
+              HttpMethod.patch,
+              '/api/wishlists/$wl',
+              body: {'coverUrl': null},
+            )
+            .context,
+        '$wl',
+      );
+      expect(cleared, isOk);
+      final clearedBody = await jsonMap(cleared);
+      expect(clearedBody['coverUrl'], isNull);
+      expect(clearedBody['name'], 'Новое');
 
       final forbidden = await handleWishlistById(
         app

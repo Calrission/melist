@@ -31,6 +31,8 @@ class MemoryWishUserRepository implements UserRepository {
     required int id,
     DateTime? birthday,
     bool clearBirthday = false,
+    String? nickname,
+    bool clearNickname = false,
     UiTheme? theme,
   }) async {
     return null;

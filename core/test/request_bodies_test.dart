@@ -30,6 +30,15 @@ void main() {
       final body = PatchProfileBody(birthday: DateTime.utc(1990, 5, 12));
       expect(body.toJson(), {'birthday': '1990-05-12'});
     });
+
+    test('sends nickname and null to reset it', () {
+      expect(const PatchProfileBody(nickname: 'Annie').toJson(), {
+        'nickname': 'Annie',
+      });
+      expect(const PatchProfileBody(nickname: null).toJson(), {
+        'nickname': null,
+      });
+    });
   });
 
   group('CreateWishBody', () {

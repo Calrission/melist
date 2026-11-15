@@ -7,7 +7,9 @@ import 'package:melist_backend/src/favorites/favorite_handlers.dart';
   method: HttpMethod.get,
   path: '/api/favorites',
   summary: 'List favorite wishlists',
-  description: "Other users' wishlists saved by the current user. (9)",
+  description:
+      "Other users' wishlists saved by the current user. "
+      'Each item includes ownerNickname. (9)',
   tags: ['Favorites'],
   responses: [
     ApiResponse(

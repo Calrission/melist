@@ -7,7 +7,8 @@ import 'package:melist_backend/src/profiles/profile_handlers.dart';
   method: HttpMethod.get,
   path: '/api/me',
   summary: 'Current user profile',
-  description: 'Telegram profile data plus settings (birthday, theme). (22)',
+  description:
+      'Telegram profile data plus settings (nickname, birthday, theme). (22)',
   tags: ['Profile'],
   responses: [
     ApiResponse(
@@ -23,7 +24,7 @@ import 'package:melist_backend/src/profiles/profile_handlers.dart';
   method: HttpMethod.patch,
   path: '/api/me',
   summary: 'Update profile settings',
-  description: 'Set or change birthday and UI theme. (23, 26)',
+  description: 'Set birthday, nickname or UI theme. (23, 26)',
   tags: ['Profile'],
   requestBody: ApiRequestBody(
     required: true,
@@ -31,6 +32,7 @@ import 'package:melist_backend/src/profiles/profile_handlers.dart';
       'type': 'object',
       'properties': {
         'birthday': {'type': 'string', 'format': 'date', 'nullable': true},
+        'nickname': {'type': 'string', 'nullable': true},
         'theme': {
           'type': 'string',
           'enum': ['system', 'light', 'dark'],

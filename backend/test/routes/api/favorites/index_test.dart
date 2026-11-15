@@ -57,22 +57,31 @@ void main() {
     });
 
     test('GET returns favorite wishlists', () async {
+      const named = AuthUser(
+        id: 1,
+        firstName: 'Ann',
+        lastName: 'Lee',
+        username: 'melist_test',
+      );
       final list = await wishlists.create(
-        owner,
+        named,
         name: 'Birthday',
         visibility: 'link',
       );
-      final token = await wishlists.share(owner, list.id);
+      final token = await wishlists.share(named, list.id);
       await favorites.add(guest, token);
 
       final response = await handleFavoritesCollection(
         contextFor(HttpMethod.get).context,
       );
       final body = jsonDecode(await response.body()) as List<dynamic>;
+      final wishlist = body.first as Map;
 
       expect(response, isOk);
       expect(body, hasLength(1));
-      expect((body.first as Map)['name'], 'Birthday');
+      expect(wishlist['name'], 'Birthday');
+      expect(wishlist['ownerId'], 1);
+      expect(wishlist['ownerNickname'], 'Ann Lee');
     });
 
     test('POST adds a wishlist by share token', () async {

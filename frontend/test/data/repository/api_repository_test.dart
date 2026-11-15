@@ -158,7 +158,7 @@ void main() {
   });
 }
 
-const _wishlist = {'id': 1, 'ownerId': 1, 'name': 'Gifts', 'color': '#fff'};
+const _wishlist = {'id': 1, 'ownerId': 1, 'name': 'Gifts'};
 
 const _wish = {'id': 10, 'ownerId': 1, 'name': 'Headphones'};
 

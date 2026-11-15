@@ -113,7 +113,7 @@ class ProfileWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      userModel.lastNameFirstName,
+                      userModel.displayName,
                       style: TextStyle(
                         color: context.palette.text,
                         fontWeight: FontWeight.bold,

@@ -181,6 +181,55 @@ void main() {
       expect(invalid, isBadRequest);
     });
 
+    test('38b. nickname defaults to the name and can be changed', () async {
+      const named = AuthUser(
+        id: 1,
+        firstName: 'Ann',
+        lastName: 'Lee',
+        username: 'ann',
+      );
+      Future<Response> patch(Object? nickname) {
+        return handleMe(
+          app
+              .context(
+                HttpMethod.patch,
+                '/api/me',
+                as: named,
+                body: {'nickname': nickname},
+              )
+              .context,
+        );
+      }
+
+      final initial = await handleMe(
+        app.context(HttpMethod.get, '/api/me', as: named).context,
+      );
+      expect(initial, isOk);
+      final initialBody = await jsonMap(initial);
+      expect(initialBody['nickname'], 'Ann Lee');
+      expect(initialBody['firstName'], 'Ann');
+      expect(initialBody['lastName'], 'Lee');
+
+      final renamed = await patch('Annie');
+      expect(renamed, isOk);
+      final renamedBody = await jsonMap(renamed);
+      expect(renamedBody['nickname'], 'Annie');
+      expect(renamedBody['firstName'], 'Ann');
+
+      final cleared = await patch(null);
+      expect((await jsonMap(cleared))['nickname'], 'Ann Lee');
+
+      final blank = await patch('');
+      expect((await jsonMap(blank))['nickname'], 'Ann Lee');
+
+      final invalid = await patch(1);
+      expect(invalid, isBadRequest);
+      expect(
+        (await jsonMap(invalid))['error'],
+        'nickname must be a string or null',
+      );
+    });
+
     test('39. switch theme; reject unknown and empty patch', () async {
       for (final theme in ['dark', 'light', 'system']) {
         final patched = await handleMe(

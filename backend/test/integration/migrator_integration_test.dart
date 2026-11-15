@@ -152,8 +152,8 @@ void main() {
             {'id': 1, 'name': 'Test'},
           );
           final wishlist = await tx.querySingle(
-            'INSERT INTO wishlists (owner_id, name, color) '
-            "VALUES (1, 'Birthday', '#ff0000') RETURNING id",
+            'INSERT INTO wishlists (owner_id, name) '
+            "VALUES (1, 'Birthday') RETURNING id",
           );
           return wishlist!['id'] as int;
         });

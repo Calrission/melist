@@ -6,7 +6,6 @@ import 'package:melist_backend/src/data/wishlist_repository.dart';
 import 'package:melist_backend/src/http/app_exception.dart';
 import 'package:melist_backend/src/http/parse.dart';
 import 'package:melist_backend/src/wishes/wish_service.dart';
-import 'package:melist_backend/src/wishlists/wishlist_palette.dart';
 import 'package:melist_backend/src/wishlists/wishlist_share.dart';
 import 'package:melist_core/melist_core.dart';
 
@@ -66,15 +65,15 @@ class WishlistService {
     AuthUser user, {
     required String name,
     String? description,
-    String? color,
+    String? coverUrl,
     String? visibility,
     List<int> wishIds = const [],
   }) {
     final parsedName = _requireName(name);
-    final parsedColor = _colorOrDefault(color);
     final parsedVisibility = _visibility(visibility);
     final uniqueWishIds = _uniqueIds(wishIds);
     final parsedDescription = _optionalText(description);
+    final parsedCoverUrl = _optionalText(coverUrl);
 
     return _transaction((tx) async {
       final users = _users(tx);
@@ -98,7 +97,7 @@ class WishlistService {
         ownerId: user.id,
         name: parsedName,
         description: parsedDescription,
-        color: parsedColor,
+        coverUrl: parsedCoverUrl,
         visibility: parsedVisibility,
         position: position,
       );
@@ -123,19 +122,16 @@ class WishlistService {
     int id, {
     String? name,
     Object? description = unsetDescription,
-    String? color,
+    Object? coverUrl = unsetCoverUrl,
     String? visibility,
   }) async {
     final hasDescription = !identical(description, unsetDescription);
-    if (name == null &&
-        !hasDescription &&
-        color == null &&
-        visibility == null) {
+    final hasCoverUrl = !identical(coverUrl, unsetCoverUrl);
+    if (name == null && !hasDescription && !hasCoverUrl && visibility == null) {
       throw const BadRequestException('No fields to update');
     }
 
     final parsedName = name == null ? null : _requireName(name);
-    final parsedColor = color == null ? null : _requireColor(color);
     final parsedVisibility = visibility == null
         ? null
         : _visibility(visibility, required: true);
@@ -157,13 +153,31 @@ class WishlistService {
       }
     }
 
+    String? parsedCoverUrl;
+    var clearCoverUrl = false;
+    if (hasCoverUrl) {
+      if (coverUrl == null) {
+        clearCoverUrl = true;
+      } else if (coverUrl is String) {
+        final trimmed = coverUrl.trim();
+        if (trimmed.isEmpty) {
+          clearCoverUrl = true;
+        } else {
+          parsedCoverUrl = trimmed;
+        }
+      } else {
+        throw const BadRequestException('coverUrl must be a string or null');
+      }
+    }
+
     final updated = await _repo.update(
       id: id,
       ownerId: user.id,
       name: parsedName,
       description: parsedDescription,
       clearDescription: clearDescription,
-      color: parsedColor,
+      coverUrl: parsedCoverUrl,
+      clearCoverUrl: clearCoverUrl,
       visibility: parsedVisibility,
     );
     if (updated != null) {
@@ -446,6 +460,7 @@ class WishlistService {
   }
 
   static const unsetDescription = Object();
+  static const unsetCoverUrl = Object();
   static const _maxNameLength = 100;
 
   String? _optionalText(String? raw) {
@@ -465,21 +480,6 @@ class WishlistService {
       throw const BadRequestException('name is too long');
     }
     return name;
-  }
-
-  String _colorOrDefault(String? raw) {
-    if (raw == null || raw.trim().isEmpty) {
-      return defaultWishlistColor;
-    }
-    return _requireColor(raw);
-  }
-
-  String _requireColor(String raw) {
-    final color = normalizeWishlistColor(raw);
-    if (color == null) {
-      throw const BadRequestException('color is not in the palette');
-    }
-    return color;
   }
 
   WishlistVisibility _visibility(String? raw, {bool required = false}) {

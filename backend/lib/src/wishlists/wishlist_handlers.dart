@@ -78,7 +78,7 @@ Future<Response> _create(
     user,
     name: name,
     description: optionalJsonString(body['description'], 'description'),
-    color: optionalJsonString(body['color'], 'color'),
+    coverUrl: optionalJsonString(body['coverUrl'], 'coverUrl'),
     visibility: optionalJsonString(body['visibility'], 'visibility'),
     wishIds: parseIntList(body['wishIds'], 'wishIds'),
   );
@@ -143,7 +143,9 @@ Future<Response> _patch(
     description: body.containsKey('description')
         ? body['description']
         : WishlistService.unsetDescription,
-    color: optionalJsonString(body['color'], 'color'),
+    coverUrl: body.containsKey('coverUrl')
+        ? body['coverUrl']
+        : WishlistService.unsetCoverUrl,
     visibility: optionalJsonString(body['visibility'], 'visibility'),
   );
   return Response.json(body: updated.toJson());

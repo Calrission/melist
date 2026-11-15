@@ -44,6 +44,7 @@ class MemoryUserRepository implements UserRepository {
       firstName: user.firstName ?? current?.firstName,
       lastName: user.lastName ?? current?.lastName,
       username: user.username ?? current?.username,
+      nickname: current?.nickname,
       avatarUrl: user.avatarUrl ?? current?.avatarUrl,
       birthday: current?.birthday,
       theme: current?.theme ?? UiTheme.system,
@@ -60,6 +61,8 @@ class MemoryUserRepository implements UserRepository {
     required int id,
     DateTime? birthday,
     bool clearBirthday = false,
+    String? nickname,
+    bool clearNickname = false,
     UiTheme? theme,
   }) async {
     final current = data.users[id];
@@ -71,6 +74,7 @@ class MemoryUserRepository implements UserRepository {
       firstName: current.firstName,
       lastName: current.lastName,
       username: current.username,
+      nickname: clearNickname ? null : (nickname ?? current.nickname),
       avatarUrl: current.avatarUrl,
       birthday: clearBirthday ? null : (birthday ?? current.birthday),
       theme: theme ?? current.theme,
@@ -134,17 +138,17 @@ class MemoryWishlistRepository implements WishlistRepository {
   Future<WishlistModel> insert({
     required int ownerId,
     required String name,
-    required String color,
     required WishlistVisibility visibility,
     required int position,
     String? description,
+    String? coverUrl,
   }) async {
     final wishlist = WishlistModel(
       id: data.nextWishlistId++,
       ownerId: ownerId,
       name: name,
       description: description,
-      color: color,
+      coverUrl: coverUrl,
       visibility: visibility,
       position: position,
     );
@@ -160,7 +164,8 @@ class MemoryWishlistRepository implements WishlistRepository {
     String? name,
     String? description,
     bool clearDescription = false,
-    String? color,
+    String? coverUrl,
+    bool clearCoverUrl = false,
     WishlistVisibility? visibility,
   }) async {
     final current = data.wishlists[id];
@@ -174,10 +179,11 @@ class MemoryWishlistRepository implements WishlistRepository {
       description: clearDescription
           ? null
           : (description ?? current.description),
-      color: color ?? current.color,
+      coverUrl: clearCoverUrl ? null : (coverUrl ?? current.coverUrl),
       visibility: visibility ?? current.visibility,
       position: current.position,
       shareToken: current.shareToken,
+      ownerNickname: current.ownerNickname,
       items: current.items,
     );
     data.wishlists[id] = updated;
@@ -273,10 +279,11 @@ class MemoryWishlistRepository implements WishlistRepository {
       ownerId: current.ownerId,
       name: current.name,
       description: current.description,
-      color: current.color,
+      coverUrl: current.coverUrl,
       visibility: current.visibility,
       position: position ?? current.position,
       shareToken: shareToken ?? current.shareToken,
+      ownerNickname: current.ownerNickname,
       items: current.items,
       createdAt: current.createdAt,
       updatedAt: current.updatedAt,
@@ -434,7 +441,10 @@ class MemoryFavoriteRepository implements FavoriteRepository {
   Future<List<WishlistModel>> listWishlists(int userId) async {
     return [
       for (final id in _ids(userId))
-        if (data.wishlists[id] case final wishlist?) wishlist,
+        if (data.wishlists[id] case final wishlist?)
+          wishlist.copyWith(
+            ownerNickname: data.users[wishlist.ownerId]?.displayName ?? '',
+          ),
     ];
   }
 

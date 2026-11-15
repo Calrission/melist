@@ -62,7 +62,6 @@ void main() {
           owner,
           name: 'Birthday',
           visibility: 'public',
-          color: '#FFB74D',
         );
 
         expect(created.id, greaterThan(0));

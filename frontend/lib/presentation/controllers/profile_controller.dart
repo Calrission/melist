@@ -6,7 +6,6 @@ import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
 class ProfileController extends BaseController<UserModel?> {
-
   final IProfileRepository _repository;
   final ThemeController? _theme;
   ProfileController({required this._repository, this._theme});
@@ -21,7 +20,7 @@ class ProfileController extends BaseController<UserModel?> {
     emit(ControllerState.loading);
     try {
       _apply(await _repository.getMyProfile());
-    } on Object catch(e) {
+    } on Object catch (e) {
       error = e;
     }
   }
@@ -36,6 +35,10 @@ class ProfileController extends BaseController<UserModel?> {
 
   Future<void> updateTheme(UiTheme theme) async {
     await updateProfile(PatchProfileBody(theme: theme));
+  }
+
+  Future<void> updateNickname(String nickname) async {
+    await updateProfile(PatchProfileBody(nickname: nickname));
   }
 
   Future<void> updateProfile(PatchProfileBody body) async {

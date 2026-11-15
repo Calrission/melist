@@ -84,13 +84,13 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 Текущий пользователь: данные из Telegram + настройки. Если строки в `users` ещё нет, она создаётся из JWT.
 
 ```json
-{ "id": 1, "firstName": "…", "lastName": "…", "username": "…", "avatarUrl": "…",
+{ "id": 1, "firstName": "…", "lastName": "…", "username": "…", "nickname": "…", "avatarUrl": "…",
   "birthday": "1990-05-12", "theme": "dark" }
 ```
 
 ### `PATCH /api/me` (23, 26)
 
-Тело: `{ "birthday"?: "YYYY-MM-DD" | null, "theme"?: "light" | "dark" | "system" }`. `null` у `birthday` сбрасывает дату. Ответ — как `GET /api/me`.
+Тело: `{ "birthday"?: "YYYY-MM-DD" | null, "nickname"?: string | null, "theme"?: "light" | "dark" | "system" }`. `null` у `birthday` сбрасывает дату. `nickname` по умолчанию — `firstName` и, если фамилия не пустая, `lastName` через пробел. `null` или пустая строка возвращают этот вариант. Ответ — как `GET /api/me`.
 
 ### `GET /api/me/entitlements` (29)
 
@@ -111,10 +111,10 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 ### `POST /api/wishlists` (1)
 
 ```json
-{ "name": "День рождения", "visibility": "public" | "draft" | "link", "color": "#FFB74D", "wishIds": [1, 2] }
+{ "name": "День рождения", "visibility": "public" | "draft" | "link", "coverUrl": "https://…", "wishIds": [1, 2] }
 ```
 
-`wishIds` — опционально (1.3). Ответ `201` с созданным вишлистом.
+`wishIds` — опционально (1.3). `coverUrl` — опциональная ссылка на обложку (1.4). Ответ `201` с созданным вишлистом.
 
 ### `PATCH /api/wishlists` (5.1)
 
@@ -130,7 +130,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `PATCH /api/wishlists/{id}` (3)
 
-`{ "name"?, "visibility"?: "public" | "draft" | "link", "color"? }`.
+`{ "name"?, "visibility"?: "public" | "draft" | "link", "coverUrl"? }`. `coverUrl: null` или пустая строка снимает обложку.
 
 ### `DELETE /api/wishlists/{id}` (6.1)
 
@@ -172,7 +172,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Файлы: `backend/routes/api/favorites/`.
 
-- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. В `items` все желания.
+- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. В `items` все желания. У каждого вишлиста `ownerNickname` — ник владельца, а если он не задан, имя и фамилия.
 - `POST /api/favorites` (8.1) — `{ "shareToken": "…" }` → `201`. Свой вишлист — `400`, повтор — `409`.
 - `PATCH /api/favorites` (10) — `{ "order": [wishlistId, …] }` → `204`
 - `DELETE /api/favorites/{wishlistId}` (11) → `204`

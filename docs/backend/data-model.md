@@ -123,6 +123,7 @@ CREATE TABLE users (
   first_name   TEXT,
   last_name    TEXT,
   username     TEXT,
+  nickname     TEXT,                          -- 23.3, null = имя и фамилия
   avatar_url   TEXT,
   birthday     DATE,                          -- 23.1, 23.2
   theme        ui_theme NOT NULL DEFAULT 'system',
@@ -131,7 +132,7 @@ CREATE TABLE users (
 );
 ```
 
-Запись создаётся/обновляется при `POST /auth/validate` из данных `initData` (upsert, включая `avatar_url`). `GET /api/me` создаёт строку из JWT, если её ещё нет.
+Запись создаётся/обновляется при `POST /auth/validate` из данных `initData` (upsert, включая `avatar_url`). `nickname` при этом не затирается: `NULL` значит показать `first_name` и, если фамилия не пустая, `last_name`. `GET /api/me` создаёт строку из JWT, если её ещё нет.
 
 ### `refresh_tokens`
 
@@ -158,7 +159,7 @@ CREATE TABLE wishlists (
   owner_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name         TEXT NOT NULL,
   description  TEXT,
-  color        TEXT NOT NULL,                 -- 1.4, значение из базовой палитры
+  cover_url    TEXT,                          -- 1.4, ссылка на обложку
   visibility   wishlist_visibility NOT NULL DEFAULT 'draft',
   position     INTEGER NOT NULL DEFAULT 0,    -- 5.1
   share_token  TEXT UNIQUE,                   -- 7.1, генерируется по запросу

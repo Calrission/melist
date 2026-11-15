@@ -6,7 +6,7 @@ class WishlistRepository {
   const WishlistRepository(this._db);
 
   static const _columns = '''
-id, owner_id, name, description, color,
+id, owner_id, name, description, cover_url,
 visibility::text AS visibility,
 position, share_token, created_at, updated_at
 ''';
@@ -74,20 +74,20 @@ WHERE owner_id = @ownerId
   Future<WishlistModel> insert({
     required int ownerId,
     required String name,
-    required String color,
     required WishlistVisibility visibility,
     required int position,
     String? description,
+    String? coverUrl,
   }) async {
     final row = await _db.querySingle(
       '''
 INSERT INTO wishlists (
-  owner_id, name, description, color, visibility, position
+  owner_id, name, description, cover_url, visibility, position
 ) VALUES (
   @ownerId,
   @name,
   @description,
-  @color,
+  @coverUrl,
   CAST(@visibility AS wishlist_visibility),
   @position
 )
@@ -97,7 +97,7 @@ RETURNING $_columns
         'ownerId': ownerId,
         'name': name,
         'description': description,
-        'color': color,
+        'coverUrl': coverUrl,
         'visibility': visibility.name,
         'position': position,
       },
@@ -112,7 +112,8 @@ RETURNING $_columns
     String? name,
     String? description,
     bool clearDescription = false,
-    String? color,
+    String? coverUrl,
+    bool clearCoverUrl = false,
     WishlistVisibility? visibility,
   }) async {
     final sets = <String>['updated_at = now()'];
@@ -128,9 +129,11 @@ RETURNING $_columns
       sets.add('description = @description');
       params['description'] = description;
     }
-    if (color != null) {
-      sets.add('color = @color');
-      params['color'] = color;
+    if (clearCoverUrl) {
+      sets.add('cover_url = NULL');
+    } else if (coverUrl != null) {
+      sets.add('cover_url = @coverUrl');
+      params['coverUrl'] = coverUrl;
     }
     if (visibility != null) {
       sets.add('visibility = CAST(@visibility AS wishlist_visibility)');

@@ -85,7 +85,7 @@ class _SubscriptionsPageState extends State<SubscriptionsPage> {
               for (final user in users.data!)
                 ListTile(
                   title: Text(
-                    [user.firstName, user.lastName].whereType<String>().join(' '),
+                    user.displayName,
                   ),
                   subtitle: Text("id: ${user.id} | @${user.username}"),
                   onTap: () => context.pushNamed(

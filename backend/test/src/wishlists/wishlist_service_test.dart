@@ -17,36 +17,41 @@ void main() {
   });
 
   group('WishlistService.create', () {
-    test('creates a draft with default color and next position', () async {
+    test('creates a draft with the next position', () async {
       await service.create(owner, name: ' Birthday ');
       final created = await service.create(owner, name: 'NY');
 
       expect(created.name, 'NY');
-      expect(created.color, defaultWishlistColor);
       expect(created.visibility, WishlistVisibility.draft);
       expect(created.position, 1);
       expect(data.userIds, contains(7));
     });
 
-    test('accepts palette color case-insensitively', () async {
+    test('accepts public visibility', () async {
       final created = await service.create(
         owner,
         name: 'Party',
-        color: '#ef5350',
         visibility: 'public',
       );
 
-      expect(created.color, '#EF5350');
       expect(created.visibility, WishlistVisibility.public);
     });
 
-    test('rejects empty name and unknown color or visibility', () {
+    test('stores a trimmed cover url', () async {
+      final created = await service.create(
+        owner,
+        name: 'Party',
+        coverUrl: ' https://img.example/cover.png ',
+      );
+      expect(created.coverUrl, 'https://img.example/cover.png');
+
+      final blank = await service.create(owner, name: 'Plain', coverUrl: '  ');
+      expect(blank.coverUrl, isNull);
+    });
+
+    test('rejects empty name and unknown visibility', () {
       expect(
         () => service.create(owner, name: '  '),
-        throwsA(isA<BadRequestException>()),
-      );
-      expect(
-        () => service.create(owner, name: 'A', color: '#000000'),
         throwsA(isA<BadRequestException>()),
       );
       expect(
@@ -105,7 +110,7 @@ void main() {
   });
 
   group('WishlistService.update', () {
-    test('changes name, visibility and color', () async {
+    test('changes name and visibility', () async {
       final created = await service.create(owner, name: 'Old');
 
       final updated = await service.update(
@@ -113,12 +118,27 @@ void main() {
         created.id,
         name: 'New',
         visibility: 'public',
-        color: '#42A5F5',
       );
 
       expect(updated.name, 'New');
       expect(updated.visibility, WishlistVisibility.public);
-      expect(updated.color, '#42A5F5');
+    });
+
+    test('sets and clears cover url', () async {
+      final created = await service.create(owner, name: 'Old');
+
+      final updated = await service.update(
+        owner,
+        created.id,
+        coverUrl: ' https://img.example/cover.png ',
+      );
+      expect(updated.coverUrl, 'https://img.example/cover.png');
+
+      final cleared = await service.update(owner, created.id, coverUrl: null);
+      expect(cleared.coverUrl, isNull);
+
+      final blank = await service.update(owner, created.id, coverUrl: '  ');
+      expect(blank.coverUrl, isNull);
     });
 
     test('rejects empty patch and foreign owners', () async {

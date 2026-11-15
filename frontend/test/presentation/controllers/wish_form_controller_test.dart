@@ -122,7 +122,6 @@ class _Wishlists implements IWishlistRepository {
     id: 8,
     ownerId: 1,
     name: 'TEST',
-    color: '#FFB74D',
   );
 
   @override

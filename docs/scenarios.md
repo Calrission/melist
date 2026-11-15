@@ -34,14 +34,14 @@
 - **Когда:** B делает `GET /api/users/{A}`, `GET /api/wishlists/{WL}`, `POST /api/subscriptions/wishlists` `{ "wishlistId": WL }`.
 - **Тогда:** профиль — `200`, `WL` нет в `wishlists`. Карточка — `403`. Подписка — `404` `{ "error": "Wishlist not found" }`.
 
-### 5. Создание вишлиста: имя, цвет, видимость (1.1, 1.2, 1.4)
+### 5. Создание вишлиста: имя, видимость, обложка (1.1, 1.2, 1.4)
 
 - **Дано:** A авторизован.
 - **Когда:**
-  1. `POST /api/wishlists` `{ "name": "НГ", "visibility": "draft", "color": "#42A5F5" }`
+  1. `POST /api/wishlists` `{ "name": "НГ", "visibility": "draft", "coverUrl": "https://example.com/c.png" }`
   2. `POST /api/wishlists` `{ "name": "НГ" }`
-  3. `POST /api/wishlists` `{ "name": "НГ", "color": "#000000" }`
-- **Тогда:** (1) `201`, `visibility = draft`, `color = "#42A5F5"`. (2) `201`, `visibility = draft`, `color = "#FFB74D"`. (3) `400` `{ "error": "color is not in the palette" }`.
+  3. `POST /api/wishlists` `{ "visibility": "draft" }`
+- **Тогда:** (1) `201`, `visibility = draft`, `coverUrl = "https://example.com/c.png"`. (2) `201`, `visibility = draft`, `coverUrl = null`. (3) `400` `{ "error": "name is required" }`.
 
 ### 6. Список своих вишлистов и карточка (2.1, 2.2)
 
@@ -51,9 +51,9 @@
 
 ### 7. Редактирование вишлиста (3)
 
-- **Дано:** у A вишлист `WL`: `name = "Старое"`, `visibility = draft`, цвет по умолчанию.
-- **Когда:** `PATCH /api/wishlists/{WL}` `{ "name": "Новое", "visibility": "public", "color": "#EF5350" }` от A. Тот же `PATCH` от B.
-- **Тогда:** от A — `200`, поля обновлены. От B — `403`. Пустое тело — `400` `{ "error": "No fields to update" }`.
+- **Дано:** у A вишлист `WL`: `name = "Старое"`, `visibility = draft`, обложки нет.
+- **Когда:** `PATCH /api/wishlists/{WL}` `{ "name": "Новое", "visibility": "public", "coverUrl": "https://example.com/c.png" }` от A. Затем `PATCH` `{ "coverUrl": null }`. `PATCH` с новым именем от B.
+- **Тогда:** от A — `200`, поля обновлены, `coverUrl` задан, после очистки `coverUrl = null`. От B — `403`. Пустое тело — `400` `{ "error": "No fields to update" }`.
 
 ### 8. Привязка своего существующего желания (4.2)
 
@@ -147,7 +147,7 @@
 
 - **Дано:** B добавил вишлисты A: сначала `WL1`, затем `WL2`.
 - **Когда:** B: `GET /api/favorites`.
-- **Тогда:** `200`, массив из двух элементов, порядок добавления (`WL1`, `WL2`), если не было reorder.
+- **Тогда:** `200`, массив из двух элементов, порядок добавления (`WL1`, `WL2`), если не было reorder. У каждого элемента `ownerNickname` — ник владельца, а если он не задан, имя и фамилия.
 
 ### 23. В избранном видны все желания (9)
 
@@ -252,6 +252,12 @@
 - **Дано:** A авторизован.
 - **Когда:** `PATCH /api/me` `{ "birthday": "1990-05-12" }`; затем `{ "birthday": "1991-01-01" }`; затем `{ "birthday": null }`; затем `{ "birthday": "12-05-1990" }`.
 - **Тогда:** первые два — `200`, `birthday` равно отправленной дате (`YYYY-MM-DD`). `null` — `200`, `birthday = null`. Неверный формат — `400`.
+
+### 38b. Никнейм (23.3)
+
+- **Дано:** A авторизован, в Telegram `first_name = Ann`, `last_name = Lee`, свой ник не задан.
+- **Когда:** `GET /api/me`. Затем `PATCH /api/me` `{ "nickname": "Annie" }`. Затем `{ "nickname": null }`.
+- **Тогда:** GET — `200`, `nickname = "Ann Lee"`. После PATCH — `nickname = "Annie"`, `firstName` и `lastName` не меняются. `null` и `""` — снова `"Ann Lee"`. Не строка — `400`.
 
 ### 39. Тема оформления (26)
 

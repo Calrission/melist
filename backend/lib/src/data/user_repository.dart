@@ -6,7 +6,7 @@ class UserRepository {
   const UserRepository(this._db);
 
   static const _columns = '''
-id, first_name, last_name, username, avatar_url,
+id, first_name, last_name, username, nickname, avatar_url,
 birthday,
 theme::text AS theme,
 created_at, updated_at
@@ -48,6 +48,8 @@ created_at, updated_at
     required int id,
     DateTime? birthday,
     bool clearBirthday = false,
+    String? nickname,
+    bool clearNickname = false,
     UiTheme? theme,
   }) async {
     final sets = <String>['updated_at = now()'];
@@ -58,6 +60,12 @@ created_at, updated_at
     } else if (birthday != null) {
       sets.add('birthday = @birthday:date');
       params['birthday'] = birthday;
+    }
+    if (clearNickname) {
+      sets.add('nickname = NULL');
+    } else if (nickname != null) {
+      sets.add('nickname = @nickname');
+      params['nickname'] = nickname;
     }
     if (theme != null) {
       sets.add('theme = CAST(@theme AS ui_theme)');

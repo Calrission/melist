@@ -87,6 +87,9 @@ Future<Response> _patchMe(
     birthday: body.containsKey('birthday')
         ? body['birthday']
         : ProfileService.unset,
+    nickname: body.containsKey('nickname')
+        ? body['nickname']
+        : ProfileService.unset,
     theme: optionalJsonString(body['theme'], 'theme'),
   );
   return Response.json(body: updated.toJson());

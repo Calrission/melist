@@ -104,6 +104,7 @@ const userSchema = <String, Object?>{
     'firstName': {'type': 'string'},
     'lastName': {'type': 'string'},
     'username': {'type': 'string'},
+    'nickname': {'type': 'string'},
     'avatarUrl': {'type': 'string'},
     'birthday': {'type': 'string', 'format': 'date'},
     'theme': {
@@ -153,13 +154,14 @@ const wishlistSchema = <String, Object?>{
     'ownerId': {'type': 'integer'},
     'name': {'type': 'string'},
     'description': {'type': 'string'},
-    'color': {'type': 'string'},
+    'coverUrl': {'type': 'string'},
     'visibility': {
       'type': 'string',
       'enum': ['public', 'draft', 'link'],
     },
     'position': {'type': 'integer'},
     'shareToken': {'type': 'string'},
+    'ownerNickname': {'type': 'string'},
     'items': {
       'type': 'array',
       'items': wishSchema,
@@ -172,7 +174,7 @@ const wishlistInputSchema = <String, Object?>{
   'properties': {
     'name': {'type': 'string'},
     'description': {'type': 'string'},
-    'color': {'type': 'string'},
+    'coverUrl': {'type': 'string'},
     'visibility': {
       'type': 'string',
       'enum': ['public', 'draft', 'link'],

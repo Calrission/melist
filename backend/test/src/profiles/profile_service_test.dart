@@ -31,6 +31,8 @@ void main() {
       expect(me.firstName, 'Ann');
       expect(me.lastName, 'Lee');
       expect(me.username, 'ann');
+      expect(me.nickname, isNull);
+      expect(me.displayName, 'Ann Lee');
       expect(me.birthday, isNull);
       expect(me.theme, UiTheme.system);
       expect(data.userIds, contains(7));
@@ -73,6 +75,28 @@ void main() {
       final updated = await profiles.update(owner, birthday: null);
 
       expect(updated.birthday, isNull);
+    });
+
+    test('sets and clears a nickname', () async {
+      final renamed = await profiles.update(owner, nickname: ' Annie ');
+
+      expect(renamed.nickname, 'Annie');
+      expect(renamed.displayName, 'Annie');
+      expect(renamed.firstName, 'Ann');
+
+      final cleared = await profiles.update(owner, nickname: null);
+      expect(cleared.nickname, isNull);
+      expect(cleared.displayName, 'Ann Lee');
+
+      final blank = await profiles.update(owner, nickname: '  ');
+      expect(blank.displayName, 'Ann Lee');
+    });
+
+    test('rejects a nickname that is not a string', () async {
+      await expectLater(
+        profiles.update(owner, nickname: 1),
+        throwsA(isA<BadRequestException>()),
+      );
     });
 
     test('rejects empty patch, invalid birthday and theme', () async {

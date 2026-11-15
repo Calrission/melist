@@ -30,6 +30,5 @@ export 'src/openapi/openapi_spec.dart';
 export 'src/profiles/profile_service.dart';
 export 'src/subscriptions/subscription_service.dart';
 export 'src/wishes/wish_service.dart';
-export 'src/wishlists/wishlist_palette.dart';
 export 'src/wishlists/wishlist_service.dart';
 export 'src/wishlists/wishlist_share.dart';

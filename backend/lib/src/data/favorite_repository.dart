@@ -5,9 +5,17 @@ class FavoriteRepository {
   const FavoriteRepository(this._db);
 
   static const _wishlistColumns = '''
-w.id, w.owner_id, w.name, w.description, w.color,
+w.id, w.owner_id, w.name, w.description, w.cover_url,
 w.visibility::text AS visibility,
-w.position, w.share_token, w.created_at, w.updated_at
+w.position, w.share_token, w.created_at, w.updated_at,
+COALESCE(
+  NULLIF(btrim(owner.nickname), ''),
+  btrim(concat_ws(
+    ' ',
+    NULLIF(btrim(owner.first_name), ''),
+    NULLIF(btrim(owner.last_name), '')
+  ))
+) AS owner_nickname
 ''';
 
   final DbExecutor _db;
@@ -18,6 +26,7 @@ w.position, w.share_token, w.created_at, w.updated_at
 SELECT $_wishlistColumns
 FROM favorites f
 JOIN wishlists w ON w.id = f.wishlist_id
+JOIN users owner ON owner.id = w.owner_id
 WHERE f.user_id = @userId
 ORDER BY f.position, w.id
 ''',

@@ -8,6 +8,7 @@ class UserModel {
     this.firstName,
     this.lastName,
     this.username,
+    this.nickname,
     this.avatarUrl,
     this.birthday,
     this.theme = UiTheme.system,
@@ -19,7 +20,24 @@ class UserModel {
     return (data as List).map((e) => UserModel.fromJson(e)).toList();
   }
 
-  String get lastNameFirstName => '$firstName${(lastName != null && lastName!.isNotEmpty) ? " $lastName" : ''}';
+  String get lastNameFirstName => displayName;
+
+  /// Custom [nickname], or `firstName` plus `lastName` when the last name is set.
+  String get displayName {
+    final custom = nickname?.trim();
+    if (custom != null && custom.isNotEmpty) {
+      return custom;
+    }
+    final first = firstName?.trim() ?? '';
+    final last = lastName?.trim() ?? '';
+    if (first.isEmpty) {
+      return last;
+    }
+    if (last.isEmpty) {
+      return first;
+    }
+    return '$first $last';
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -27,6 +45,7 @@ class UserModel {
       firstName: optionalString(json['firstName']),
       lastName: optionalString(json['lastName']),
       username: optionalString(json['username']),
+      nickname: optionalString(json['nickname']),
       avatarUrl: optionalString(json['avatarUrl']),
       birthday: optionalDateTime(json['birthday'], 'birthday'),
       theme: json['theme'] == null
@@ -44,6 +63,7 @@ class UserModel {
       firstName: optionalString(row['first_name']),
       lastName: optionalString(row['last_name']),
       username: optionalString(row['username']),
+      nickname: optionalString(row['nickname']),
       avatarUrl: optionalString(row['avatar_url']),
       birthday: optionalDateTime(row['birthday'], 'birthday'),
       theme: row['theme'] == null
@@ -58,6 +78,7 @@ class UserModel {
   final String? firstName;
   final String? lastName;
   final String? username;
+  final String? nickname;
   final String? avatarUrl;
   final DateTime? birthday;
   final UiTheme theme;
@@ -69,6 +90,7 @@ class UserModel {
     'firstName': firstName,
     'lastName': lastName,
     'username': username,
+    'nickname': displayName,
     'avatarUrl': avatarUrl,
     'birthday': birthday == null ? null : dateOnly(birthday!),
     'theme': theme.name,

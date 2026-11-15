@@ -22,6 +22,14 @@ String _giftCountLabel(int count) {
   return '$count подарков';
 }
 
+String _ownerLabel(WishlistModel wishlist) {
+  final nickname = wishlist.ownerNickname?.trim();
+  if (nickname != null && nickname.isNotEmpty) {
+    return 'Владелец: $nickname';
+  }
+  return 'Владелец: ${wishlist.ownerId}';
+}
+
 class WishListTile extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onTapDelete;
@@ -132,7 +140,7 @@ class _WishListTileState extends State<WishListTile> {
                                 alignment: Alignment.centerLeft,
                               ),
                               child: Text(
-                                'Владелец: ${wishlistModel.ownerId}',
+                                _ownerLabel(wishlistModel),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -142,7 +150,7 @@ class _WishListTileState extends State<WishListTile> {
                           else
                             Text(
                               widget.showOwner
-                                  ? 'Владелец: ${wishlistModel.ownerId}'
+                                  ? _ownerLabel(wishlistModel)
                                   : _giftCountLabel(wishlistModel.items.length),
                               style: TextStyle(
                                 fontSize: 12,

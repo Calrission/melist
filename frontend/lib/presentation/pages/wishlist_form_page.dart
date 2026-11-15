@@ -7,7 +7,6 @@ import 'package:melist/presentation/controllers/wishlist_form_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
-import 'package:melist/presentation/theme/wishlist_palette.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/labeled_bottom_sheet_selector.dart';
 import 'package:melist/presentation/widgets/labeled_text_field.dart';
@@ -28,7 +27,6 @@ class WishlistFormPage extends StatefulWidget {
 
 class _WishlistFormPageState extends State<WishlistFormPage> {
   WishlistVisibility visibility = WishlistVisibility.draft;
-  String color = defaultWishlistColor;
   final Set<int> wishIds = {};
   bool loadFailed = false;
   final TextEditingController _nameController = TextEditingController();
@@ -55,7 +53,6 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
             _nameController.text = model.name;
             _descriptionController.text = model.description ?? '';
             visibility = model.visibility;
-            color = model.color;
           });
         });
       });
@@ -81,7 +78,6 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
               name: _nameController.text,
               description: description.isEmpty ? null : description,
               visibility: visibility,
-              color: color,
             ),
           )
         : await controller.create(
@@ -89,7 +85,6 @@ class _WishlistFormPageState extends State<WishlistFormPage> {
               name: _nameController.text,
               description: description.isEmpty ? null : description,
               visibility: visibility,
-              color: color,
               wishIds: wishIds.toList(),
             ),
           );

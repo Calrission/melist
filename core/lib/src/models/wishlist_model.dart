@@ -8,11 +8,12 @@ class WishlistModel {
     required this.id,
     required this.ownerId,
     required this.name,
-    required this.color,
     this.description,
+    this.coverUrl,
     this.visibility = WishlistVisibility.draft,
     this.position = 0,
     this.shareToken,
+    this.ownerNickname,
     this.items = const [],
     this.createdAt,
     this.updatedAt,
@@ -28,12 +29,13 @@ class WishlistModel {
       ownerId: requireInt(json['ownerId'], 'ownerId'),
       name: requireString(json['name'], 'name'),
       description: optionalString(json['description']),
-      color: requireString(json['color'], 'color'),
+      coverUrl: optionalString(json['coverUrl']),
       visibility: json['visibility'] == null
           ? WishlistVisibility.draft
           : WishlistVisibility.fromName(json['visibility']),
       position: optionalInt(json['position'], 'position') ?? 0,
       shareToken: optionalString(json['shareToken']),
+      ownerNickname: optionalString(json['ownerNickname']),
       items: _itemsFrom(json['items']),
       createdAt: optionalDateTime(json['createdAt'], 'createdAt'),
       updatedAt: optionalDateTime(json['updatedAt'], 'updatedAt'),
@@ -46,12 +48,13 @@ class WishlistModel {
       ownerId: requireInt(row['owner_id'], 'ownerId'),
       name: requireString(row['name'], 'name'),
       description: optionalString(row['description']),
-      color: requireString(row['color'], 'color'),
+      coverUrl: optionalString(row['cover_url']),
       visibility: row['visibility'] == null
           ? WishlistVisibility.draft
           : WishlistVisibility.fromName(row['visibility']),
       position: optionalInt(row['position'], 'position') ?? 0,
       shareToken: optionalString(row['share_token']),
+      ownerNickname: optionalString(row['owner_nickname']),
       createdAt: optionalDateTime(row['created_at'], 'createdAt'),
       updatedAt: optionalDateTime(row['updated_at'], 'updatedAt'),
     );
@@ -61,24 +64,26 @@ class WishlistModel {
   final int ownerId;
   final String name;
   final String? description;
-  final String color;
+  final String? coverUrl;
   final WishlistVisibility visibility;
   final int position;
   final String? shareToken;
+  final String? ownerNickname;
   final List<WishModel> items;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  WishlistModel copyWith({List<WishModel>? items}) {
+  WishlistModel copyWith({List<WishModel>? items, String? ownerNickname}) {
     return WishlistModel(
       id: id,
       ownerId: ownerId,
       name: name,
       description: description,
-      color: color,
+      coverUrl: coverUrl,
       visibility: visibility,
       position: position,
       shareToken: shareToken,
+      ownerNickname: ownerNickname ?? this.ownerNickname,
       items: items ?? this.items,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -90,10 +95,11 @@ class WishlistModel {
     'ownerId': ownerId,
     'name': name,
     'description': description,
-    'color': color,
+    'coverUrl': coverUrl,
     'visibility': visibility.name,
     'position': position,
     'shareToken': shareToken,
+    if (ownerNickname != null) 'ownerNickname': ownerNickname,
     'items': [for (final item in items) item.toJson()],
     'createdAt': isoOrNull(createdAt),
     'updatedAt': isoOrNull(updatedAt),

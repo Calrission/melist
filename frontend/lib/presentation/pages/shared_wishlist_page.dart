@@ -183,7 +183,7 @@ class _LoadedShared extends StatelessWidget {
         if (wishlist.description != null) Text(wishlist.description!),
         Text(
           "owner: ${wishlist.ownerId} | visibility: ${wishlist.visibility.name}"
-          " | color: ${wishlist.color}${isOwn ? ' | это ваш вишлист' : ''}",
+          "${isOwn ? ' | это ваш вишлист' : ''}",
         ),
         Wrap(
           spacing: 8,

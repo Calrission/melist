@@ -5,7 +5,7 @@ class WishlistSubscriptionRepository {
   const WishlistSubscriptionRepository(this._db);
 
   static const _wishlistColumns = '''
-w.id, w.owner_id, w.name, w.description, w.color,
+w.id, w.owner_id, w.name, w.description, w.cover_url,
 w.visibility::text AS visibility,
 w.position, w.share_token, w.created_at, w.updated_at
 ''';

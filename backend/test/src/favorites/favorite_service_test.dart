@@ -54,10 +54,28 @@ void main() {
 
       final listed = await favorites.list(guest);
       expect(listed.single.id, list.id);
+      expect(listed.single.ownerNickname, '');
       expect(
         listed.single.items.map((item) => item.name),
         ['Camera', 'Secret'],
       );
+    });
+
+    test('includes the owner nickname, or the name when unset', () async {
+      const named = AuthUser(
+        id: 7,
+        firstName: 'Ann',
+        lastName: 'Lee',
+        username: 'ann',
+      );
+      final token = await shareList('Birthday', as: named);
+      await favorites.add(guest, token);
+
+      expect((await favorites.list(guest)).single.ownerNickname, 'Ann Lee');
+
+      await memoryProfileService(data).update(named, nickname: 'Annie');
+
+      expect((await favorites.list(guest)).single.ownerNickname, 'Annie');
     });
 
     test('rejects own wishlists, unknown tokens and duplicates', () async {

@@ -78,7 +78,7 @@ void main() {
           body: {
             'name': 'Birthday',
             'visibility': 'public',
-            'color': '#FFB74D',
+            'coverUrl': ' https://img.example/cover.png ',
           },
         ).context,
       );
@@ -87,12 +87,13 @@ void main() {
       expect(response, isCreated);
       expect(body['name'], 'Birthday');
       expect(body['visibility'], 'public');
+      expect(body['coverUrl'], 'https://img.example/cover.png');
       expect(body['ownerId'], 1);
     });
 
     test('POST responds 400 when name is missing', () async {
       final response = await handleWishlistsCollection(
-        contextFor(HttpMethod.post, body: {'color': '#FFB74D'}).context,
+        contextFor(HttpMethod.post, body: {'visibility': 'public'}).context,
       );
 
       expect(response, isBadRequest);

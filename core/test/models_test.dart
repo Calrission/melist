@@ -49,6 +49,7 @@ void main() {
           'firstName': 'Ann',
           'lastName': 'Lee',
           'username': 'ann',
+          'nickname': 'Ann Lee',
           'avatarUrl': 'https://t.me/i/userpic/320/a.svg',
           'birthday': '1990-05-12',
           'theme': 'dark',
@@ -61,7 +62,7 @@ void main() {
             'ownerId': 42,
             'name': 'Birthday',
             'description': null,
-            'color': '#FFB74D',
+            'coverUrl': null,
             'visibility': 'public',
             'position': 0,
             'shareToken': 'abc',
@@ -104,6 +105,7 @@ void main() {
         'firstName': 'Ann',
         'lastName': 'Lee',
         'username': 'ann',
+        'nickname': 'Annie',
         'avatarUrl': 'https://t.me/i/userpic/320/a.svg',
         'birthday': '1990-05-12',
         'theme': 'dark',
@@ -116,6 +118,9 @@ void main() {
       expect(user.id, 42);
       expect(user.theme, UiTheme.dark);
       expect(user.birthday, DateTime.parse('1990-05-12'));
+      expect(user.nickname, 'Annie');
+      expect(user.displayName, 'Annie');
+      expect(user.toJson()['nickname'], 'Annie');
       expect(user.toJson()['birthday'], '1990-05-12');
       expect(user.toJson()['theme'], 'dark');
     });
@@ -134,6 +139,8 @@ void main() {
       });
 
       expect(user.firstName, 'Ann');
+      expect(user.nickname, isNull);
+      expect(user.displayName, 'Ann');
       expect(user.theme, UiTheme.light);
       expect(user.birthday, DateTime.utc(1990, 5, 12));
     });
@@ -185,7 +192,7 @@ void main() {
         'id': 3,
         'ownerId': 1,
         'name': 'Birthday',
-        'color': '#FFB74D',
+        'coverUrl': 'https://img/list.png',
         'visibility': 'public',
         'position': 2,
         'shareToken': 'abc',
@@ -196,10 +203,11 @@ void main() {
 
       expect(list.visibility, WishlistVisibility.public);
       expect(list.position, 2);
-      expect(list.color, '#FFB74D');
+      expect(list.coverUrl, 'https://img/list.png');
       expect(list.items, hasLength(1));
       expect(list.items.first.name, 'Headphones');
       expect(list.toJson()['visibility'], 'public');
+      expect(list.toJson()['coverUrl'], 'https://img/list.png');
     });
 
     test('fromRow does not include items', () {
@@ -208,7 +216,7 @@ void main() {
         'owner_id': 1,
         'name': 'Birthday',
         'description': null,
-        'color': '#FFB74D',
+        'cover_url': 'https://img/list.png',
         'visibility': 'draft',
         'position': 0,
         'share_token': null,
@@ -216,6 +224,7 @@ void main() {
 
       expect(list.items, isEmpty);
       expect(list.visibility, WishlistVisibility.draft);
+      expect(list.coverUrl, 'https://img/list.png');
     });
 
     test('accepts link visibility', () {
@@ -223,7 +232,6 @@ void main() {
         'id': 4,
         'ownerId': 1,
         'name': 'Shared',
-        'color': '#FFB74D',
         'visibility': 'link',
         'position': 0,
       });

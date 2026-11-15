@@ -280,9 +280,14 @@ void main() {
             .context,
       );
       expect(listed, isOk);
+      final items = await jsonList(listed);
       expect(
-        (await jsonList(listed)).map((item) => (item as Map)['id']),
+        items.map((item) => (item as Map)['id']),
         [first.wl, second.wl],
+      );
+      expect(
+        items.map((item) => (item as Map)['ownerNickname']),
+        ['Ann', 'Ann'],
       );
     });
 
