@@ -4,6 +4,7 @@ import 'package:melist_core/melist_core.dart';
 
 class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
   final IFavoriteRepository _repository;
+  Future<void>? _loadFuture;
 
   FavoritesWishlistController({required this._repository});
 
@@ -12,7 +13,18 @@ class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
   bool contains(int wishlistId) =>
       data?.any((item) => item.id == wishlistId) ?? false;
 
-  Future<void> loadMyFavoriteWishlists() async {
+  Future<void> loadMyFavoriteWishlists() {
+    final currentLoad = _loadFuture;
+    if (currentLoad != null) {
+      return currentLoad;
+    }
+
+    final load = _loadMyFavoriteWishlists();
+    _loadFuture = load;
+    return load.whenComplete(() => _loadFuture = null);
+  }
+
+  Future<void> _loadMyFavoriteWishlists() async {
     emit(ControllerState.loading);
     try {
       data = await _repository.getMyFavoriteWishlists();
@@ -45,6 +57,10 @@ class FavoritesWishlistController extends BaseController<List<WishlistModel>> {
     if (data != null) {
       data = data!.where((item) => item.id != wishlistId).toList();
     }
+  }
+
+  Future<void> deleteFavoriteWithoutUpdating(int wishlistId) async {
+    await _repository.deleteFavoriteById(wishlistId);
   }
 
   Future<void> reorderFavorites(List<int> order) async {

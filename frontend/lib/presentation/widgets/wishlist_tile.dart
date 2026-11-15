@@ -138,6 +138,108 @@ class WishListTile extends StatelessWidget {
   }
 }
 
+class FavoriteWishlistTile extends StatefulWidget {
+  final VoidCallback? onTap;
+  final Future<bool> Function(bool isFavorite)? onToggleFavorite;
+  final WishlistModel wishlistModel;
+
+  const FavoriteWishlistTile({
+    super.key,
+    this.onTap,
+    this.onToggleFavorite,
+    required this.wishlistModel,
+  });
+
+  @override
+  State<FavoriteWishlistTile> createState() => _FavoriteWishlistTileState();
+}
+
+class _FavoriteWishlistTileState extends State<FavoriteWishlistTile> {
+  bool _isFavorite = true;
+
+  Future<void> _toggleFavorite() async {
+    final succeeded =
+        await widget.onToggleFavorite?.call(_isFavorite) ?? false;
+    if (succeeded && mounted) {
+      setState(() => _isFavorite = !_isFavorite);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final wishlistModel = widget.wishlistModel;
+    final previewItems = wishlistModel.items.take(4).toList();
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        hoverColor: context.palette.subText.withValues(alpha: 0.08),
+        child: Ink(
+          padding: EdgeInsets.only(left: 20, right: 8, top: 14, bottom: 30),
+          decoration: BoxDecoration(
+            color: context.palette.container,
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: .start,
+                      children: [
+                        Text(
+                          wishlistModel.name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: context.palette.accent,
+                          ),
+                        ),
+                        Text(
+                          'Владелец: ${wishlistModel.ownerId}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: widget.onToggleFavorite == null
+                        ? null
+                        : _toggleFavorite,
+                    icon: Icon(
+                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: _isFavorite
+                          ? context.palette.accent
+                          : context.palette.subText,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(
+                spacing: 12,
+                children: previewItems.isEmpty
+                    ? List.generate(4, (_) => _WishlistItemPreview())
+                    : [
+                        for (final item in previewItems)
+                          _WishlistItemPreview(coverUrl: item.coverUrl),
+                      ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _Wiggle extends StatefulWidget {
   const _Wiggle({required this.enabled, required this.child});
 

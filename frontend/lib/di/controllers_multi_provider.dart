@@ -48,7 +48,7 @@ class ControllersMultiProvider {
     ),
 
     ChangeNotifierProvider<FavoritesWishlistController>(
-      create: (ctx) => FavoritesWishlistController(repository: ctx.read())..loadMyFavoriteWishlists(),
+      create: (ctx) => FavoritesWishlistController(repository: ctx.read()),
     ),
 
     ChangeNotifierProvider<WishlistSubscriptionsController>(
