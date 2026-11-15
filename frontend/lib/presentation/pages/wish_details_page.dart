@@ -1,8 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
+import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/icons/melist_icons.dart';
+import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -39,6 +45,12 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
       _loading = true;
       context.postFrame(_load);
     }
+    context.postFrame(() {
+      final profileController = context.read<ProfileController>();
+      if (profileController.profile == null) {
+        profileController.loadProfile();
+      }
+    });
   }
 
   Future<void> _load() async {
@@ -74,8 +86,22 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final wish = _wish;
+    final profileId = context.watch<ProfileController>().profile?.id;
     return Scaffold(
-      appBar: MelistAppBar(title: wish?.name ?? "Желание"),
+      appBar: MelistAppBar(
+        title: wish?.name ?? "Желание",
+        actions: [
+          if (wish != null && wish.ownerId == profileId)
+            IconButton(
+              tooltip: "Редактировать",
+              icon: Icon(MelistIcons.edit),
+              onPressed: () => context.pushNamed<void>(
+                wishEditGoKey,
+                pathParameters: {'id': wish.id.toString()},
+              ),
+            ),
+        ],
+      ),
       body: _error != null
           ? ErrorPlaceholderWidget(error: _error!, onRetry: _load)
           : _loading || wish == null
@@ -134,17 +160,30 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
             ),
           ),
           if (wish.description?.isNotEmpty ?? false)
-            Text(wish.description!, style: TextStyle(
+            Text(
+              wish.description!,
+              style: TextStyle(
                 fontWeight: FontWeight.w300,
                 color: context.palette.text,
-                fontSize: 12
-            )),
+                fontSize: 12,
+              ),
+            ),
           _WishDetailField(label: "Статус", value: _statusLabel(wish.status)),
           _WishDetailField(
             label: "Цена",
             value: wish.price == null ? "—" : "${wish.price} ₽",
           ),
-          _WishDetailField(label: "Ссылка", value: wish.url ?? "—"),
+          _WishDetailField(
+            label: "Ссылка",
+            value: wish.url ?? "—",
+            onCopy: wish.url == null || wish.url!.isEmpty
+                ? null
+                : () => context.guard(
+                    () async =>
+                        Clipboard.setData(ClipboardData(text: wish.url!)),
+                    success: "Ссылка скопирована",
+                  ),
+          ),
         ],
       ),
     );
@@ -152,10 +191,15 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
 }
 
 class _WishDetailField extends StatelessWidget {
-  const _WishDetailField({required this.label, required this.value});
+  const _WishDetailField({
+    required this.label,
+    required this.value,
+    this.onCopy,
+  });
 
   final String label;
   final String value;
+  final VoidCallback? onCopy;
 
   @override
   Widget build(BuildContext context) {
@@ -178,9 +222,22 @@ class _WishDetailField extends StatelessWidget {
             color: context.palette.container,
             borderRadius: BorderRadius.circular(borderRadius),
           ),
-          child: Text(
-            value,
-            style: TextStyle(fontSize: 14, color: context.palette.text),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: 14, color: context.palette.text),
+                ),
+              ),
+              if (onCopy != null)
+                IconButton(
+                  tooltip: "Скопировать ссылку",
+                  onPressed: onCopy,
+                  icon: const Icon(Icons.copy),
+                  visualDensity: VisualDensity.compact,
+                ),
+            ],
           ),
         ),
       ],
