@@ -8,8 +8,10 @@ import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_subscriptions_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
-import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/pages/wish_details_page.dart';
+import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -105,22 +107,72 @@ class _SharedWishlistPageState extends State<SharedWishlistPage> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SharedWishlistController>();
+    final myId = context.watch<ProfileController>().profile?.id;
+    final favorites = context.watch<FavoritesWishlistController>();
+    final subscriptions = context.watch<WishlistSubscriptionsController>();
     final token = _token;
     final ready =
         token != null &&
         controller.state == ControllerState.loaded &&
         controller.token == token;
+    final wishlist = ready ? controller.data! : null;
+    final isOwn = wishlist != null && wishlist.ownerId == myId;
     final error =
         _favoriteLoadError ??
         (token != null && controller.token == token ? controller.error : null);
     return Scaffold(
       appBar: MelistAppBar(
-        title: ready ? controller.data!.name : "Вишлист по ссылке",
+        title: wishlist?.name ?? "Вишлист по ссылке",
+        actions: [
+          if (wishlist != null && !isOwn)
+            IconButton(
+              tooltip: favorites.contains(wishlist.id)
+                  ? "Убрать из избранного"
+                  : "В избранное",
+              onPressed: () => context.guard(
+                () => favorites.contains(wishlist.id)
+                    ? favorites.deleteFavoriteById(wishlist.id)
+                    : favorites.addWishlistToFavorites(
+                        AddFavoriteBody(shareToken: token!),
+                      ),
+                success: favorites.contains(wishlist.id)
+                    ? "Удалено из избранного"
+                    : "Добавлено в избранное",
+              ),
+              icon: Icon(
+                favorites.contains(wishlist.id)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: context.palette.accent,
+              ),
+            ),
+          if (wishlist != null &&
+              !isOwn &&
+              wishlist.visibility == WishlistVisibility.public)
+            IconButton(
+              tooltip: subscriptions.isSubscribed(wishlist.id)
+                  ? "Отключить уведомления"
+                  : "Включить уведомления",
+              onPressed: () => context.guard(
+                () => subscriptions.isSubscribed(wishlist.id)
+                    ? subscriptions.unsubscribe(wishlist.id)
+                    : subscriptions.subscribe(wishlist.id),
+                success: subscriptions.isSubscribed(wishlist.id)
+                    ? "Уведомления отключены"
+                    : "Уведомления включены",
+              ),
+              icon: Icon(
+                subscriptions.isSubscribed(wishlist.id)
+                    ? Icons.notifications_active_outlined
+                    : Icons.notifications_none_outlined
+              ),
+            ),
+        ],
       ),
       body: error != null
           ? ErrorPlaceholderWidget(error: error, onRetry: _retry)
           : ready
-          ? _LoadedShared(wishlist: controller.data!, token: token)
+          ? _LoadedShared(wishlist: controller.data!)
           : LoadingWidget(),
     );
   }
@@ -128,8 +180,7 @@ class _SharedWishlistPageState extends State<SharedWishlistPage> {
 
 class _LoadedShared extends StatelessWidget {
   final WishlistModel wishlist;
-  final String token;
-  const _LoadedShared({required this.wishlist, required this.token});
+  const _LoadedShared({required this.wishlist});
 
   Future<void> _copy(BuildContext context, WishModel wish) async {
     final lists = context.read<WishlistListController>();
@@ -172,83 +223,66 @@ class _LoadedShared extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final myId = context.watch<ProfileController>().profile?.id;
-    final favorites = context.watch<FavoritesWishlistController>();
-    final subscriptions = context.watch<WishlistSubscriptionsController>();
     final isOwn = myId != null && myId == wishlist.ownerId;
-    final inFavorites = favorites.contains(wishlist.id);
-    final subscribed = subscriptions.isSubscribed(wishlist.id);
 
-    return Column(
-      children: [
-        Text(wishlist.name),
-        if (wishlist.description != null) Text(wishlist.description!),
-        Text(
-          "owner: ${wishlist.ownerId} | visibility: ${wishlist.visibility.name}"
-          "${isOwn ? ' | это ваш вишлист' : ''}",
-        ),
-        Wrap(
-          spacing: 8,
-          children: [
-            OutlinedButton(
-              onPressed: () => context.pushNamed(
-                publicProfileGoKey,
-                pathParameters: {'id': wishlist.ownerId.toString()},
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (wishlist.description != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                wishlist.description!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
-              child: Text("Профиль владельца"),
             ),
-            if (!isOwn)
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
               OutlinedButton(
-                onPressed: () => context.guard(
-                  () => inFavorites
-                      ? favorites.deleteFavoriteById(wishlist.id)
-                      : favorites.addWishlistToFavorites(
-                          AddFavoriteBody(shareToken: token),
-                        ),
-                  success: inFavorites
-                      ? "Удалено из избранного"
-                      : "Добавлено в избранное",
+                onPressed: () => context.pushNamed(
+                  publicProfileGoKey,
+                  pathParameters: {'id': wishlist.ownerId.toString()},
                 ),
-                child: Text(
-                  inFavorites ? "Убрать из избранного" : "В избранное",
-                ),
+                child: const Text("Профиль владельца"),
               ),
-            if (!isOwn && wishlist.visibility == WishlistVisibility.public)
-              OutlinedButton(
-                onPressed: () => context.guard(
-                  () => subscribed
-                      ? subscriptions.unsubscribe(wishlist.id)
-                      : subscriptions.subscribe(wishlist.id),
-                ),
-                child: Text(subscribed ? "Отписаться" : "Подписаться"),
-              ),
-          ],
-        ),
-        Expanded(
-          child: wishlist.items.isEmpty
-              ? EmptyPlaceholderWidget()
-              : ListView(
-                  children: [
-                    for (final wish in wishlist.items)
-                      WishTile(
-                        wishModel: wish,
-                        onTap: () => context.pushNamed(
-                          wishDetailsGoKey,
-                          pathParameters: {'id': wish.id.toString()},
-                          extra: WishDetailsArguments(wish: wish),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: wishlist.items.isEmpty
+                ? EmptyPlaceholderWidget()
+                : ListView(
+                    children: [
+                      for (final wish in wishlist.items)
+                        WishTile(
+                          wishModel: wish,
+                          onTap: () => context.pushNamed(
+                            wishDetailsGoKey,
+                            pathParameters: {'id': wish.id.toString()},
+                            extra: WishDetailsArguments(wish: wish),
+                          ),
+                          actions: [
+                            if (!isOwn)
+                              IconButton(
+                                tooltip: "Скопировать к себе",
+                                onPressed: () => _copy(context, wish),
+                                icon: Icon(Icons.copy),
+                              ),
+                          ],
                         ),
-                        actions: [
-                          if (!isOwn)
-                            IconButton(
-                              tooltip: "Скопировать к себе",
-                              onPressed: () => _copy(context, wish),
-                              icon: Icon(Icons.copy),
-                            ),
-                        ],
-                      ),
-                  ],
-                ),
-        ),
-      ],
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
