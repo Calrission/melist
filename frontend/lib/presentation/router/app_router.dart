@@ -5,6 +5,7 @@ import 'package:melist/presentation/pages/favorites_wishlist_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
 import 'package:melist/presentation/pages/public_profile_page.dart';
 import 'package:melist/presentation/pages/shared_wishlist_page.dart';
+import 'package:melist/presentation/pages/settings_page.dart';
 import 'package:melist/presentation/pages/subscriptions_page.dart';
 import 'package:melist/presentation/pages/wish_form_page.dart';
 import 'package:melist/presentation/pages/wish_picker_page.dart';
@@ -32,6 +33,7 @@ const String publicProfileGoKey = 'public_profile';
 const String favoriteWishlistGoKey = 'favorite_wishlist';
 const String publicProfileWishlistGoKey = 'public_profile_wishlist';
 const String subscriptionsGoKey = 'subscriptions';
+const String settingsGoKey = 'settings';
 
 GoRouter createAppRouter() => GoRouter(
   initialLocation: '/',
@@ -136,6 +138,11 @@ GoRouter createAppRouter() => GoRouter(
               name: publicProfileWishlistGoKey,
               builder: (context, state) =>
                   SharedWishlistPage(token: state.pathParameters['token']!),
+            ),
+            GoRoute(
+              path: '/settings',
+              name: settingsGoKey,
+              builder: (_, _) => const SettingsPage(),
             ),
             GoRoute(
               path: '/subscriptions',

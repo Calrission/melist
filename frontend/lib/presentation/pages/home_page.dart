@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
             ),
             SizedBox(height: smallSep),
             FilledButton.icon(
-              onPressed: () {},
+              onPressed: () => context.goNamed(settingsGoKey),
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Настройки").row(),
