@@ -9,6 +9,7 @@ import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/pages/wish_details_page.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
@@ -156,8 +157,9 @@ class _WishesList extends StatelessWidget {
             onTap: selectionMode
                 ? () => controller.toggleSelect(e.id)
                 : () => context.goNamed(
-                    wishEditGoKey,
+                    wishDetailsGoKey,
                     pathParameters: {'id': e.id.toString()},
+                    extra: WishDetailsArguments(wish: e),
                   ),
             actions: [
               if (!selectionMode)

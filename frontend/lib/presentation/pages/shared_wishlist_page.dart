@@ -9,6 +9,7 @@ import 'package:melist/presentation/controllers/wishlist_subscriptions_controlle
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/pages/wish_details_page.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -230,6 +231,14 @@ class _LoadedShared extends StatelessWidget {
                     for (final wish in wishlist.items)
                       WishTile(
                         wishModel: wish,
+                        onTap: () => context.pushNamed(
+                          wishDetailsGoKey,
+                          pathParameters: {'id': wish.id.toString()},
+                          extra: WishDetailsArguments(
+                            wish: wish,
+                            sourceWishlistName: wishlist.name,
+                          ),
+                        ),
                         actions: [
                           if (!isOwn)
                             IconButton(

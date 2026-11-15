@@ -8,6 +8,7 @@ import 'package:melist/presentation/pages/shared_wishlist_page.dart';
 import 'package:melist/presentation/pages/settings_page.dart';
 import 'package:melist/presentation/pages/subscriptions_page.dart';
 import 'package:melist/presentation/pages/wish_form_page.dart';
+import 'package:melist/presentation/pages/wish_details_page.dart';
 import 'package:melist/presentation/pages/wish_picker_page.dart';
 import 'package:melist/presentation/pages/wishes_page.dart';
 import 'package:melist/presentation/pages/wishlist_form_page.dart';
@@ -28,6 +29,7 @@ const String wishlistFavoritesGoKey = 'wishlist_favorites';
 const String wishesGoKey = 'wishes';
 const String wishNewGoKey = 'wish_new';
 const String wishEditGoKey = 'wish_edit';
+const String wishDetailsGoKey = 'wish_details';
 const String sharedWishlistGoKey = 'shared_wishlist';
 const String publicProfileGoKey = 'public_profile';
 const String favoriteWishlistGoKey = 'favorite_wishlist';
@@ -98,6 +100,22 @@ GoRouter createAppRouter() => GoRouter(
                   path: 'new',
                   name: wishNewGoKey,
                   builder: (_, _) => const WishFormPage(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  name: wishDetailsGoKey,
+                  builder: (context, state) {
+                    final extra = state.extra;
+                    return WishDetailsPage(
+                      wishId: int.parse(state.pathParameters['id']!),
+                      initialWish: extra is WishDetailsArguments
+                          ? extra.wish
+                          : null,
+                      sourceWishlistName: extra is WishDetailsArguments
+                          ? extra.sourceWishlistName
+                          : null,
+                    );
+                  },
                 ),
                 GoRoute(
                   path: ':id/edit',

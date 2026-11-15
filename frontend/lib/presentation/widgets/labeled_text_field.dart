@@ -10,6 +10,7 @@ class LabeledTextField extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.maxLines = 1,
+    this.enabled = true,
     this.onChanged,
     this.trailing,
     this.focusNode,
@@ -21,6 +22,7 @@ class LabeledTextField extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
   final int? maxLines;
+  final bool enabled;
   final ValueChanged<String>? onChanged;
   final Widget? trailing;
   final FocusNode? focusNode;
@@ -52,6 +54,7 @@ class LabeledTextField extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   maxLines: maxLines,
+                  enabled: enabled,
                   focusNode: focusNode,
                   keyboardType: keyboardType,
                   inputFormatters: inputFormatters,
