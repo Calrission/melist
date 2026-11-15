@@ -78,6 +78,17 @@ class ApiRepository
   }
 
   @override
+  Future<String> getProfileShareUrl(int profileId) async {
+    final response = await _dio.get('/api/users/$profileId/share');
+    final data = _asMap(response.data);
+    final url = data['url'];
+    if (url is! String || url.isEmpty) {
+      throw FormatException('Expected profile share URL');
+    }
+    return url;
+  }
+
+  @override
   Future<UserModel> patchMyProfile(PatchProfileBody body) async {
     final response = await _dio.patch('/api/me', data: body.toJson());
     return UserModel.fromJson(response.data);
@@ -283,5 +294,4 @@ class ApiRepository
   Future<void> unsubscribeWishlist(int wishlistId) async {
     await _dio.delete('/api/subscriptions/wishlists/$wishlistId');
   }
-
 }

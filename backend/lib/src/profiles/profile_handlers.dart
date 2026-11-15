@@ -41,6 +41,32 @@ Future<Response> handlePublicUser(RequestContext context, String id) async {
   }
 }
 
+Future<Response> handleProfileShare(RequestContext context, String id) async {
+  final rejected = rejectUnlessMethod(context, {HttpMethod.get});
+  if (rejected != null) {
+    return rejected;
+  }
+
+  context.read<AuthUser>();
+  final profiles = context.read<ProfileService>();
+  final config = context.read<AppConfig>();
+
+  try {
+    final userId = parsePathId(id);
+    await profiles.getPublic(userId);
+    return Response.json(
+      body: {
+        'url': telegramProfileUrl(
+          botUsername: config.botUsername,
+          userId: userId,
+        ),
+      },
+    );
+  } on AppException catch (error) {
+    return appError(error);
+  }
+}
+
 Future<Response> _getMe(ProfileService profiles, AuthUser user) async {
   final profile = await profiles.me(user);
   return Response.json(body: profile.toJson());

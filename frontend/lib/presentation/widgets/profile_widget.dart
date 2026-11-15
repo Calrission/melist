@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:melist/domain/interfaces/i_profile_repository.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
@@ -6,6 +7,7 @@ import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/share_dialog.dart';
 import 'package:melist_core/melist_core.dart';
+import 'package:provider/provider.dart';
 
 class ProfileWidget extends StatelessWidget {
   final UserModel userModel;
@@ -27,13 +29,26 @@ class ProfileWidget extends StatelessWidget {
     );
   }
 
-  void _shareProfile(BuildContext context) {
-    final url = Uri.base.resolve('/users/${userModel.id}').toString();
+  Future<void> _shareProfile(BuildContext context) async {
+    late final String shareUrl;
+    try {
+      shareUrl = await context.read<IProfileRepository>().getProfileShareUrl(
+        userModel.id,
+      );
+    } on Object catch (error) {
+      if (context.mounted) {
+        context.showError(error);
+      }
+      return;
+    }
+    if (!context.mounted) {
+      return;
+    }
     showDialog<void>(
       context: context,
       builder: (dialogContext) => ShareDialog(
         title: "Ссылка на профиль",
-        url: url,
+        url: shareUrl,
         telegramText: "Мой профиль",
       ),
     );

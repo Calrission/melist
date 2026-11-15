@@ -24,6 +24,14 @@ String telegramShareUrl({
   return 'https://t.me/$botUsername?startapp=wl_$token';
 }
 
+/// Main Mini App link to a user's public profile.
+String telegramProfileUrl({
+  required String botUsername,
+  required int userId,
+}) {
+  return 'https://t.me/$botUsername?startapp=profile_$userId';
+}
+
 String normalizeShareToken(String raw) {
   var value = raw.trim();
   if (value.startsWith('wl_')) {

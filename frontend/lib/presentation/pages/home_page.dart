@@ -4,6 +4,7 @@ import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/deep_link_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
+import 'package:melist/domain/share_token.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/extensions/widget_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
@@ -26,17 +27,32 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    context.postFrame((){
+    context.postFrame(() {
       context.read<ProfileController>().loadProfile();
-      final token = context.read<DeepLinkController>().consumeSharedToken();
-      if (token != null) {
-        _openShared(token);
+      final startParam = context.read<DeepLinkController>().consumeStartParam();
+      if (startParam != null && startParam.startsWith('wl_')) {
+        final token = parseShareToken(startParam);
+        if (token != null) {
+          _openShared(token);
+        }
+      } else if (startParam != null && startParam.startsWith('profile_')) {
+        final userId = int.tryParse(startParam.substring('profile_'.length));
+        if (userId != null && userId > 0) {
+          _openPublicProfile(userId);
+        }
       }
     });
   }
 
   void _openShared(String token) {
     context.pushNamed(sharedWishlistGoKey, pathParameters: {'token': token});
+  }
+
+  void _openPublicProfile(int userId) {
+    context.pushNamed(
+      publicProfileGoKey,
+      pathParameters: {'id': userId.toString()},
+    );
   }
 
   @override
@@ -62,11 +78,14 @@ class _HomePageState extends State<HomePage> {
             },
 
             SizedBox(height: singleSep),
-            Text("Хотелки и вишлисты", style: TextStyle(
-              fontSize: 12,
-              color: context.palette.accent,
-              fontWeight: FontWeight.w600
-            )),
+            Text(
+              "Хотелки и вишлисты",
+              style: TextStyle(
+                fontSize: 12,
+                color: context.palette.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () => context.goNamed(wishlistsGoKey),
@@ -93,11 +112,14 @@ class _HomePageState extends State<HomePage> {
             ),
 
             SizedBox(height: singleSep),
-            Text("Прочее", style: TextStyle(
-              fontSize: 12,
-              color: context.palette.accent,
-              fontWeight: FontWeight.w600
-            )),
+            Text(
+              "Прочее",
+              style: TextStyle(
+                fontSize: 12,
+                color: context.palette.accent,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             SizedBox(height: smallSep),
             FilledButton.icon(
               onPressed: () {},

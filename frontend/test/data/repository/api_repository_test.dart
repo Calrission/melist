@@ -72,6 +72,17 @@ void main() {
     expect(adapter.requests.single.path, '/auth/debug');
   });
 
+  test('profile share URL uses the Telegram endpoint', () async {
+    adapter.enqueue(
+      _json(200, {'url': 'https://t.me/test_bot?startapp=profile_42'}),
+    );
+
+    final url = await auth.getProfileShareUrl(42);
+
+    expect(url, 'https://t.me/test_bot?startapp=profile_42');
+    expect(adapter.requests.single.path, '/api/users/42/share');
+  });
+
   test('favorites, wishes and subscriptions hit their routes', () async {
     adapter
       ..enqueue(_json(201, _wishlist))

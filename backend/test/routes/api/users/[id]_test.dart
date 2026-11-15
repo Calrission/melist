@@ -29,7 +29,15 @@ void main() {
         method: method,
       )
       ..provide<AuthUser>(auth)
-      ..provide<ProfileService>(profiles);
+      ..provide<ProfileService>(profiles)
+      ..provide<AppConfig>(
+        const AppConfig(
+          botToken: 'bot-token',
+          jwtSecret: 'jwt-secret',
+          databaseUrl: 'postgres://localhost/test',
+          botUsername: 'test_bot',
+        ),
+      );
   }
 
   setUp(() {
@@ -83,6 +91,33 @@ void main() {
       );
 
       expect(response, isBadRequest);
+    });
+  });
+
+  group('/api/users/{id}/share', () {
+    test('returns a Telegram Mini App profile link', () async {
+      await wishlists.create(owner, name: 'Birthday', visibility: 'public');
+
+      final response = await handleProfileShare(
+        contextFor(HttpMethod.get).context,
+        '1',
+      );
+      final body = jsonDecode(await response.body()) as Map<String, dynamic>;
+
+      expect(response, isOk);
+      expect(
+        body['url'],
+        'https://t.me/test_bot?startapp=profile_1',
+      );
+    });
+
+    test('returns 404 when the profile does not exist', () async {
+      final response = await handleProfileShare(
+        contextFor(HttpMethod.get, id: '404').context,
+        '404',
+      );
+
+      expect(response, isNotFound);
     });
   });
 }

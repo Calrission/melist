@@ -4,4 +4,5 @@ abstract class IProfileRepository {
   Future<UserModel> getMyProfile();
   Future<UserModel> patchMyProfile(PatchProfileBody body);
   Future<PublicProfileModel> getPublicProfile(int profileId);
+  Future<String> getProfileShareUrl(int profileId);
 }

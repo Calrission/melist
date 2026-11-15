@@ -160,6 +160,10 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Пункт 7.2 («поделиться») — на клиенте через Telegram share.
 
+### `GET /api/users/{id}/share`
+
+Возвращает ссылку на публичный профиль в Telegram Mini App: `{ "url": "https://t.me/<bot>?startapp=profile_<id>" }`. Имя бота берётся из `BOT_USERNAME`.
+
 ### `GET /api/shared/{token}` (7, 8.1)
 
 Просмотр вишлиста по ссылке-приглашению для `public` и `link`. `draft` для не-владельца — `404`. Токен — значение `shareToken` или `wl_<shareToken>` из `startapp`. В `items` все желания списка.
