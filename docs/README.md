@@ -8,6 +8,8 @@ MELIST — Telegram Mini App для создания виш-листов к пр
 melist/
 ├── frontend/   # Flutter Web (Telegram Mini App), артефакты в `.build/web`
 ├── backend/    # Dart Frog API + PostgreSQL
+├── bot/        # Telegram-бот: уведомления, резервный интерфейс (планируется)
+├── domain/     # общий доменный слой backend и бота, melist_domain (планируется)
 ├── core/       # общие модели (melist_core)
 └── docs/       # документация
 ```
@@ -23,6 +25,9 @@ melist/
 - [Backend: модель данных PostgreSQL](backend/data-model.md)
 - [Backend: best practices Dart Frog](backend/best-practices.md)
 - [Backend: тестирование](backend/testing.md)
+- [Bot: архитектура, запуск, правила](bot/README.md)
+- [Bot: уведомления о подписках](bot/notifications.md)
+- [Bot: roadmap](bot/roadmap.md)
 - [Сценарии использования](scenarios.md)
 
 Документация по frontend и core будет добавлена позже.

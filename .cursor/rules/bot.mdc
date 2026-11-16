@@ -1,0 +1,35 @@
+---
+description: Правила работы над Telegram-ботом MELIST и общим доменным слоем melist_domain со ссылками на docs/bot
+globs: bot/**,domain/**
+alwaysApply: false
+---
+
+# Bot и domain MELIST
+
+Перед изменениями прочитай:
+
+- [docs/bot/README.md](../../docs/bot/README.md) — архитектура, структура, конфигурация
+- [docs/bot/roadmap.md](../../docs/bot/roadmap.md) — фазы и статусы
+- [docs/bot/notifications.md](../../docs/bot/notifications.md) — события, доставка, схема таблиц
+
+## Правила
+
+- `melist_domain` — единственное место доменной логики, SQL и миграций. Не зависит от `dart_frog`, `shelf` и Telegram. Backend и бот вызывают его сервисы, а не дублируют проверки.
+- Бот не ходит в backend по HTTP. Резерв должен работать при упавшем API.
+- С Bot API работает только `TelegramClient` в `bot/`. Ошибки типизированные; `429` — пауза на `retry_after`, `403` — чат `blocked`.
+- Изменение данных и запись в `outbox_events` — одна транзакция (`db.transaction`), после INSERT — `NOTIFY melist_outbox`. Только для `public`-списков; смена статуса желания (20) событий не порождает.
+- Текст уведомления рендерится при доставке из актуальных данных, с перепроверкой видимости. Пользовательские строки экранируются (HTML parse mode).
+- Обработчики апдейтов тонкие: `AuthUser` из `update.from`, вызов сервиса, рендер. `callback_data` ≤ 64 байт, формат `<action>:<id>`, id перепроверяет сервис.
+- Выборки очередей — `FOR UPDATE SKIP LOCKED`; SQL с параметрами `@name`, без интерполяции.
+- Схема — только новой миграцией в `domain/lib/src/data/migrations/` + `allMigrations` + `docs/backend/data-model.md`.
+- Секреты — через `BotConfig`; новая переменная — в `bot/.example_env` и `docs/bot/README.md`.
+- Тесты без сети: fake `TelegramClient` / `http.Client`. `SKIP LOCKED`, `LISTEN`, миграции — integration с `TEST_DATABASE_URL`.
+- Закрыл задачу — отметь **готово** в `docs/bot/roadmap.md`.
+
+## Команды (из `bot/` или `domain/`)
+
+```powershell
+dart pub get
+dart run bin/bot.dart   # только bot/, BOT_UPDATES_MODE=polling
+dart analyze; dart test
+```

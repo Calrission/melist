@@ -128,6 +128,10 @@ Upsert пользователя при `POST /auth/validate` пишет стро
 | `GET /api/subscriptions/users` | 34 | готово |
 | `DELETE /api/subscriptions/users/{userId}` | 35 | готово |
 
+### 11. Уведомления о подписках — очередь
+
+Ведётся в [docs/bot/roadmap.md](../bot/roadmap.md): вынос доменного слоя в `melist_domain` (фаза 1), outbox-события в сервисах (фаза 4), эндпоинты настроек `GET`/`PATCH /api/me/notifications` и `PATCH /api/subscriptions/*` (фаза 6). Закрывая эти задачи, отмечай их там.
+
 ## Вне скоупа (монетизация)
 
 Не планировать, пока продукт явно не вернётся к 27–29:
