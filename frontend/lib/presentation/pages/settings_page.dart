@@ -5,6 +5,7 @@ import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/labeled_bottom_sheet_selector.dart';
 import 'package:melist/presentation/widgets/labeled_text_field.dart';
@@ -23,6 +24,7 @@ class _SettingsPageState extends State<SettingsPage> {
   static const _themes = [UiTheme.system, UiTheme.light, UiTheme.dark];
 
   final _nicknameController = TextEditingController();
+  final _birthdayController = TextEditingController();
   var _nicknameInitialized = false;
   var _isSaving = false;
 
@@ -50,6 +52,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final profile = context.watch<ProfileController>().profile;
     if (!_nicknameInitialized && profile != null) {
       _nicknameController.text = profile.displayName;
+      _birthdayController.text = _formatBirthday(profile.birthday);
       _nicknameInitialized = true;
     }
   }
@@ -57,7 +60,32 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void dispose() {
     _nicknameController.dispose();
+    _birthdayController.dispose();
     super.dispose();
+  }
+
+  static String _formatBirthday(DateTime? birthday) {
+    if (birthday == null) return "";
+    return '${birthday.day.toString().padLeft(2, '0')}.'
+        '${birthday.month.toString().padLeft(2, '0')}.'
+        '${birthday.year.toString().padLeft(4, '0')}';
+  }
+
+  Future<void> _selectBirthday() async {
+    final birthday = context.read<ProfileController>().profile?.birthday;
+    final selectedBirthday = await showDatePicker(
+      context: context,
+      initialDate: birthday ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (selectedBirthday == null || !mounted) return;
+
+    final saved = await context.guard(
+      () => context.read<ProfileController>().updateBirthday(selectedBirthday),
+    );
+    if (!mounted || !saved) return;
+    _birthdayController.text = _formatBirthday(selectedBirthday);
   }
 
   Future<void> _saveNickname() async {
@@ -98,6 +126,22 @@ class _SettingsPageState extends State<SettingsPage> {
                       label: "Имя",
                       hint: "Введите имя",
                       controller: _nicknameController,
+                    ),
+                    const SizedBox(height: singleSep),
+                    LabeledTextField(
+                      label: "Дата рождения",
+                      hint: "Выберите дату",
+                      controller: _birthdayController,
+                      readOnly: true,
+                      onTap: _selectBirthday,
+                      trailing: IconButton(
+                        onPressed: _selectBirthday,
+                        icon: Icon(
+                          Icons.calendar_today,
+                          size: 18,
+                          color: context.palette.subText,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: singleSep),
                     LabeledBottomSheetSelector<UiTheme>(

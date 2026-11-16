@@ -12,6 +12,8 @@ class LabeledTextField extends StatelessWidget {
     this.maxLines = 1,
     this.enabled = true,
     this.onChanged,
+    this.onTap,
+    this.readOnly = false,
     this.trailing,
     this.focusNode,
     this.keyboardType,
@@ -24,6 +26,8 @@ class LabeledTextField extends StatelessWidget {
   final int? maxLines;
   final bool enabled;
   final ValueChanged<String>? onChanged;
+  final GestureTapCallback? onTap;
+  final bool readOnly;
   final Widget? trailing;
   final FocusNode? focusNode;
   final TextInputType? keyboardType;
@@ -55,10 +59,12 @@ class LabeledTextField extends StatelessWidget {
                   controller: controller,
                   maxLines: maxLines,
                   enabled: enabled,
+                  readOnly: readOnly,
                   focusNode: focusNode,
                   keyboardType: keyboardType,
                   inputFormatters: inputFormatters,
                   onChanged: onChanged,
+                  onTap: onTap,
                   style: TextStyle(fontSize: 14, color: context.palette.text),
                   decoration: InputDecoration(
                     border: InputBorder.none,
