@@ -31,7 +31,7 @@ class LabeledBottomSheetSelector<T> extends StatelessWidget {
               width: 42,
               height: 5,
               decoration: BoxDecoration(
-                color: sheetContext.palette.lightAccent,
+                color: sheetContext.palette.containerAccent,
                 borderRadius: BorderRadius.circular(5),
               ),
             ),
@@ -46,7 +46,7 @@ class LabeledBottomSheetSelector<T> extends StatelessWidget {
                   borderRadius: BorderRadius.circular(borderRadius),
                   child: Material(
                     color: value == option
-                        ? sheetContext.palette.lightAccent
+                        ? sheetContext.palette.containerAccent
                         : Colors.transparent,
                     borderRadius: BorderRadius.circular(borderRadius),
                     clipBehavior: Clip.antiAlias,

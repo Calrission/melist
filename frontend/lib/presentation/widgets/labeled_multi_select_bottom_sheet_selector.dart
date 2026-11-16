@@ -35,7 +35,7 @@ class LabeledMultiSelectBottomSheetSelector extends StatelessWidget {
                     width: 42,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: sheetContext.palette.lightAccent,
+                      color: sheetContext.palette.containerAccent,
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
@@ -59,7 +59,7 @@ class LabeledMultiSelectBottomSheetSelector extends StatelessWidget {
                               borderRadius: BorderRadius.circular(borderRadius),
                               child: Material(
                                 color: draftSelection.contains(wishlist.id)
-                                    ? sheetContext.palette.lightAccent
+                                    ? sheetContext.palette.containerAccent
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(
                                   borderRadius,
