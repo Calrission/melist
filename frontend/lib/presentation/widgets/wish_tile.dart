@@ -90,8 +90,8 @@ class WishTile extends StatelessWidget {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(borderRadius),
                           child: SizedBox(
-                            width: 62,
-                            height: 62,
+                            width: 80,
+                            height: 80,
                             child: coverUrl == null || coverUrl.isEmpty
                                 ? ColoredBox(
                                     color: palette.subText.withValues(
@@ -117,36 +117,22 @@ class WishTile extends StatelessWidget {
                                   ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             spacing: 5,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      wishModel.name,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w500,
-                                        color: palette.accent,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 12),
-                                  Icon(
-                                    MelistIcons.link,
-                                    size: 20,
-                                    color: (wishModel.url != null)
-                                        ? context.palette.accent
-                                        : context.palette.subText,
-                                  ),
-                                ],
+                              Text(
+                                wishModel.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                  color: palette.accent,
+                                ),
                               ),
                               Text(
                                 description ?? "",
@@ -168,6 +154,14 @@ class WishTile extends StatelessWidget {
                               ),
                             ],
                           ),
+                        ),
+                        SizedBox(width: 33),
+                        Icon(
+                          MelistIcons.link,
+                          size: 18,
+                          color: (wishModel.url != null)
+                              ? context.palette.accent
+                              : context.palette.subText,
                         ),
                       ],
                     ),
