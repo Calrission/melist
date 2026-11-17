@@ -14,8 +14,10 @@ external String get _navigatorUserAgent;
 @JS('window.Telegram')
 external JSAny? get _telegramNamespace;
 
-@JS('window.Telegram.WebApp')
-external JSAny? get _telegramWebApp;
+extension type _TelegramNamespace(JSObject _) implements JSObject {
+  @JS('WebApp')
+  external JSAny? get webApp;
+}
 
 class TelegramProvider {
   static SingleChildWidget get provider => Provider(
@@ -25,6 +27,10 @@ class TelegramProvider {
         }
 
         final talker = ctx.read<Talker>();
+        if (!_hasTelegramWebApp()) {
+          _logMissingWebApp(talker);
+          return UnavailableTelegramRepository();
+        }
         try {
           WebApp().init();
           final repository = RealTelegramRepository();
@@ -40,14 +46,37 @@ class TelegramProvider {
   );
 }
 
+bool _hasTelegramWebApp() {
+  try {
+    final telegram = _telegramNamespace;
+    if (telegram == null || !telegram.isA<JSObject>()) {
+      return false;
+    }
+    return _TelegramNamespace(telegram as JSObject).webApp != null;
+  } catch (_) {
+    return false;
+  }
+}
+
+void _logMissingWebApp(Talker talker) {
+  talker.error(
+    [
+      'Telegram init failed: window.Telegram.WebApp is missing',
+      'page: ${_read(_pageDebug)}',
+      'userAgent: ${_read(() => _navigatorUserAgent)}',
+      'telegramNamespace: ${_read(() => _telegramNamespace != null)}',
+    ].join('\n'),
+  );
+}
+
 void _logMissingInitData(Talker talker) {
   final app = WebApp();
   final lines = <String>[
     'Telegram init refused: initData is empty',
     'page: ${_read(_pageDebug)}',
     'userAgent: ${_read(() => _navigatorUserAgent)}',
-    'telegramScript: ${_read(() => _telegramNamespace != null)}',
-    'webAppObject: ${_read(() => _telegramWebApp != null)}',
+    'telegramNamespace: ${_read(() => _telegramNamespace != null)}',
+    'webAppObject: ${_read(() => _hasTelegramWebApp())}',
     'platform: ${_read(() => app.platform)}',
     'version: ${_read(() => app.version)}',
     'isSupported: ${_read(() => app.isSupported)}',
