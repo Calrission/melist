@@ -35,7 +35,7 @@ dart test
 $env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
 ```
 
-   В backend после изменения `@Route` ещё `dart run dart_frog_swagger`. Если менялись Dockerfile или compose — `docker compose up -d --build` из `backend/` и проверка `docker compose ps`.
+   В backend после изменения `@Route` ещё `dart run dart_frog_swagger`. Если менялись Dockerfile или compose — `docker compose -f docker-compose.dev.yml up -d --build` из `backend/` и проверка `docker compose -f docker-compose.dev.yml ps`.
 
 6. Обнови документацию:
    - в [docs/bot/roadmap.md](../../docs/bot/roadmap.md) поставь задаче **готово**, при закрытии фазы — статус фазы и «Сейчас»;

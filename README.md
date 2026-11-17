@@ -8,8 +8,9 @@ Telegram Mini App для вишлистов: пользователь собир
 melist/
 ├── frontend/              # Flutter Web (Telegram Mini App), сборка → `build/web` или `.build/web`
 ├── backend/               # Dart Frog API
-│   ├── docker-compose.yml # PostgreSQL + API
-│   └── Dockerfile         # образ API, контекст — корень репозитория
+│   ├── docker-compose.yml     # прод: API + PostgreSQL + Caddy
+│   ├── docker-compose.dev.yml # локально: PostgreSQL + API
+│   └── Dockerfile             # образ API, контекст — корень репозитория
 ├── core/                  # общие модели (melist_core)
 └── docs/                  # документация
 ```
@@ -76,7 +77,7 @@ cd ..
 
 ```powershell
 cd backend
-docker compose up -d --build
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 | Сервис | Контейнер | С хоста |
@@ -88,12 +89,18 @@ docker compose up -d --build
 - Swagger: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`
 - Внутри API `DATABASE_URL` = `postgres://melist:melist@db:5432/melist?sslmode=disable`
 
-Остановить: `docker compose down`. Данные Postgres остаются в томе `melist-pg-data`.
+Остановить: `docker compose -f docker-compose.dev.yml down`. Данные Postgres остаются в томе `melist-pg-data`.
+
+Прод (`docker-compose.yml`) — API, Postgres и Caddy для `melist.online`. Сборка Mini App берётся из `frontend/.env` внутри образа, отдельно копировать `web` не нужно. На сервере, из `backend/`:
+
+```bash
+docker compose up -d --build
+```
 
 Только база, API на хосте с hot reload (конфиг IDE **backend**):
 
 ```powershell
-docker compose up -d db
+docker compose -f docker-compose.dev.yml up -d db
 cd backend
 dart_frog dev
 ```
@@ -102,7 +109,7 @@ dart_frog dev
 
 В Swagger Authorize вставить `DEBUG_TOKEN` (без `Bearer`) или JWT из `POST /auth/validate`.
 
-OpenAPI после изменения `@Route` (для `dart_frog dev`; в образе генерируется при `docker compose build`):
+OpenAPI после изменения `@Route` (для `dart_frog dev`; в образе генерируется при `docker compose -f docker-compose.dev.yml build`):
 
 ```powershell
 cd backend

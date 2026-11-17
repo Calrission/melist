@@ -37,7 +37,7 @@
 | `backend/Dockerfile`: в синтетический workspace добавить `domain` | очередь |
 | Обновить `docs/backend/README.md` (структура), `data-model.md` (пути), `.cursor/rules/backend.mdc` (где лежат репозитории и миграции) | очередь |
 
-Готово, когда: `dart analyze` и `dart test` зелёные в `domain/` и `backend/`, `docker compose up -d --build` поднимает API, Swagger отвечает.
+Готово, когда: `dart analyze` и `dart test` зелёные в `domain/` и `backend/`, `docker compose -f docker-compose.dev.yml up -d --build` поднимает API, Swagger отвечает.
 
 ### 2. Каркас бота — очередь
 
@@ -51,7 +51,7 @@
 | `/start` и `/start <payload>`: приветствие и кнопка «Открыть MELIST» → `https://t.me/<BOT_USERNAME>?startapp=<payload>` | очередь |
 | `GET /health` | очередь |
 | Старт: `Database.connect`, `Migrator.migrate`, `getMe`; graceful shutdown | очередь |
-| `bot/Dockerfile` (контекст — корень, workspace `core` + `domain` + `bot`, `dart compile exe`), сервис `bot` в `backend/docker-compose.yml` с `env_file: .env` и `DATABASE_URL` на `db` | очередь |
+| `bot/Dockerfile` (контекст — корень, workspace `core` + `domain` + `bot`, `dart compile exe`), сервис `bot` в `backend/docker-compose.dev.yml` с `env_file: .env` и `DATABASE_URL` на `db` | очередь |
 | Тесты: `BotConfig`, разбор апдейтов, роутер, вебхук (401 на чужой секрет), `TelegramClient` на fake `http.Client` | очередь |
 
 Готово, когда: локально в режиме `polling` бот отвечает на `/start`, в compose три контейнера здоровы.

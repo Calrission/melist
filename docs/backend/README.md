@@ -61,7 +61,8 @@ backend/
 │   ├── integration/            # тесты на реальной PostgreSQL (TEST_DATABASE_URL), иначе skip
 │   └── helpers/                # тестовый initData, FakePool для Database
 ├── dart_test.yaml              # тег integration
-├── docker-compose.yml          # PostgreSQL + API
+├── docker-compose.yml          # прод: API + PostgreSQL + Caddy (melist.online)
+├── docker-compose.dev.yml      # локально: PostgreSQL + API
 ├── Dockerfile                  # образ API, контекст — корень репозитория
 ├── build/openapi.json          # генерируется, в git не попадает
 ├── .env                        # секреты, в git не попадает
@@ -120,18 +121,25 @@ Ctrl+C / SIGTERM закрывают пул.
 
 Пароль с спецсимволами — percent-encode (`p%40ss`). Неизвестный параметр или неверное значение — `FormatException` на старте.
 
-Локальный стек — [`docker-compose.yml`](../../backend/docker-compose.yml): PostgreSQL и API. Образ API собирается из [`Dockerfile`](../../backend/Dockerfile) (workspace без frontend). С хоста Postgres — порт **5433**, API — **8080**. `DATABASE_URL` внутри контейнера — `postgres://melist:melist@db:5432/melist?sslmode=disable` (хост `db`, не `localhost`).
+Локальный стек — [`docker-compose.dev.yml`](../../backend/docker-compose.dev.yml): PostgreSQL и API. Образ API собирается из [`Dockerfile`](../../backend/Dockerfile) (workspace без frontend). С хоста Postgres — порт **5433**, API — **8080**. `DATABASE_URL` внутри контейнера — `postgres://melist:melist@db:5432/melist?sslmode=disable` (хост `db`, не `localhost`).
 
 ```powershell
 cd backend
 Copy-Item .example_env .env   # заполнить BOT_TOKEN и JWT_SECRET
-docker compose up -d --build
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 Только Postgres, API через `dart_frog dev` на хосте:
 
 ```powershell
-docker compose up -d db
+docker compose -f docker-compose.dev.yml up -d db
+```
+
+Прод — [`docker-compose.yml`](../../backend/docker-compose.yml): тот же API и Postgres без опубликованных портов, перед ними Caddy на `melist.online`. Образ собирается из [`Dockerfile.deploy`](../../backend/Dockerfile.deploy) и включает релизную сборку Flutter (`frontend/.env` обязателен, `API_URL` пустой). На сервере после `git pull`:
+
+```bash
+cd backend
+docker compose up -d --build
 ```
 
 `DATABASE_URL` в `.env` для хоста: `postgres://melist:melist@localhost:5433/melist?sslmode=disable`.
@@ -172,8 +180,8 @@ dart test -n "POST /auth/validate"
 dart_frog build
 dart build/bin/server.dart
 
-# API + PostgreSQL в Docker (нужен backend/.env)
-docker compose up -d --build
+# API + PostgreSQL локально (нужен backend/.env)
+docker compose -f docker-compose.dev.yml up -d --build
 ```
 
 Swagger UI: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`. Если `build/openapi.json` отсутствует, `/docs` покажет подсказку с командой генерации.

@@ -1,3 +1,8 @@
+# Production stack for melist.online.
+# From backend/, with backend/.env and frontend/.env in place:
+#   docker compose up -d --build
+# Postgres data stays in the volume melist-pg-data. Caddy keeps the
+# Let's Encrypt certificate in caddy_data.
 services:
   db:
     image: postgres:16
@@ -6,8 +11,6 @@ services:
       POSTGRES_USER: melist
       POSTGRES_PASSWORD: melist
       POSTGRES_DB: melist
-    ports:
-      - "5433:5432"
     volumes:
       - melist-pg-data:/var/lib/postgresql/data
     healthcheck:
@@ -19,24 +22,37 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: backend/Dockerfile
+      dockerfile: backend/Dockerfile.deploy
     container_name: melist-api
     restart: unless-stopped
-    ports:
-      - "8080:8080"
     env_file:
       - .env
     environment:
       PORT: "8080"
-      # Hostname `db` is the compose network; do not use localhost from .env.
       DATABASE_URL: postgres://melist:melist@db:5432/melist?sslmode=disable
-    volumes:
-      # Host build at /frontend/build/web — the path the server resolves
-      # from WORKDIR /app (`../frontend/build/web`).
-      - ../frontend:/frontend:ro
+      # Release build baked into the image. Wins over an empty WEB_ROOT in .env.
+      WEB_ROOT: /frontend/.build/web
+      COOKIE_SECURE: "true"
+      DEBUG_AUTH: "false"
     depends_on:
       db:
         condition: service_healthy
 
+  caddy:
+    image: caddy:2
+    container_name: melist-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+
 volumes:
   melist-pg-data:
+  caddy_data:
+  caddy_config:

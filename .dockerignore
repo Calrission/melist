@@ -5,9 +5,10 @@
 **/.pub
 **/.dart_frog
 **/build
+**/.build
 **/coverage
 **/*.md
 **/*.env
-frontend
+!frontend/.env
 docs
 **/.DS_Store

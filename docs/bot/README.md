@@ -153,8 +153,8 @@ $env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=d
 Весь стек из `backend/`:
 
 ```powershell
-docker compose up -d --build       # db + backend + bot
-docker compose logs -f bot
+docker compose -f docker-compose.dev.yml up -d --build       # db + backend + bot
+docker compose -f docker-compose.dev.yml logs -f bot
 ```
 
 ## Правила кода

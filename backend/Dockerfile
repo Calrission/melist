@@ -1,4 +1,4 @@
-# Build context is the repository root (see docker-compose.yml).
+# Build context is the repository root (see docker-compose.dev.yml).
 # Frontend is omitted: it needs the Flutter SDK, the API does not.
 FROM dart:stable AS build
 
