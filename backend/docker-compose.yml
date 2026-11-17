@@ -1,8 +1,9 @@
 # Production stack for melist.online.
-# From backend/, with backend/.env and frontend/.env in place:
+# From backend/, with backend/.env in place:
 #   docker compose up -d --build
-# Postgres data stays in the volume melist-pg-data. Caddy keeps the
-# Let's Encrypt certificate in caddy_data.
+# The Flutter web release is not built here: the image does not fit on the
+# server disk. Put it in frontend/.build/web on the host and restart melist-api.
+# Postgres data stays in melist-pg-data. Caddy keeps the certificate in caddy_data.
 services:
   db:
     image: postgres:16
@@ -22,7 +23,7 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: backend/Dockerfile.deploy
+      dockerfile: backend/Dockerfile
     container_name: melist-api
     restart: unless-stopped
     env_file:
@@ -30,10 +31,10 @@ services:
     environment:
       PORT: "8080"
       DATABASE_URL: postgres://melist:melist@db:5432/melist?sslmode=disable
-      # Release build baked into the image. Wins over an empty WEB_ROOT in .env.
-      WEB_ROOT: /frontend/.build/web
       COOKIE_SECURE: "true"
       DEBUG_AUTH: "false"
+    volumes:
+      - ../frontend:/frontend:ro
     depends_on:
       db:
         condition: service_healthy

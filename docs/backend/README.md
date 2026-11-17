@@ -135,7 +135,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 docker compose -f docker-compose.dev.yml up -d db
 ```
 
-Прод — [`docker-compose.yml`](../../backend/docker-compose.yml): тот же API и Postgres без опубликованных портов, перед ними Caddy на `melist.online`. Образ собирается из [`Dockerfile.deploy`](../../backend/Dockerfile.deploy) и включает релизную сборку Flutter (`frontend/.env` обязателен, `API_URL` пустой). На сервере после `git pull`:
+Прод — [`docker-compose.yml`](../../backend/docker-compose.yml): тот же API и Postgres без опубликованных портов, перед ними Caddy на `melist.online`. Образ API — обычный [`Dockerfile`](../../backend/Dockerfile). Релизная сборка Flutter кладётся на хост в `frontend/.build/web` (на диске сервера нет места собирать Flutter SDK внутри Docker). На сервере после `git pull`:
 
 ```bash
 cd backend

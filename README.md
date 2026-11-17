@@ -91,7 +91,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 Остановить: `docker compose -f docker-compose.dev.yml down`. Данные Postgres остаются в томе `melist-pg-data`.
 
-Прод (`docker-compose.yml`) — API, Postgres и Caddy для `melist.online`. Сборка Mini App берётся из `frontend/.env` внутри образа, отдельно копировать `web` не нужно. На сервере, из `backend/`:
+Прод (`docker-compose.yml`) — API, Postgres и Caddy для `melist.online`. Flutter на сервере не собирается: образ SDK не помещается на диск. Релизная сборка — каталог `frontend/.build/web` на хосте, его читает тот же контейнер API. На сервере, из `backend/`:
 
 ```bash
 docker compose up -d --build
@@ -132,7 +132,7 @@ flutter pub run icon_font_generator:generator
 | Конфиг IDE | Каталог | Команда | Зачем |
 |---|---|---|---|
 | `build-dev` | `frontend/` | `web_cache_killer`, затем `build/` → `.build/` | Сборка Flutter Web с cache-busting → `frontend/.build/web` |
-| `build-release` | `frontend/` | `flutter build web --release --no-wasm-dry-run -o .build/web` | Релизная сборка в `frontend/.build/web` |
+| `build-release` | `frontend/` | `web_cache_killer --no-zip` с `--no-wasm-dry-run` и `.env` | Релизная сборка с cache-busting в `frontend/build/web` |
 | `ngrok` | корень | `ngrok start --all --config ngrok.yml` | Один HTTPS-туннель на **8080** |
 | `backend` | `backend/` | `dart_frog dev` | API и статика на хосте, если не используете контейнер `melist-api` |
 
