@@ -43,6 +43,17 @@ void main() {
       expect(created.status, WishStatus.draft);
     });
 
+    test('accepts a name of 255 characters and rejects a longer one', () async {
+      final maxName = 'а' * 255;
+      final created = await service.create(owner, name: maxName);
+      expect(created.name, maxName);
+
+      expect(
+        () => service.create(owner, name: 'а' * 256),
+        throwsA(isA<BadRequestException>()),
+      );
+    });
+
     test('rejects empty name, negative price and unknown enums', () {
       expect(
         () => service.create(owner, name: '  '),

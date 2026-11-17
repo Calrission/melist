@@ -34,7 +34,7 @@ class WishService {
   static const unset = Object();
   static const defaultLimit = 50;
   static const maxLimit = 100;
-  static const _maxNameLength = 100;
+  static const _maxNameLength = 255;
 
   Future<List<WishModel>> listMine(
     AuthUser user, {

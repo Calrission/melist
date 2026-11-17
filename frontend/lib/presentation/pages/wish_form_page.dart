@@ -361,6 +361,9 @@ class _WishFormPageState extends State<WishFormPage> {
                     label: "Название",
                     hint: "Введите название",
                     controller: _nameController,
+                    inputFormatters: const [
+                      LengthLimitingTextInputFormatter(255),
+                    ],
                   ),
                   LabeledTextField(
                     label: "Описание",
