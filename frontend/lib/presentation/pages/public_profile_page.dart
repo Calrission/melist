@@ -110,7 +110,8 @@ class _LoadedProfile extends StatelessWidget {
           if (profile.wishlists.isEmpty)
             EmptyPlaceholderWidget()
           else
-            for (final wishlist in profile.wishlists)
+            for (final (index, wishlist) in profile.wishlists.indexed) ...[
+              if (index > 0) const SizedBox(height: singleSep),
               WishListTile(
                 wishlistModel: wishlist,
                 showFavoriteAction: true,
@@ -175,6 +176,7 @@ class _LoadedProfile extends StatelessWidget {
                   );
                 },
               ),
+            ],
         ],
       ),
     );

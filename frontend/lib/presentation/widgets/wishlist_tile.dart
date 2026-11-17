@@ -79,9 +79,17 @@ class _WishListTileState extends State<WishListTile> {
   }
 
   Future<void> _toggleFavorite() async {
-    final succeeded = await widget.onToggleFavorite?.call(_isFavorite) ?? false;
-    if (succeeded && mounted) {
-      setState(() => _isFavorite = !_isFavorite);
+    final wasFavorite = _isFavorite;
+    final succeeded = await widget.onToggleFavorite?.call(wasFavorite) ?? false;
+    if (!succeeded || !mounted) {
+      return;
+    }
+    // The parent can publish the new flag through [WishListTile.isFavorite]
+    // while this request is in flight. Invert the value we sent, not the
+    // current one, or that update is undone and the icon flips back.
+    final next = !wasFavorite;
+    if (_isFavorite != next) {
+      setState(() => _isFavorite = next);
     }
   }
 

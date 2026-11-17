@@ -22,11 +22,12 @@ extension type _TelegramNamespace(JSObject _) implements JSObject {
 class TelegramProvider {
   static SingleChildWidget get provider => Provider(
       create: (ctx) {
+        final talker = ctx.read<Talker>();
+        _disableClosingSwipe(talker);
         if (kDebugMode) {
           return MockTelegramRepository();
         }
 
-        final talker = ctx.read<Talker>();
         if (!_hasTelegramWebApp()) {
           _logMissingWebApp(talker);
           return UnavailableTelegramRepository();
@@ -44,6 +45,17 @@ class TelegramProvider {
         }
       }
   );
+}
+
+void _disableClosingSwipe(Talker talker) {
+  if (!_hasTelegramWebApp()) {
+    return;
+  }
+  try {
+    WebApp().disableVerticalSwipes();
+  } catch (error, stackTrace) {
+    talker.error('Failed to disable Telegram vertical swipes', error, stackTrace);
+  }
 }
 
 bool _hasTelegramWebApp() {

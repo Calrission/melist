@@ -126,6 +126,7 @@ class _LoadedWishlistPage extends StatelessWidget {
         Expanded(
           child: wishlists.isNotEmpty
               ? MelistReorderableListView(
+                  reorderEnabled: !selectionMode,
                   padding: const EdgeInsets.fromLTRB(4, 4, 4, 32),
                   onReorderItem: (oldIndex, newIndex) {
                     final order = controller.currentOrder;
@@ -140,29 +141,25 @@ class _LoadedWishlistPage extends StatelessWidget {
                     return Column(
                       key: ValueKey(e.id),
                       children: [
-                        ReorderableDelayedDragStartListener(
-                          index: index,
-                          enabled: !selectionMode,
-                          child: WishListTile(
-                            wishlistModel: e,
-                            selected: selectionMode
-                                ? controller.selectedIds.contains(e.id)
-                                : null,
-                            onSelect: (_) => controller.toggleSelect(e.id),
-                            onTap: selectionMode
-                                ? () => controller.toggleSelect(e.id)
-                                : () {
-                                    context.goNamed(
-                                      wishlistGoKey,
-                                      pathParameters: {'id': e.id.toString()},
-                                    );
-                                  },
-                            onTapDelete: selectionMode
-                                ? null
-                                : () => context.guard(
-                                    () => controller.deleteWishlists([e.id]),
-                                  ),
-                          ),
+                        WishListTile(
+                          wishlistModel: e,
+                          selected: selectionMode
+                              ? controller.selectedIds.contains(e.id)
+                              : null,
+                          onSelect: (_) => controller.toggleSelect(e.id),
+                          onTap: selectionMode
+                              ? () => controller.toggleSelect(e.id)
+                              : () {
+                                  context.goNamed(
+                                    wishlistGoKey,
+                                    pathParameters: {'id': e.id.toString()},
+                                  );
+                                },
+                          onTapDelete: selectionMode
+                              ? null
+                              : () => context.guard(
+                                  () => controller.deleteWishlists([e.id]),
+                                ),
                         ),
                         if (index < wishlists.length - 1)
                           const SizedBox(height: bigSep),

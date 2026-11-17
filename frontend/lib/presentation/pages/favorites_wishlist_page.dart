@@ -178,44 +178,41 @@ class _LoadedState extends StatelessWidget {
       itemCount: _wishlists.length,
       itemBuilder: (context, index) {
         final e = _wishlists[index];
-        return ReorderableDelayedDragStartListener(
+        return WishListTile(
           key: ValueKey(e),
-          index: index,
-          child: WishListTile(
-            wishlistModel: e,
-            showOwner: true,
-            onTapOwner: () => context.pushNamed(
-              publicProfileGoKey,
-              pathParameters: {'id': e.ownerId.toString()},
-            ),
-            showFavoriteAction: true,
-            showEdit: false,
-            onTap: () => context.pushNamed(
-              favoriteWishlistGoKey,
-              pathParameters: {'id': e.id.toString()},
-            ),
-            onToggleFavorite: (isFavorite) async {
-              if (isFavorite) {
-                return context.guard(
-                  () => controller.deleteFavoriteWithoutUpdating(e.id),
-                  success: "Удалено из избранного",
-                );
-              }
-              final shareToken = e.shareToken;
-              if (shareToken == null) {
-                context.showMessage(
-                  "Не удалось повторно добавить вишлист: отсутствует токен",
-                );
-                return false;
-              }
-              return context.guard(
-                () => controller.addWishlistToFavorites(
-                  AddFavoriteBody(shareToken: shareToken),
-                ),
-                success: "Добавлено в избранное",
-              );
-            },
+          wishlistModel: e,
+          showOwner: true,
+          onTapOwner: () => context.pushNamed(
+            publicProfileGoKey,
+            pathParameters: {'id': e.ownerId.toString()},
           ),
+          showFavoriteAction: true,
+          showEdit: false,
+          onTap: () => context.pushNamed(
+            favoriteWishlistGoKey,
+            pathParameters: {'id': e.id.toString()},
+          ),
+          onToggleFavorite: (isFavorite) async {
+            if (isFavorite) {
+              return context.guard(
+                () => controller.deleteFavoriteWithoutUpdating(e.id),
+                success: "Удалено из избранного",
+              );
+            }
+            final shareToken = e.shareToken;
+            if (shareToken == null) {
+              context.showMessage(
+                "Не удалось повторно добавить вишлист: отсутствует токен",
+              );
+              return false;
+            }
+            return context.guard(
+              () => controller.addWishlistToFavorites(
+                AddFavoriteBody(shareToken: shareToken),
+              ),
+              success: "Добавлено в избранное",
+            );
+          },
         );
       },
     );

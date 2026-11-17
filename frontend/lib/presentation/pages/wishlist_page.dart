@@ -166,18 +166,15 @@ class _LoadedWishlistView extends StatelessWidget {
                     },
                     itemBuilder: (ctx, index) {
                       final e = wishlist.items[index];
-                      return ReorderableDragStartListener(
+                      return WishTile(
                         key: ValueKey(e),
-                        index: index,
-                        child: WishTile(
-                          wishModel: e,
-                          onTapDelete: () =>
-                              context.guard(() => controller.removeWish(e.id)),
-                          onTap: () => context.pushNamed(
-                            wishDetailsGoKey,
-                            pathParameters: {'id': e.id.toString()},
-                            extra: WishDetailsArguments(wish: e),
-                          ),
+                        wishModel: e,
+                        onTapDelete: () =>
+                            context.guard(() => controller.removeWish(e.id)),
+                        onTap: () => context.pushNamed(
+                          wishDetailsGoKey,
+                          pathParameters: {'id': e.id.toString()},
+                          extra: WishDetailsArguments(wish: e),
                         ),
                       );
                     },
