@@ -156,13 +156,6 @@ class WishTile extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 33),
-                        Icon(
-                          MelistIcons.link,
-                          size: 18,
-                          color: (wishModel.url != null)
-                              ? context.palette.accent
-                              : context.palette.subText,
-                        ),
                       ],
                     ),
                   ),
