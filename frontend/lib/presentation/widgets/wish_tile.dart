@@ -4,6 +4,29 @@ import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 
+String _formatPrice(double price) {
+  final value = price == price.truncateToDouble()
+      ? price.toInt().toString()
+      : price.toString();
+  final decimalIndex = value.indexOf('.');
+  final integerPart = decimalIndex == -1
+      ? value
+      : value.substring(0, decimalIndex);
+  final isNegative = integerPart.startsWith('-');
+  final digits = isNegative ? integerPart.substring(1) : integerPart;
+  final grouped = StringBuffer();
+
+  for (var index = 0; index < digits.length; index++) {
+    if (index > 0 && (digits.length - index) % 3 == 0) {
+      grouped.write(' ');
+    }
+    grouped.write(digits[index]);
+  }
+
+  return '${isNegative ? '-' : ''}$grouped'
+      '${decimalIndex == -1 ? '' : value.substring(decimalIndex)}';
+}
+
 class WishTile extends StatelessWidget {
   final WishModel wishModel;
   final VoidCallback? onTapDelete;
@@ -29,7 +52,9 @@ class WishTile extends StatelessWidget {
     final palette = context.palette;
     final coverUrl = wishModel.coverUrl;
     final description = wishModel.description?.trim();
-    final price = wishModel.price == null ? "— ₽" : "${wishModel.price} ₽";
+    final price = wishModel.price == null
+        ? "0 ₽"
+        : "${_formatPrice(wishModel.price!)} ₽";
     final radius = BorderRadius.circular(borderRadius);
 
     return Padding(
