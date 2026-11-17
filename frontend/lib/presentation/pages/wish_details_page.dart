@@ -234,7 +234,7 @@ class _WishDetailField extends StatelessWidget {
                 IconButton(
                   tooltip: "Скопировать ссылку",
                   onPressed: onCopy,
-                  icon: const Icon(Icons.copy),
+                  icon: const Icon(Icons.copy, size: 16),
                   visualDensity: VisualDensity.compact,
                 ),
             ],

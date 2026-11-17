@@ -413,14 +413,6 @@ class _WishFormPageState extends State<WishFormPage> {
             ),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              minimumSize: null,
-              maximumSize: null,
-              backgroundColor: context.palette.accent,
-              foregroundColor: context.palette.textOnAccent,
-            ),
             onPressed: wishlistList.data == null ? null : save,
             child: const Text("Сохранить"),
           ),

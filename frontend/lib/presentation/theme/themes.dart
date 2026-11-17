@@ -4,7 +4,7 @@ import 'package:melist/presentation/theme/palette.dart';
 
 ButtonStyle getClassicFilledButtonStyle(Palette palette) => FilledButton.styleFrom(
   alignment: Alignment.center,
-  minimumSize: const Size(double.infinity, 55),
+  minimumSize: const Size(double.infinity, 44),
   maximumSize: null,
   shape: RoundedRectangleBorder(
     borderRadius: BorderRadius.circular(borderRadius)
