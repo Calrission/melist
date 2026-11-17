@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:go_router/go_router.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/deep_link_controller.dart';
@@ -9,12 +10,55 @@ import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/extensions/widget_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
+import 'package:melist/presentation/talker/open_talker_log.dart';
 import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/theme/themes.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/profile_widget.dart';
 import 'package:provider/provider.dart';
+
+class _BuildVersionLabel extends StatefulWidget {
+  const _BuildVersionLabel();
+
+  @override
+  State<_BuildVersionLabel> createState() => _BuildVersionLabelState();
+}
+
+class _BuildVersionLabelState extends State<_BuildVersionLabel> {
+  String? _version;
+
+  @override
+  void initState() {
+    super.initState();
+    PackageInfo.fromPlatform().then((info) {
+      if (!mounted) {
+        return;
+      }
+      final build = info.buildNumber;
+      setState(() {
+        _version = build.isEmpty ? info.version : '${info.version}+$build';
+      });
+    }, onError: (_) {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final version = _version;
+    if (version == null) {
+      return const SizedBox.shrink();
+    }
+    return GestureDetector(
+      onLongPress: () => openTalkerLog(context),
+      child: Center(
+        child: Text(
+          version,
+          style: TextStyle(fontSize: 12, color: context.palette.subText),
+        ),
+      ),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -144,6 +188,8 @@ class _HomePageState extends State<HomePage> {
               style: getMenuItemFilledButtonStyle(context.palette),
               label: Text("О боте").row(),
             ),
+            SizedBox(height: singleSep),
+            const _BuildVersionLabel(),
           ],
         ),
       ),
