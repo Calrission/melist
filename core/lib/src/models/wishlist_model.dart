@@ -9,7 +9,6 @@ class WishlistModel {
     required this.ownerId,
     required this.name,
     this.description,
-    this.coverUrl,
     this.visibility = WishlistVisibility.draft,
     this.position = 0,
     this.shareToken,
@@ -29,7 +28,6 @@ class WishlistModel {
       ownerId: requireInt(json['ownerId'], 'ownerId'),
       name: requireString(json['name'], 'name'),
       description: optionalString(json['description']),
-      coverUrl: optionalString(json['coverUrl']),
       visibility: json['visibility'] == null
           ? WishlistVisibility.draft
           : WishlistVisibility.fromName(json['visibility']),
@@ -48,7 +46,6 @@ class WishlistModel {
       ownerId: requireInt(row['owner_id'], 'ownerId'),
       name: requireString(row['name'], 'name'),
       description: optionalString(row['description']),
-      coverUrl: optionalString(row['cover_url']),
       visibility: row['visibility'] == null
           ? WishlistVisibility.draft
           : WishlistVisibility.fromName(row['visibility']),
@@ -64,7 +61,6 @@ class WishlistModel {
   final int ownerId;
   final String name;
   final String? description;
-  final String? coverUrl;
   final WishlistVisibility visibility;
   final int position;
   final String? shareToken;
@@ -79,7 +75,6 @@ class WishlistModel {
       ownerId: ownerId,
       name: name,
       description: description,
-      coverUrl: coverUrl,
       visibility: visibility,
       position: position,
       shareToken: shareToken,
@@ -95,7 +90,6 @@ class WishlistModel {
     'ownerId': ownerId,
     'name': name,
     'description': description,
-    'coverUrl': coverUrl,
     'visibility': visibility.name,
     'position': position,
     'shareToken': shareToken,

@@ -37,18 +37,6 @@ void main() {
       expect(created.visibility, WishlistVisibility.public);
     });
 
-    test('stores a trimmed cover url', () async {
-      final created = await service.create(
-        owner,
-        name: 'Party',
-        coverUrl: ' https://img.example/cover.png ',
-      );
-      expect(created.coverUrl, 'https://img.example/cover.png');
-
-      final blank = await service.create(owner, name: 'Plain', coverUrl: '  ');
-      expect(blank.coverUrl, isNull);
-    });
-
     test('rejects empty name and unknown visibility', () {
       expect(
         () => service.create(owner, name: '  '),
@@ -122,23 +110,6 @@ void main() {
 
       expect(updated.name, 'New');
       expect(updated.visibility, WishlistVisibility.public);
-    });
-
-    test('sets and clears cover url', () async {
-      final created = await service.create(owner, name: 'Old');
-
-      final updated = await service.update(
-        owner,
-        created.id,
-        coverUrl: ' https://img.example/cover.png ',
-      );
-      expect(updated.coverUrl, 'https://img.example/cover.png');
-
-      final cleared = await service.update(owner, created.id, coverUrl: null);
-      expect(cleared.coverUrl, isNull);
-
-      final blank = await service.update(owner, created.id, coverUrl: '  ');
-      expect(blank.coverUrl, isNull);
     });
 
     test('rejects empty patch and foreign owners', () async {

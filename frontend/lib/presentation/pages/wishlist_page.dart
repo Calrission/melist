@@ -5,6 +5,7 @@ import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/reorder_extension.dart';
+import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/icons/melist_icons.dart';
 import 'package:melist/presentation/router/app_router.dart';
 import 'package:melist/presentation/pages/wish_details_page.dart';
@@ -80,9 +81,9 @@ class _WishlistPageState extends State<WishlistPage> {
           IconButton(
             onPressed: () =>
                 context.goNamed(wishlistEditGoKey, pathParameters: {'id': id}),
-            icon: Icon(MelistIcons.edit),
+            icon: Icon(MelistIcons.edit, color: context.palette.accent),
           ),
-          IconButton(onPressed: _share, icon: Icon(MelistIcons.share)),
+          IconButton(onPressed: _share, icon: Icon(MelistIcons.share, color: context.palette.accent)),
         ],
       ),
       body: controller.state == ControllerState.error
@@ -149,7 +150,7 @@ class _LoadedWishlistView extends StatelessWidget {
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
               ),
             ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           AddElemListButton(
             text: "Добавить желание",
             onTap: () => _showAddWishDialog(context, id),

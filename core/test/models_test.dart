@@ -62,7 +62,6 @@ void main() {
             'ownerId': 42,
             'name': 'Birthday',
             'description': null,
-            'coverUrl': null,
             'visibility': 'public',
             'position': 0,
             'shareToken': 'abc',
@@ -192,7 +191,6 @@ void main() {
         'id': 3,
         'ownerId': 1,
         'name': 'Birthday',
-        'coverUrl': 'https://img/list.png',
         'visibility': 'public',
         'position': 2,
         'shareToken': 'abc',
@@ -203,11 +201,10 @@ void main() {
 
       expect(list.visibility, WishlistVisibility.public);
       expect(list.position, 2);
-      expect(list.coverUrl, 'https://img/list.png');
       expect(list.items, hasLength(1));
       expect(list.items.first.name, 'Headphones');
       expect(list.toJson()['visibility'], 'public');
-      expect(list.toJson()['coverUrl'], 'https://img/list.png');
+      expect(list.toJson().containsKey('coverUrl'), isFalse);
     });
 
     test('fromRow does not include items', () {
@@ -216,7 +213,6 @@ void main() {
         'owner_id': 1,
         'name': 'Birthday',
         'description': null,
-        'cover_url': 'https://img/list.png',
         'visibility': 'draft',
         'position': 0,
         'share_token': null,
@@ -224,7 +220,6 @@ void main() {
 
       expect(list.items, isEmpty);
       expect(list.visibility, WishlistVisibility.draft);
-      expect(list.coverUrl, 'https://img/list.png');
     });
 
     test('accepts link visibility', () {

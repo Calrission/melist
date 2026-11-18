@@ -159,7 +159,6 @@ CREATE TABLE wishlists (
   owner_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name         TEXT NOT NULL,
   description  TEXT,
-  cover_url    TEXT,                          -- 1.4, ссылка на обложку
   visibility   wishlist_visibility NOT NULL DEFAULT 'draft',
   position     INTEGER NOT NULL DEFAULT 0,    -- 5.1
   share_token  TEXT UNIQUE,                   -- 7.1, генерируется по запросу

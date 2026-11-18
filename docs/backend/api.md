@@ -123,10 +123,10 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 ### `POST /api/wishlists` (1)
 
 ```json
-{ "name": "День рождения", "visibility": "public" | "draft" | "link", "coverUrl": "https://…", "wishIds": [1, 2] }
+{ "name": "День рождения", "visibility": "public" | "draft" | "link", "wishIds": [1, 2] }
 ```
 
-`wishIds` — опционально (1.3). `coverUrl` — опциональная ссылка на обложку (1.4). Ответ `201` с созданным вишлистом.
+`wishIds` — опционально (1.3). Ответ `201` с созданным вишлистом.
 
 ### `PATCH /api/wishlists` (5.1)
 
@@ -142,7 +142,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `PATCH /api/wishlists/{id}` (3)
 
-`{ "name"?, "visibility"?: "public" | "draft" | "link", "coverUrl"? }`. `coverUrl: null` или пустая строка снимает обложку.
+`{ "name"?, "description"?, "visibility"?: "public" | "draft" | "link" }`. `description: null` или пустая строка снимает описание.
 
 ### `DELETE /api/wishlists/{id}` (6.1)
 

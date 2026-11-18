@@ -25,7 +25,7 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
   method: HttpMethod.patch,
   path: '/api/wishlists/{id}',
   summary: 'Edit wishlist',
-  description: 'Change name, visibility or cover link. (3)',
+  description: 'Change name or visibility. (3)',
   tags: ['Wishlists'],
   requestBody: ApiRequestBody(
     required: true,
@@ -38,7 +38,6 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
           'type': 'string',
           'enum': ['public', 'draft', 'link'],
         },
-        'coverUrl': {'type': 'string'},
       },
     },
     example: {'name': 'New year', 'visibility': 'draft'},

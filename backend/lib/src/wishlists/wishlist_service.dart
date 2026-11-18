@@ -65,7 +65,6 @@ class WishlistService {
     AuthUser user, {
     required String name,
     String? description,
-    String? coverUrl,
     String? visibility,
     List<int> wishIds = const [],
   }) {
@@ -73,7 +72,6 @@ class WishlistService {
     final parsedVisibility = _visibility(visibility);
     final uniqueWishIds = _uniqueIds(wishIds);
     final parsedDescription = _optionalText(description);
-    final parsedCoverUrl = _optionalText(coverUrl);
 
     return _transaction((tx) async {
       final users = _users(tx);
@@ -97,7 +95,6 @@ class WishlistService {
         ownerId: user.id,
         name: parsedName,
         description: parsedDescription,
-        coverUrl: parsedCoverUrl,
         visibility: parsedVisibility,
         position: position,
       );
@@ -122,12 +119,10 @@ class WishlistService {
     int id, {
     String? name,
     Object? description = unsetDescription,
-    Object? coverUrl = unsetCoverUrl,
     String? visibility,
   }) async {
     final hasDescription = !identical(description, unsetDescription);
-    final hasCoverUrl = !identical(coverUrl, unsetCoverUrl);
-    if (name == null && !hasDescription && !hasCoverUrl && visibility == null) {
+    if (name == null && !hasDescription && visibility == null) {
       throw const BadRequestException('No fields to update');
     }
 
@@ -153,31 +148,12 @@ class WishlistService {
       }
     }
 
-    String? parsedCoverUrl;
-    var clearCoverUrl = false;
-    if (hasCoverUrl) {
-      if (coverUrl == null) {
-        clearCoverUrl = true;
-      } else if (coverUrl is String) {
-        final trimmed = coverUrl.trim();
-        if (trimmed.isEmpty) {
-          clearCoverUrl = true;
-        } else {
-          parsedCoverUrl = trimmed;
-        }
-      } else {
-        throw const BadRequestException('coverUrl must be a string or null');
-      }
-    }
-
     final updated = await _repo.update(
       id: id,
       ownerId: user.id,
       name: parsedName,
       description: parsedDescription,
       clearDescription: clearDescription,
-      coverUrl: parsedCoverUrl,
-      clearCoverUrl: clearCoverUrl,
       visibility: parsedVisibility,
     );
     if (updated != null) {
@@ -460,7 +436,6 @@ class WishlistService {
   }
 
   static const unsetDescription = Object();
-  static const unsetCoverUrl = Object();
   static const _maxNameLength = 100;
 
   String? _optionalText(String? raw) {

@@ -141,14 +141,12 @@ class MemoryWishlistRepository implements WishlistRepository {
     required WishlistVisibility visibility,
     required int position,
     String? description,
-    String? coverUrl,
   }) async {
     final wishlist = WishlistModel(
       id: data.nextWishlistId++,
       ownerId: ownerId,
       name: name,
       description: description,
-      coverUrl: coverUrl,
       visibility: visibility,
       position: position,
     );
@@ -164,8 +162,6 @@ class MemoryWishlistRepository implements WishlistRepository {
     String? name,
     String? description,
     bool clearDescription = false,
-    String? coverUrl,
-    bool clearCoverUrl = false,
     WishlistVisibility? visibility,
   }) async {
     final current = data.wishlists[id];
@@ -179,7 +175,6 @@ class MemoryWishlistRepository implements WishlistRepository {
       description: clearDescription
           ? null
           : (description ?? current.description),
-      coverUrl: clearCoverUrl ? null : (coverUrl ?? current.coverUrl),
       visibility: visibility ?? current.visibility,
       position: current.position,
       shareToken: current.shareToken,
@@ -279,7 +274,6 @@ class MemoryWishlistRepository implements WishlistRepository {
       ownerId: current.ownerId,
       name: current.name,
       description: current.description,
-      coverUrl: current.coverUrl,
       visibility: current.visibility,
       position: position ?? current.position,
       shareToken: shareToken ?? current.shareToken,

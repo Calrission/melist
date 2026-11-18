@@ -26,7 +26,7 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
   method: HttpMethod.post,
   path: '/api/wishlists',
   summary: 'Create wishlist',
-  description: 'Name, visibility, optional cover link and existing wishes. (1)',
+  description: 'Name, visibility and existing wishes. (1)',
   tags: ['Wishlists'],
   requestBody: ApiRequestBody(
     required: true,
@@ -34,7 +34,6 @@ import 'package:melist_backend/src/wishlists/wishlist_handlers.dart';
     example: {
       'name': 'Birthday',
       'visibility': 'public',
-      'coverUrl': 'https://example.com/cover.png',
       'wishIds': [1, 2],
     },
   ),

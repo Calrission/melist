@@ -154,7 +154,6 @@ const wishlistSchema = <String, Object?>{
     'ownerId': {'type': 'integer'},
     'name': {'type': 'string'},
     'description': {'type': 'string'},
-    'coverUrl': {'type': 'string'},
     'visibility': {
       'type': 'string',
       'enum': ['public', 'draft', 'link'],
@@ -174,7 +173,6 @@ const wishlistInputSchema = <String, Object?>{
   'properties': {
     'name': {'type': 'string'},
     'description': {'type': 'string'},
-    'coverUrl': {'type': 'string'},
     'visibility': {
       'type': 'string',
       'enum': ['public', 'draft', 'link'],

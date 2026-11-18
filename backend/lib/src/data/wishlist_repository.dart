@@ -6,7 +6,7 @@ class WishlistRepository {
   const WishlistRepository(this._db);
 
   static const _columns = '''
-id, owner_id, name, description, cover_url,
+id, owner_id, name, description,
 visibility::text AS visibility,
 position, share_token, created_at, updated_at
 ''';
@@ -77,17 +77,15 @@ WHERE owner_id = @ownerId
     required WishlistVisibility visibility,
     required int position,
     String? description,
-    String? coverUrl,
   }) async {
     final row = await _db.querySingle(
       '''
 INSERT INTO wishlists (
-  owner_id, name, description, cover_url, visibility, position
+  owner_id, name, description, visibility, position
 ) VALUES (
   @ownerId,
   @name,
   @description,
-  @coverUrl,
   CAST(@visibility AS wishlist_visibility),
   @position
 )
@@ -97,7 +95,6 @@ RETURNING $_columns
         'ownerId': ownerId,
         'name': name,
         'description': description,
-        'coverUrl': coverUrl,
         'visibility': visibility.name,
         'position': position,
       },
@@ -112,8 +109,6 @@ RETURNING $_columns
     String? name,
     String? description,
     bool clearDescription = false,
-    String? coverUrl,
-    bool clearCoverUrl = false,
     WishlistVisibility? visibility,
   }) async {
     final sets = <String>['updated_at = now()'];
@@ -128,12 +123,6 @@ RETURNING $_columns
     } else if (description != null) {
       sets.add('description = @description');
       params['description'] = description;
-    }
-    if (clearCoverUrl) {
-      sets.add('cover_url = NULL');
-    } else if (coverUrl != null) {
-      sets.add('cover_url = @coverUrl');
-      params['coverUrl'] = coverUrl;
     }
     if (visibility != null) {
       sets.add('visibility = CAST(@visibility AS wishlist_visibility)');

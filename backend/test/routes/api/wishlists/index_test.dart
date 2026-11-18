@@ -78,7 +78,6 @@ void main() {
           body: {
             'name': 'Birthday',
             'visibility': 'public',
-            'coverUrl': ' https://img.example/cover.png ',
           },
         ).context,
       );
@@ -87,7 +86,7 @@ void main() {
       expect(response, isCreated);
       expect(body['name'], 'Birthday');
       expect(body['visibility'], 'public');
-      expect(body['coverUrl'], 'https://img.example/cover.png');
+      expect(body.containsKey('coverUrl'), isFalse);
       expect(body['ownerId'], 1);
     });
 

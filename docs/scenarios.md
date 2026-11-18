@@ -34,14 +34,14 @@
 - **Когда:** B делает `GET /api/users/{A}`, `GET /api/wishlists/{WL}`, `POST /api/subscriptions/wishlists` `{ "wishlistId": WL }`.
 - **Тогда:** профиль — `200`, `WL` нет в `wishlists`. Карточка — `403`. Подписка — `404` `{ "error": "Wishlist not found" }`.
 
-### 5. Создание вишлиста: имя, видимость, обложка (1.1, 1.2, 1.4)
+### 5. Создание вишлиста: имя и видимость (1.1, 1.2)
 
 - **Дано:** A авторизован.
 - **Когда:**
-  1. `POST /api/wishlists` `{ "name": "НГ", "visibility": "draft", "coverUrl": "https://example.com/c.png" }`
+  1. `POST /api/wishlists` `{ "name": "НГ", "visibility": "draft" }`
   2. `POST /api/wishlists` `{ "name": "НГ" }`
   3. `POST /api/wishlists` `{ "visibility": "draft" }`
-- **Тогда:** (1) `201`, `visibility = draft`, `coverUrl = "https://example.com/c.png"`. (2) `201`, `visibility = draft`, `coverUrl = null`. (3) `400` `{ "error": "name is required" }`.
+- **Тогда:** (1) `201`, `visibility = draft`. (2) `201`, `visibility = draft`. (3) `400` `{ "error": "name is required" }`.
 
 ### 6. Список своих вишлистов и карточка (2.1, 2.2)
 
@@ -51,9 +51,9 @@
 
 ### 7. Редактирование вишлиста (3)
 
-- **Дано:** у A вишлист `WL`: `name = "Старое"`, `visibility = draft`, обложки нет.
-- **Когда:** `PATCH /api/wishlists/{WL}` `{ "name": "Новое", "visibility": "public", "coverUrl": "https://example.com/c.png" }` от A. Затем `PATCH` `{ "coverUrl": null }`. `PATCH` с новым именем от B.
-- **Тогда:** от A — `200`, поля обновлены, `coverUrl` задан, после очистки `coverUrl = null`. От B — `403`. Пустое тело — `400` `{ "error": "No fields to update" }`.
+- **Дано:** у A вишлист `WL`: `name = "Старое"`, `visibility = draft`.
+- **Когда:** `PATCH /api/wishlists/{WL}` `{ "name": "Новое", "visibility": "public" }` от A. `PATCH` с новым именем от B.
+- **Тогда:** от A — `200`, имя и видимость обновлены. От B — `403`. Пустое тело — `400` `{ "error": "No fields to update" }`.
 
 ### 8. Привязка своего существующего желания (4.2)
 

@@ -7,7 +7,6 @@ class CreateWishlistBody {
   const CreateWishlistBody({
     required this.name,
     this.description,
-    this.coverUrl,
     this.visibility,
     this.wishIds = const [],
   });
@@ -16,7 +15,6 @@ class CreateWishlistBody {
     return CreateWishlistBody(
       name: requireString(json['name'], 'name'),
       description: optionalString(json['description']),
-      coverUrl: optionalString(json['coverUrl']),
       visibility: optionalEnum(
         WishlistVisibility.values,
         json['visibility'],
@@ -28,14 +26,12 @@ class CreateWishlistBody {
 
   final String name;
   final String? description;
-  final String? coverUrl;
   final WishlistVisibility? visibility;
   final List<int> wishIds;
 
   Map<String, Object?> toJson() => {
     'name': name,
     if (description != null) 'description': description,
-    if (coverUrl != null) 'coverUrl': coverUrl,
     if (visibility != null) 'visibility': visibility!.name,
     if (wishIds.isNotEmpty) 'wishIds': wishIds,
   };
@@ -43,12 +39,11 @@ class CreateWishlistBody {
 
 /// Body of `PATCH /api/wishlists/{id}`.
 ///
-/// [description] and [coverUrl] default to [jsonOmit]. Pass `null` to clear.
+/// [description] defaults to [jsonOmit]. Pass `null` to clear.
 class PatchWishlistBody {
   const PatchWishlistBody({
     this.name,
     this.description = jsonOmit,
-    this.coverUrl = jsonOmit,
     this.visibility,
   });
 
@@ -58,7 +53,6 @@ class PatchWishlistBody {
       description: json.containsKey('description')
           ? json['description']
           : jsonOmit,
-      coverUrl: json.containsKey('coverUrl') ? json['coverUrl'] : jsonOmit,
       visibility: optionalEnum(
         WishlistVisibility.values,
         json['visibility'],
@@ -69,14 +63,12 @@ class PatchWishlistBody {
 
   final String? name;
   final Object? description;
-  final Object? coverUrl;
   final WishlistVisibility? visibility;
 
   Map<String, Object?> toJson() {
     return {
       if (name != null) 'name': name,
       if (jsonIncluded(description)) 'description': description,
-      if (jsonIncluded(coverUrl)) 'coverUrl': coverUrl,
       if (visibility != null) 'visibility': visibility!.name,
     };
   }

@@ -281,7 +281,7 @@ void main() {
       expect((await jsonMap(sub))['error'], 'Wishlist not found');
     });
 
-    test('5. create wishlist name, visibility and cover', () async {
+    test('5. create wishlist name and visibility', () async {
       final first = await handleWishlistsCollection(
         app
             .context(
@@ -290,7 +290,6 @@ void main() {
               body: {
                 'name': 'НГ',
                 'visibility': 'draft',
-                'coverUrl': 'https://example.com/c.png',
               },
             )
             .context,
@@ -298,7 +297,7 @@ void main() {
       expect(first, isCreated);
       final firstBody = await jsonMap(first);
       expect(firstBody['visibility'], 'draft');
-      expect(firstBody['coverUrl'], 'https://example.com/c.png');
+      expect(firstBody.containsKey('coverUrl'), isFalse);
 
       final second = await jsonMap(
         await handleWishlistsCollection(
@@ -312,7 +311,6 @@ void main() {
         ),
       );
       expect(second['visibility'], 'draft');
-      expect(second['coverUrl'], isNull);
 
       final bad = await handleWishlistsCollection(
         app
@@ -404,7 +402,6 @@ void main() {
               body: {
                 'name': 'Новое',
                 'visibility': 'public',
-                'coverUrl': 'https://example.com/c.png',
               },
             )
             .context,
@@ -414,22 +411,6 @@ void main() {
       final body = await jsonMap(updated);
       expect(body['name'], 'Новое');
       expect(body['visibility'], 'public');
-      expect(body['coverUrl'], 'https://example.com/c.png');
-
-      final cleared = await handleWishlistById(
-        app
-            .context(
-              HttpMethod.patch,
-              '/api/wishlists/$wl',
-              body: {'coverUrl': null},
-            )
-            .context,
-        '$wl',
-      );
-      expect(cleared, isOk);
-      final clearedBody = await jsonMap(cleared);
-      expect(clearedBody['coverUrl'], isNull);
-      expect(clearedBody['name'], 'Новое');
 
       final forbidden = await handleWishlistById(
         app

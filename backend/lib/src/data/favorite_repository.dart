@@ -5,7 +5,7 @@ class FavoriteRepository {
   const FavoriteRepository(this._db);
 
   static const _wishlistColumns = '''
-w.id, w.owner_id, w.name, w.description, w.cover_url,
+w.id, w.owner_id, w.name, w.description,
 w.visibility::text AS visibility,
 w.position, w.share_token, w.created_at, w.updated_at,
 COALESCE(

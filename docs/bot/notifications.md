@@ -34,7 +34,7 @@ sequenceDiagram
 | `wishlist.published` | список создан как `public` или видимость сменилась на `public` | `actor_id`, `wishlist_id` | подписчики владельца (`user_subscriptions`) |
 | `wishlist.wishes_added` | в `public`-список добавлены желания: новые, свои существующие или скопированные (4.1–4.3), или `wishIds` при создании | `wishlist_id`, `payload.wishIds` | подписчики списка ∪ подписчики владельца |
 | `wishlist.wishes_removed` | желание убрано из `public`-списка или удалено целиком | `wishlist_id`, `payload.wishIds`, `payload.names` | подписчики списка |
-| `wishlist.updated` | у `public`-списка изменились название, описание или обложка | `wishlist_id`, `payload.fields` | подписчики списка |
+| `wishlist.updated` | у `public`-списка изменились название или описание | `wishlist_id`, `payload.fields` | подписчики списка |
 | `wish.updated` | изменились название, цена, ссылка или описание желания, которое стоит хотя бы в одном `public`-списке | `wish_id`, `payload.fields` | подписчики этих списков |
 | `wishlist.closed` | `public`-список удалён или стал `draft`/`link` | `wishlist_id`, `payload.name`, `payload.recipientIds` | подписчики списка на момент события |
 | `profile.updated` | изменились никнейм или дата рождения | `actor_id`, `payload.fields` | подписчики профиля |
