@@ -6,7 +6,7 @@
 
 ## Общие правила
 
-- Публичные роуты: `/`, `/health`, `/auth/*`, `/docs`, `/openapi.json`. Если рядом есть сборка Flutter Web (`frontend/build/web/index.html` или `frontend/.build/web/index.html`), `GET /` отдаёт Mini App, а не JSON; остальные пути из этого списка по-прежнему API.
+- Публичные роуты: `/`, `/health`, `/version`, `/auth/*`, `/docs`, `/openapi.json`. Если рядом есть сборка Flutter Web (`frontend/build/web/index.html` или `frontend/.build/web/index.html`), `GET /` отдаёт Mini App, а не JSON; остальные пути из этого списка по-прежнему API.
 - Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
 - Ошибки всегда в формате `{ "error": "<сообщение>" }`.
 - Тела `POST`/`PATCH` на клиенте — модели в `melist_core` (`CreateWishlistBody`, `PatchWishBody`, …). PATCH: нет ключа — поле не менять; `null` — сбросить (`jsonOmit` в конструкторе).
@@ -76,6 +76,18 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 ```
 
 Дальше: `Authorization: Bearer dev-admin` на `/api/**`. Пользователь с `DEBUG_USER_ID` создаётся на старте сервера. `404` — флаг выключен. На проде не включать.
+
+### `GET /version`
+
+Публичный. Версия из `backend/pubspec.yaml` (в Docker-образе файл лежит рядом с сервером; если его нет — запасная константа сборки).
+
+Ответ `200`:
+
+```json
+{ "version": "0.1.2" }
+```
+
+`405` — метод не GET.
 
 ## Профиль
 
@@ -249,4 +261,4 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
+Работают: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
