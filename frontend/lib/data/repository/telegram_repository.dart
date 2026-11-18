@@ -8,9 +8,14 @@ import 'package:melist_core/melist_core.dart';
 class RealTelegramRepository implements ITelegramRepository {
   final WebApp _webApp = WebApp();
   final _brightnessController = StreamController<Brightness>.broadcast();
+  var _initialized = false;
 
   @override
   Future<void> initialize() {
+    if (_initialized) {
+      return Future.value();
+    }
+    _initialized = true;
     _webApp.init();
     _webApp.eventHandler.themeChanged.listen((theme) {
       final (scheme, _) = theme;
