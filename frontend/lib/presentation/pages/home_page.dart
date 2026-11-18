@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:go_router/go_router.dart';
+import 'package:melist/data/repository/api_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/deep_link_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
@@ -27,6 +28,7 @@ class _BuildVersionLabel extends StatefulWidget {
 
 class _BuildVersionLabelState extends State<_BuildVersionLabel> {
   String? _version;
+  String? _backendVersion;
 
   @override
   void initState() {
@@ -35,24 +37,33 @@ class _BuildVersionLabelState extends State<_BuildVersionLabel> {
       if (!mounted) {
         return;
       }
-      final build = info.buildNumber;
-      setState(() {
-        _version = build.isEmpty ? info.version : '${info.version}+$build';
-      });
+      setState(() => _version = info.version);
     }, onError: (_) {});
+    context.postFrame(() {
+      context.read<ApiRepository>().getBackendVersion().then((version) {
+        if (!mounted) {
+          return;
+        }
+        setState(() => _backendVersion = version);
+      }, onError: (_) {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final version = _version;
-    if (version == null) {
+    final label = [
+      ?_version,
+      ?_backendVersion,
+    ].join(' | ');
+    if (label.isEmpty) {
       return const SizedBox.shrink();
     }
     return GestureDetector(
       onLongPress: () => openTalkerLog(context),
       child: Center(
         child: Text(
-          version,
+          label,
+          textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12, color: context.palette.subText),
         ),
       ),

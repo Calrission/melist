@@ -40,6 +40,9 @@ class ApiMultiProvider {
     ProxyProvider<_ApiGraph, AuthSession>(
       update: (_, graph, _) => graph.session,
     ),
+    ProxyProvider<_ApiGraph, ApiRepository>(
+      update: (_, graph, _) => graph.repository,
+    ),
     ProxyProvider<_ApiGraph, IAuthRepository>(
       update: (_, graph, _) => graph.repository,
     ),

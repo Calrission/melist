@@ -19,6 +19,15 @@ class ApiRepository
 
   ApiRepository({required this._dio});
 
+  Future<String> getBackendVersion() async {
+    final response = await _dio.get('/version');
+    final version = _asMap(response.data)['version'];
+    if (version is! String || version.isEmpty) {
+      throw const FormatException('Backend version is missing');
+    }
+    return version;
+  }
+
   @override
   Future<AuthSessionModel> login(AuthValidateBody body) {
     return _postSession('/auth/validate', data: body.toJson());

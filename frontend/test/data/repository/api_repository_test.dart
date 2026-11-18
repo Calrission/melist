@@ -18,6 +18,15 @@ void main() {
     auth = ApiRepository(dio: dio);
   });
 
+  test('backend version is read from GET /version', () async {
+    adapter.enqueue(_json(200, {'version': '0.1.2'}));
+
+    final version = await auth.getBackendVersion();
+
+    expect(version, '0.1.2');
+    expect(adapter.requests.single.path, '/version');
+  });
+
   test('login returns the access token from JSON', () async {
     adapter.enqueue(
       _json(200, {
