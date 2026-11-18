@@ -5,7 +5,7 @@ const openApiTitle = 'MELIST API';
 
 /// Used when `pubspec.yaml` is not on disk (AOT image).
 /// Keep equal to `version:` in `backend/pubspec.yaml`.
-const openApiFallbackVersion = '0.1.0';
+const openApiFallbackVersion = '0.1.2';
 
 /// Patches the generated OpenAPI spec so Swagger UI is usable.
 ///

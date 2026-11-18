@@ -105,8 +105,9 @@ void main() {
   });
 
   group('isBackendPath', () {
-    test('reserves API, auth, health, and Swagger', () {
+    test('reserves API, auth, health, version, and Swagger', () {
       expect(isBackendPath('/health'), isTrue);
+      expect(isBackendPath('/version'), isTrue);
       expect(isBackendPath('/api/me'), isTrue);
       expect(isBackendPath('/auth/validate'), isTrue);
       expect(isBackendPath('/docs'), isTrue);

@@ -24,6 +24,7 @@
 |---|---|
 | `GET /` | готово |
 | `GET /health` | готово |
+| `GET /version` | готово |
 | `POST /auth/validate` | готово (access JWT + HttpOnly refresh cookie) |
 | `POST /auth/refresh` | готово |
 | `POST /auth/logout` | готово |

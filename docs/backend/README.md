@@ -32,6 +32,7 @@ backend/
 │   ├── _middleware.dart        # логи, CORS, провайдеры per-request сервисов, Swagger UI
 │   ├── index.dart              # GET /
 │   ├── health.dart             # GET /health
+│   ├── version.dart            # GET /version
 │   ├── auth/
 │   │   ├── validate.dart       # POST /auth/validate  (initData -> JWT + refresh cookie)
 │   │   ├── refresh.dart        # POST /auth/refresh   (cookie -> новый access)
@@ -194,12 +195,12 @@ CLI Dart Frog ставится один раз: `dart pub global activate dart_f
 
 Пароля у пользователя нет. Клиент присылает сырую строку `WebApp.initData`, сервер проверяет HMAC-SHA256 токеном бота и выдаёт access JWT (`sub` = Telegram user id) плюс HttpOnly cookie `refresh_token`. Дальше все запросы к `/api/**` идут с заголовком `Authorization: Bearer <jwt>`. Когда access истечёт — `POST /auth/refresh` (cookie), без повторного `initData`. Детали и формат ответов — [api.md](api.md).
 
-Сборка Mini App (`frontend/build/web` или `frontend/.build/web`, или `WEB_ROOT`) раздаётся тем же процессом на порту API. Открывать её на `GET /`. `GET /` — приложение, пока в каталоге есть `index.html`; `/api`, `/auth`, `/health`, `/docs`, `/openapi.json` не перехватываются. `API_URL` на клиенте пустой. `flutter run` на другом порту — cross-origin: задайте `CORS_ORIGINS` (origin фронта) и `API_URL`. `COOKIE_SECURE=true` обязателен на HTTPS.
+Сборка Mini App (`frontend/build/web` или `frontend/.build/web`, или `WEB_ROOT`) раздаётся тем же процессом на порту API. Открывать её на `GET /`. `GET /` — приложение, пока в каталоге есть `index.html`; `/api`, `/auth`, `/health`, `/version`, `/docs`, `/openapi.json` не перехватываются. `API_URL` на клиенте пустой. `flutter run` на другом порту — cross-origin: задайте `CORS_ORIGINS` (origin фронта) и `API_URL`. `COOKIE_SECURE=true` обязателен на HTTPS.
 
 Для локальной разработки без Mini App: `DEBUG_AUTH=true` в `.env`. На старте создаётся пользователь `debug_admin` (`DEBUG_USER_ID`, по умолчанию `1`), а строка `DEBUG_TOKEN` (по умолчанию `dev-admin`) принимается как Bearer на `/api/**`. Это не JWT: `iat`/`exp` не меняются. Токен можно взять из `GET /auth/debug` или сразу вставить в Swagger Authorize. Если флаг выключен, магическая строка даёт `401`, эндпоинт — `404`. На проде флаг не включать.
 
 ## Состояние
 
-Реализовано: `/`, `/health`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
+Реализовано: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug` (локальный Bearer при `DEBUG_AUTH`), Bearer-middleware для `/api/**`, Swagger, класс `Database`, автоматические миграции, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`).
 
 Остальные `/api/**` — заглушки (`501`). Порядок доделок — [roadmap.md](roadmap.md).

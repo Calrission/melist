@@ -53,7 +53,8 @@ Directory frontendWebRoot({
 /// Serves [root] for paths that are not the API, and falls back to
 /// `index.html` for client-side routes (`/wishlists`, …).
 ///
-/// Reserved for [api]: `/api`, `/auth`, `/health`, `/docs`, `/openapi.json`.
+/// Reserved for [api]: `/api`, `/auth`, `/health`, `/version`, `/docs`,
+/// `/openapi.json`.
 /// Until `index.html` exists, every request goes to [api] (`GET /` stays the
 /// JSON welcome). A build that appears later is picked up without a restart.
 Handler withFrontend(Handler api, {required Directory root}) {
@@ -93,7 +94,9 @@ bool frontendBuildReady(Directory root) {
 /// API, auth, health, and Swagger stay on the Dart Frog router.
 bool isBackendPath(String path) {
   final normalized = _stripTrailingSlash(path);
-  if (normalized == '/health' || normalized == '/openapi.json') {
+  if (normalized == '/health' ||
+      normalized == '/version' ||
+      normalized == '/openapi.json') {
     return true;
   }
   for (final prefix in const ['/api', '/auth', '/docs']) {
