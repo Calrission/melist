@@ -103,10 +103,17 @@ class MemoryWishlistRepository implements WishlistRepository {
   }
 
   @override
-  Future<List<WishlistModel>> listPublicByOwner(int ownerId) async {
+  Future<List<WishlistModel>> listVisibleOnProfile({
+    required int ownerId,
+    required int viewerId,
+  }) async {
+    final favorited = (data.favorites[viewerId] ?? const <int>[]).toSet();
     return [
       for (final item in await listByOwner(ownerId))
-        if (item.visibility == WishlistVisibility.public) item,
+        if (item.visibility == WishlistVisibility.public ||
+            (item.visibility == WishlistVisibility.link &&
+                favorited.contains(item.id)))
+          item,
     ];
   }
 
@@ -435,11 +442,31 @@ class MemoryFavoriteRepository implements FavoriteRepository {
   Future<List<WishlistModel>> listWishlists(int userId) async {
     return [
       for (final id in _ids(userId))
-        if (data.wishlists[id] case final wishlist?)
+        if (data.wishlists[id] case final wishlist?
+            when wishlist.visibility != WishlistVisibility.draft)
           wishlist.copyWith(
             ownerNickname: data.users[wishlist.ownerId]?.displayName ?? '',
           ),
     ];
+  }
+
+  @override
+  Future<int> countVisibleByUser(int userId) async {
+    return (await listWishlists(userId)).length;
+  }
+
+  @override
+  Future<int> countVisibleFavorited({
+    required int userId,
+    required List<int> ids,
+  }) async {
+    if (ids.isEmpty) {
+      return 0;
+    }
+    final visible = (await listWishlists(
+      userId,
+    )).map((item) => item.id).toSet();
+    return ids.where(visible.contains).length;
   }
 
   @override
@@ -502,7 +529,11 @@ class MemoryFavoriteRepository implements FavoriteRepository {
     required int userId,
     required List<int> wishlistIds,
   }) async {
-    data.favorites[userId] = [...wishlistIds];
+    final hidden = [
+      for (final id in _ids(userId))
+        if (!wishlistIds.contains(id)) id,
+    ];
+    data.favorites[userId] = [...wishlistIds, ...hidden];
   }
 }
 

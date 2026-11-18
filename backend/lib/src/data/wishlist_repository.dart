@@ -31,15 +31,29 @@ ORDER BY position, id
     return [for (final row in rows) WishlistModel.fromRow(row)];
   }
 
-  Future<List<WishlistModel>> listPublicByOwner(int ownerId) async {
+  /// `public` lists for every viewer, plus `link` lists that [viewerId]
+  /// currently keeps in favorites. Drafts are never included.
+  Future<List<WishlistModel>> listVisibleOnProfile({
+    required int ownerId,
+    required int viewerId,
+  }) async {
     final rows = await _db.query(
       '''
 SELECT $_columns FROM wishlists
 WHERE owner_id = @ownerId
-  AND visibility = CAST('public' AS wishlist_visibility)
+  AND (
+    visibility = CAST('public' AS wishlist_visibility)
+    OR (
+      visibility = CAST('link' AS wishlist_visibility)
+      AND EXISTS (
+        SELECT 1 FROM favorites
+        WHERE user_id = @viewerId AND wishlist_id = wishlists.id
+      )
+    )
+  )
 ORDER BY position, id
 ''',
-      {'ownerId': ownerId},
+      {'ownerId': ownerId, 'viewerId': viewerId},
     );
     return [for (final row in rows) WishlistModel.fromRow(row)];
   }

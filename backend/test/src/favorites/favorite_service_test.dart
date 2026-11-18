@@ -117,6 +117,21 @@ void main() {
       );
     });
 
+    test('hides a favorite after the wishlist becomes a draft', () async {
+      final token = await shareList('Secret');
+      final added = await favorites.add(guest, token);
+      final kept = await favorites.add(guest, await shareList('Kept'));
+
+      await wishlists.update(owner, added.id, visibility: 'draft');
+
+      expect(
+        (await favorites.list(guest)).map((item) => item.name),
+        ['Kept'],
+      );
+      await favorites.reorder(guest, [kept.id]);
+      expect(data.favorites[guest.id], contains(added.id));
+    });
+
     test('rejects duplicates and partial orders', () async {
       final first = await favorites.add(guest, await shareList('A'));
       await favorites.add(guest, await shareList('B'));

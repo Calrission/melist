@@ -7,7 +7,9 @@ import 'package:melist_backend/src/profiles/profile_handlers.dart';
   method: HttpMethod.get,
   path: '/api/users/{id}',
   summary: 'Public profile of another user',
-  description: 'Profile data and public wishlists of the given user. (25)',
+  description:
+      'Profile and wishlists the viewer may see: every public list, '
+      'plus link-only lists they keep in favorites. Drafts are omitted. (25)',
   tags: ['Profile'],
   responses: [
     ApiResponse(

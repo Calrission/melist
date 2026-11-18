@@ -124,15 +124,39 @@ void main() {
       await wishlists.create(owner, name: 'Birthday', visibility: 'public');
       await wishlists.create(owner, name: 'Draft', visibility: 'draft');
 
-      final profile = await profiles.getPublic(owner.id);
+      final profile = await profiles.getPublic(owner.id, viewer: guest);
 
       expect(profile.user.username, 'ann');
       expect(profile.wishlists.map((item) => item.name), ['Birthday']);
+      expect(profile.wishlists.single.shareToken, isNotNull);
+    });
+
+    test('shows a link wishlist only to a viewer who favorited it', () async {
+      await wishlists.create(owner, name: 'Birthday', visibility: 'public');
+      final link = await wishlists.create(
+        owner,
+        name: 'Secret',
+        visibility: 'link',
+      );
+      await wishlists.create(owner, name: 'Draft', visibility: 'draft');
+      data.favorites[guest.id] = [link.id];
+
+      final forGuest = await profiles.getPublic(owner.id, viewer: guest);
+      final forStranger = await profiles.getPublic(
+        owner.id,
+        viewer: const AuthUser(id: 9, username: 'cara'),
+      );
+
+      expect(forGuest.wishlists.map((item) => item.name), [
+        'Birthday',
+        'Secret',
+      ]);
+      expect(forStranger.wishlists.map((item) => item.name), ['Birthday']);
     });
 
     test('returns 404 when the user does not exist', () async {
       await expectLater(
-        profiles.getPublic(guest.id),
+        profiles.getPublic(guest.id, viewer: owner),
         throwsA(isA<NotFoundException>()),
       );
     });

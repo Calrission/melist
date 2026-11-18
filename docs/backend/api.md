@@ -110,7 +110,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `GET /api/users/{id}` (25)
 
-Публичный профиль пользователя и его вишлисты с `visibility = public`. В каждом списке `items` — желания по `position`. `404`, если пользователя нет.
+Публичный профиль пользователя. В `wishlists` — все его вишлисты с `visibility = public` и вишлисты с `visibility = link`, которые текущий пользователь уже добавил в избранное. Черновики не отдаются. Публичный вишлист можно открыть с профиля: если `shareToken` ещё не было, он создаётся при этом запросе. В каждом списке `items` — желания по `position`. `404`, если пользователя нет.
 
 ## Вишлисты
 
@@ -184,7 +184,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Файлы: `backend/routes/api/favorites/`.
 
-- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. В `items` все желания. У каждого вишлиста `ownerNickname` — ник владельца, а если он не задан, имя и фамилия.
+- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. Черновик не входит в список, даже если строка избранного осталась. В `items` все желания. У каждого вишлиста `ownerNickname` — ник владельца, а если он не задан, имя и фамилия. `PATCH` перечисляет только видимые элементы, без черновиков.
 - `POST /api/favorites` (8.1) — `{ "shareToken": "…" }` → `201`. Свой вишлист — `400`, повтор — `409`.
 - `PATCH /api/favorites` (10) — `{ "order": [wishlistId, …] }` → `204`
 - `DELETE /api/favorites/{wishlistId}` (11) → `204`

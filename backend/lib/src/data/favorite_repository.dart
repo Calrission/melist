@@ -28,6 +28,7 @@ FROM favorites f
 JOIN wishlists w ON w.id = f.wishlist_id
 JOIN users owner ON owner.id = w.owner_id
 WHERE f.user_id = @userId
+  AND w.visibility <> CAST('draft' AS wishlist_visibility)
 ORDER BY f.position, w.id
 ''',
       {'userId': userId},
@@ -50,6 +51,39 @@ WHERE user_id = @userId
     return _db.scalar<int>(
       'SELECT count(*)::int FROM favorites WHERE user_id = @userId',
       {'userId': userId},
+    );
+  }
+
+  Future<int> countVisibleByUser(int userId) {
+    return _db.scalar<int>(
+      '''
+SELECT count(*)::int
+FROM favorites f
+JOIN wishlists w ON w.id = f.wishlist_id
+WHERE f.user_id = @userId
+  AND w.visibility <> CAST('draft' AS wishlist_visibility)
+''',
+      {'userId': userId},
+    );
+  }
+
+  Future<int> countVisibleFavorited({
+    required int userId,
+    required List<int> ids,
+  }) {
+    if (ids.isEmpty) {
+      return Future.value(0);
+    }
+    return _db.scalar<int>(
+      '''
+SELECT count(*)::int
+FROM favorites f
+JOIN wishlists w ON w.id = f.wishlist_id
+WHERE f.user_id = @userId
+  AND f.wishlist_id = ANY(@ids)
+  AND w.visibility <> CAST('draft' AS wishlist_visibility)
+''',
+      {'userId': userId, 'ids': ids},
     );
   }
 

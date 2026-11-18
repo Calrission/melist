@@ -88,8 +88,8 @@ class FavoriteService {
 
     return _transaction((tx) async {
       final favorites = _favorites(tx);
-      final total = await favorites.countByUser(user.id);
-      final matched = await favorites.countFavorited(
+      final total = await favorites.countVisibleByUser(user.id);
+      final matched = await favorites.countVisibleFavorited(
         userId: user.id,
         ids: unique,
       );

@@ -51,3 +51,4 @@ app.*.map.json
 ngrok.yml
 deploy-frontend.bat
 deploy-backend.bat
+/backups/

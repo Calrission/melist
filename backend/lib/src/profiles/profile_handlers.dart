@@ -30,11 +30,14 @@ Future<Response> handlePublicUser(RequestContext context, String id) async {
     return rejected;
   }
 
-  context.read<AuthUser>();
+  final viewer = context.read<AuthUser>();
   final profiles = context.read<ProfileService>();
 
   try {
-    final profile = await profiles.getPublic(parsePathId(id));
+    final profile = await profiles.getPublic(
+      parsePathId(id),
+      viewer: viewer,
+    );
     return Response.json(body: profile.toJson());
   } on AppException catch (error) {
     return appError(error);
@@ -47,13 +50,13 @@ Future<Response> handleProfileShare(RequestContext context, String id) async {
     return rejected;
   }
 
-  context.read<AuthUser>();
+  final viewer = context.read<AuthUser>();
   final profiles = context.read<ProfileService>();
   final config = context.read<AppConfig>();
 
   try {
     final userId = parsePathId(id);
-    await profiles.getPublic(userId);
+    await profiles.getPublic(userId, viewer: viewer);
     return Response.json(
       body: {
         'url': telegramProfileUrl(

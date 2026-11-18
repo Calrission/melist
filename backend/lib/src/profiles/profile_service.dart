@@ -4,6 +4,7 @@ import 'package:melist_backend/src/data/user_repository.dart';
 import 'package:melist_backend/src/data/wishlist_repository.dart';
 import 'package:melist_backend/src/http/app_exception.dart';
 import 'package:melist_backend/src/http/parse.dart';
+import 'package:melist_backend/src/wishlists/wishlist_share.dart';
 import 'package:melist_core/melist_core.dart';
 
 class ProfileService {
@@ -75,12 +76,20 @@ class ProfileService {
     return updated;
   }
 
-  Future<PublicProfileModel> getPublic(int id) async {
+  Future<PublicProfileModel> getPublic(
+    int id, {
+    required AuthUser viewer,
+  }) async {
     final user = await _repo.findById(id);
     if (user == null) {
       throw const NotFoundException('User not found');
     }
-    final lists = await _wishlists(_db).listPublicByOwner(id);
+    final lists = await _withProfileLinks(
+      await _wishlists(_db).listVisibleOnProfile(
+        ownerId: id,
+        viewerId: viewer.id,
+      ),
+    );
     if (lists.isEmpty) {
       return PublicProfileModel(user: user, wishlists: lists);
     }
@@ -94,6 +103,35 @@ class ProfileService {
           list.copyWith(items: itemsByList[list.id] ?? const []),
       ],
     );
+  }
+
+  /// A public wishlist on a profile has to be openable. The client follows
+  /// `shareToken`, so a list that was never shared gets one here.
+  Future<List<WishlistModel>> _withProfileLinks(
+    List<WishlistModel> lists,
+  ) async {
+    if (lists.isEmpty) {
+      return lists;
+    }
+    final repo = _wishlists(_db);
+    final opened = <WishlistModel>[];
+    for (final list in lists) {
+      final token = list.shareToken;
+      if (list.visibility != WishlistVisibility.public ||
+          (token != null && token.isNotEmpty)) {
+        opened.add(list);
+        continue;
+      }
+      final created = await repo.ensureShareToken(
+        id: list.id,
+        ownerId: list.ownerId,
+        nextToken: generateShareToken,
+      );
+      opened.add(
+        created == null ? list : list.copyWith(shareToken: created),
+      );
+    }
+    return opened;
   }
 
   UiTheme _theme(String raw) {

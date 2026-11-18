@@ -47,6 +47,27 @@ class _WishlistPageState extends State<WishlistPage> {
 
   Future<void> _share() async {
     final controller = context.read<WishlistController>();
+    final wishlist = controller.data;
+    if (wishlist != null &&
+        wishlist.id == widget.wishlistId &&
+        wishlist.visibility == WishlistVisibility.draft) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text("Ошибка"),
+          content: const Text(
+            "Нельзя поделиться вишлистом с видимостью «Черновик». Смените видимость и попробуйте снова.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text("Закрыть"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
     WishlistShareModel? shared;
     await context.guard(() async => shared = await controller.share());
     if (!mounted || shared == null) {

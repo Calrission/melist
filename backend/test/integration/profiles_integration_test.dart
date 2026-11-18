@@ -101,7 +101,7 @@ void main() {
         );
         await wishlists.create(owner, name: 'Draft', visibility: 'draft');
 
-        final public = await profiles.getPublic(42);
+        final public = await profiles.getPublic(42, viewer: owner);
         expect(public.user.id, 42);
         expect(public.wishlists.map((item) => item.name), ['Birthday']);
       });

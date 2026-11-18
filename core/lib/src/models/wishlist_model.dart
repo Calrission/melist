@@ -69,7 +69,11 @@ class WishlistModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  WishlistModel copyWith({List<WishModel>? items, String? ownerNickname}) {
+  WishlistModel copyWith({
+    List<WishModel>? items,
+    String? ownerNickname,
+    String? shareToken,
+  }) {
     return WishlistModel(
       id: id,
       ownerId: ownerId,
@@ -77,7 +81,7 @@ class WishlistModel {
       description: description,
       visibility: visibility,
       position: position,
-      shareToken: shareToken,
+      shareToken: shareToken ?? this.shareToken,
       ownerNickname: ownerNickname ?? this.ownerNickname,
       items: items ?? this.items,
       createdAt: createdAt,
