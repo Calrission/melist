@@ -418,9 +418,33 @@ WishService memoryWishServiceFromLists(MemoryWishlistData data) {
   return WishService(
     db: _UnusedExecutor(),
     transaction: <R>(action) => action(_UnusedExecutor()),
-    wishes: (_) => MemoryWishRepository(data.wishStore),
+    wishes: (_) => MemoryWishRepository(
+      data.wishStore,
+      wishlistsFor: (wishId) => _wishlistsContaining(data, wishId),
+    ),
     users: (_) => MemoryUserRepository(data),
   );
+}
+
+List<WishWishlistModel> _wishlistsContaining(
+  MemoryWishlistData data,
+  int wishId,
+) {
+  final matches =
+      data.wishlists.values
+          .where(
+            (wishlist) =>
+                (data.items[wishlist.id] ?? const <int>[]).contains(wishId),
+          )
+          .toList()
+        ..sort((a, b) {
+          final byPosition = a.position.compareTo(b.position);
+          return byPosition != 0 ? byPosition : a.id.compareTo(b.id);
+        });
+  return [
+    for (final wishlist in matches)
+      WishWishlistModel(id: wishlist.id, name: wishlist.name),
+  ];
 }
 
 ProfileService memoryProfileService(MemoryWishlistData data) {

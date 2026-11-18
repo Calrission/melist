@@ -212,7 +212,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ### `GET /api/wishes/{id}`
 
-Одно желание.
+Одно своё желание. В `wishlists` — вишлисты владельца, куда оно добавлено: `[{ "id", "name" }]`, по `position` вишлиста. Если таких нет, поля нет.
 
 ### `PATCH /api/wishes/{id}` (18, 20)
 

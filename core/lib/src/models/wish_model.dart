@@ -12,6 +12,7 @@ class WishModel {
     this.description,
     this.coverUrl,
     this.status = WishStatus.free,
+    this.wishlists = const [],
     this.copiedFrom,
     this.createdAt,
     this.updatedAt,
@@ -33,6 +34,7 @@ class WishModel {
       status: json['status'] == null
           ? WishStatus.free
           : WishStatus.fromName(json['status']),
+      wishlists: _wishlistsFrom(json['wishlists']),
       copiedFrom: optionalInt(json['copiedFrom'], 'copiedFrom'),
       createdAt: optionalDateTime(json['createdAt'], 'createdAt'),
       updatedAt: optionalDateTime(json['updatedAt'], 'updatedAt'),
@@ -65,6 +67,9 @@ class WishModel {
   final String? description;
   final String? coverUrl;
   final WishStatus status;
+
+  /// Owner's wishlists that contain this wish. Filled on `GET /api/wishes/{id}`.
+  final List<WishWishlistModel> wishlists;
   final int? copiedFrom;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -78,8 +83,62 @@ class WishModel {
     'description': description,
     'coverUrl': coverUrl,
     'status': status.name,
+    if (wishlists.isNotEmpty)
+      'wishlists': [for (final wishlist in wishlists) wishlist.toJson()],
     'copiedFrom': copiedFrom,
     'createdAt': isoOrNull(createdAt),
     'updatedAt': isoOrNull(updatedAt),
   };
+
+  WishModel withWishlists(List<WishWishlistModel> wishlists) {
+    return WishModel(
+      id: id,
+      ownerId: ownerId,
+      name: name,
+      price: price,
+      url: url,
+      description: description,
+      coverUrl: coverUrl,
+      status: status,
+      wishlists: wishlists,
+      copiedFrom: copiedFrom,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  static List<WishWishlistModel> _wishlistsFrom(Object? raw) {
+    if (raw is! List) {
+      return const [];
+    }
+    return [
+      for (final item in raw)
+        if (item is Map)
+          WishWishlistModel.fromJson(Map<String, dynamic>.from(item)),
+    ];
+  }
+}
+
+/// Wishlist that contains a wish, as returned on the wish card.
+class WishWishlistModel {
+  const WishWishlistModel({required this.id, required this.name});
+
+  factory WishWishlistModel.fromJson(Map<String, dynamic> json) {
+    return WishWishlistModel(
+      id: requireInt(json['id'], 'id'),
+      name: requireString(json['name'], 'name'),
+    );
+  }
+
+  factory WishWishlistModel.fromRow(Map<String, dynamic> row) {
+    return WishWishlistModel(
+      id: requireInt(row['id'], 'id'),
+      name: requireString(row['name'], 'name'),
+    );
+  }
+
+  final int id;
+  final String name;
+
+  Map<String, Object?> toJson() => {'id': id, 'name': name};
 }

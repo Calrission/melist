@@ -3,7 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
+import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
+import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
@@ -45,12 +47,29 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
       _loading = true;
       context.postFrame(_load);
     }
-    context.postFrame(() {
+    context.postFrame(() async {
       final profileController = context.read<ProfileController>();
       if (profileController.profile == null) {
-        profileController.loadProfile();
+        await profileController.loadProfile();
       }
+      if (!mounted) {
+        return;
+      }
+      await _loadOwnerWishlists();
     });
+  }
+
+  Future<void> _loadOwnerWishlists() async {
+    final profileId = context.read<ProfileController>().profile?.id;
+    final current = _wish;
+    if (profileId == null || current == null || current.ownerId != profileId) {
+      return;
+    }
+    final wishlists = context.read<WishlistListController>();
+    if (wishlists.state == ControllerState.loading) {
+      return;
+    }
+    await wishlists.refreshMyWishlist();
   }
 
   Future<void> _load() async {
@@ -68,6 +87,7 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
         _wish = wish;
         _loading = false;
       });
+      await _loadOwnerWishlists();
     } on Object catch (error) {
       if (!mounted) return;
       setState(() {
@@ -111,6 +131,16 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
   }
 
   Widget _buildDetails(BuildContext context, WishModel wish) {
+    final profileId = context.watch<ProfileController>().profile?.id;
+    final isOwner = profileId != null && wish.ownerId == profileId;
+    final wishlistNames =
+        (context.watch<WishlistListController>().data ??
+                const <WishlistModel>[])
+            .where(
+              (wishlist) => wishlist.items.any((item) => item.id == wish.id),
+            )
+            .map((wishlist) => wishlist.name)
+            .join(', ');
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
       child: Column(
@@ -168,7 +198,8 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
                 fontSize: 12,
               ),
             ),
-          _WishDetailField(label: "Статус", value: _statusLabel(wish.status)),
+          if (!isOwner)
+            _WishDetailField(label: "Статус", value: _statusLabel(wish.status)),
           _WishDetailField(
             label: "Цена",
             value: wish.price == null ? "—" : "${wish.price} ₽",
@@ -176,6 +207,7 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
           _WishDetailField(
             label: "Ссылка",
             value: wish.url ?? "—",
+            maxLines: 1,
             onCopy: wish.url == null || wish.url!.isEmpty
                 ? null
                 : () => context.guard(
@@ -184,6 +216,11 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
                     success: "Ссылка скопирована",
                   ),
           ),
+          if (isOwner)
+            _WishDetailField(
+              label: "Вишлисты",
+              value: wishlistNames.isEmpty ? "—" : wishlistNames,
+            ),
         ],
       ),
     );
@@ -194,11 +231,13 @@ class _WishDetailField extends StatelessWidget {
   const _WishDetailField({
     required this.label,
     required this.value,
+    this.maxLines,
     this.onCopy,
   });
 
   final String label;
   final String value;
+  final int? maxLines;
   final VoidCallback? onCopy;
 
   @override
@@ -227,16 +266,24 @@ class _WishDetailField extends StatelessWidget {
               Expanded(
                 child: Text(
                   value,
+                  maxLines: maxLines,
+                  overflow: maxLines == null ? null : TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 14, color: context.palette.text),
                 ),
               ),
-              if (onCopy != null)
+              if (onCopy != null) ...[
+                const SizedBox(width: 8),
                 IconButton(
                   tooltip: "Скопировать ссылку",
                   onPressed: onCopy,
                   icon: const Icon(Icons.copy, size: 16),
-                  visualDensity: VisualDensity.compact,
+                  style: IconButton.styleFrom(
+                    minimumSize: Size.zero,
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 ),
+              ],
             ],
           ),
         ),

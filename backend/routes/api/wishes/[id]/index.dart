@@ -7,7 +7,8 @@ import 'package:melist_backend/src/wishes/wish_handlers.dart';
   method: HttpMethod.get,
   path: '/api/wishes/{id}',
   summary: 'Wish details',
-  description: 'Single own wish.',
+  description:
+      'Single own wish. Includes wishlists that contain it, in their order.',
   tags: ['Wishes'],
   responses: [
     ApiResponse(

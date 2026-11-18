@@ -40,9 +40,10 @@ class MemoryWishUserRepository implements UserRepository {
 }
 
 class MemoryWishRepository implements WishRepository {
-  MemoryWishRepository(this.data);
+  MemoryWishRepository(this.data, {this.wishlistsFor});
 
   final MemoryWishData data;
+  final List<WishWishlistModel> Function(int wishId)? wishlistsFor;
 
   @override
   Future<List<WishModel>> listByOwner({
@@ -64,6 +65,11 @@ class MemoryWishRepository implements WishRepository {
     final start = offset.clamp(0, items.length);
     final end = (start + limit).clamp(0, items.length);
     return items.sublist(start, end);
+  }
+
+  @override
+  Future<List<WishWishlistModel>> listWishlistsFor(int wishId) async {
+    return wishlistsFor?.call(wishId) ?? const [];
   }
 
   @override

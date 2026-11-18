@@ -37,6 +37,21 @@ WHERE owner_id = @ownerId
     return [for (final row in rows) WishModel.fromRow(row)];
   }
 
+  /// Owner's wishlists that include [wishId], in wishlist order.
+  Future<List<WishWishlistModel>> listWishlistsFor(int wishId) async {
+    final rows = await _db.query(
+      '''
+SELECT wl.id, wl.name
+FROM wishlist_wishes ww
+JOIN wishlists wl ON wl.id = ww.wishlist_id
+WHERE ww.wish_id = @wishId
+ORDER BY wl.position, wl.id
+''',
+      {'wishId': wishId},
+    );
+    return [for (final row in rows) WishWishlistModel.fromRow(row)];
+  }
+
   Future<WishModel?> findById(int id) async {
     final row = await _db.querySingle(
       'SELECT $_columns FROM wishes WHERE id = @id',

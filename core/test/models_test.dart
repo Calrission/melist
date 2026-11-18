@@ -181,7 +181,26 @@ void main() {
       expect(wish.price, closeTo(19.90, 0.001));
       expect(wish.coverUrl, 'https://img/book.png');
       expect(wish.status, WishStatus.reserved);
+      expect(wish.wishlists, isEmpty);
       expect(wish.copiedFrom, 9);
+    });
+
+    test('fromJson keeps the wishlists that contain the wish', () {
+      final wish = WishModel.fromJson({
+        'id': 10,
+        'ownerId': 1,
+        'name': 'Headphones',
+        'wishlists': [
+          {'id': 3, 'name': 'Birthday'},
+          {'id': 4, 'name': 'New year'},
+        ],
+      });
+
+      expect(wish.wishlists.map((item) => item.name), ['Birthday', 'New year']);
+      expect(wish.toJson()['wishlists'], [
+        {'id': 3, 'name': 'Birthday'},
+        {'id': 4, 'name': 'New year'},
+      ]);
     });
   });
 

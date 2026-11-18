@@ -128,6 +128,16 @@ const wishSchema = <String, Object?>{
       'type': 'string',
       'enum': ['draft', 'free', 'reserved'],
     },
+    'wishlists': {
+      'type': 'array',
+      'items': {
+        'type': 'object',
+        'properties': {
+          'id': {'type': 'integer'},
+          'name': {'type': 'string'},
+        },
+      },
+    },
   },
 };
 

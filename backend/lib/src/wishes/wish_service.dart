@@ -58,8 +58,10 @@ class WishService {
     );
   }
 
-  Future<WishModel> getById(AuthUser user, int id) {
-    return _requireOwned(user.id, id);
+  Future<WishModel> getById(AuthUser user, int id) async {
+    final wish = await _requireOwned(user.id, id);
+    final wishlists = await _repo.listWishlistsFor(wish.id);
+    return wish.withWishlists(wishlists);
   }
 
   Future<WishModel> create(

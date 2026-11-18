@@ -170,6 +170,12 @@ void main() {
 
       final card = await service.getById(owner, list.id);
       expect(card.items.single.id, created.id);
+
+      final loaded = await memoryWishServiceFromLists(data).getById(
+        owner,
+        created.id,
+      );
+      expect(loaded.wishlists.map((item) => item.name), ['Birthday']);
     });
 
     test('attaches an own existing wish (4.2)', () async {
