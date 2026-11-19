@@ -1,6 +1,6 @@
 import 'model_codec.dart';
 
-/// Response of `POST /api/wishlists/{id}/share`.
+/// Response of `POST /api/v1/wishlists/{id}/share`.
 class WishlistShareModel {
   const WishlistShareModel({required this.shareToken, required this.url});
 

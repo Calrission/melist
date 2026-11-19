@@ -25,7 +25,7 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-        path: '/api/favorites',
+        path: '/api/v1/favorites',
         method: method,
         body: body == null ? null : jsonEncode(body),
         headers: body == null
@@ -42,7 +42,7 @@ void main() {
     favorites = memoryFavoriteService(data);
   });
 
-  group('/api/favorites', () {
+  group('/api/v1/favorites', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         handleFavoritesCollection,

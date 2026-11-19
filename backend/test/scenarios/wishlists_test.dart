@@ -21,12 +21,16 @@ void main() {
     test('1. new wishes attached to a new wishlist', () async {
       final w1 = await handleWishesCollection(
         app
-            .context(HttpMethod.post, '/api/wishes', body: {'name': 'Наушники'})
+            .context(
+              HttpMethod.post,
+              '/api/v1/wishes',
+              body: {'name': 'Наушники'},
+            )
             .context,
       );
       final w2 = await handleWishesCollection(
         app
-            .context(HttpMethod.post, '/api/wishes', body: {'name': 'Книга'})
+            .context(HttpMethod.post, '/api/v1/wishes', body: {'name': 'Книга'})
             .context,
       );
       expect(w1, isCreated);
@@ -40,7 +44,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'name': 'День рождения',
                 'visibility': 'public',
@@ -55,7 +59,7 @@ void main() {
       expect(wl['visibility'], 'public');
 
       final card = await handleWishlistById(
-        app.context(HttpMethod.get, '/api/wishlists/${wl['id']}').context,
+        app.context(HttpMethod.get, '/api/v1/wishlists/${wl['id']}').context,
         '${wl['id']}',
       );
       expect(card, isOk);
@@ -69,7 +73,7 @@ void main() {
     test('2. new wishes appended to an existing wishlist', () async {
       final seed = await handleWishesCollection(
         app
-            .context(HttpMethod.post, '/api/wishes', body: {'name': 'W1'})
+            .context(HttpMethod.post, '/api/v1/wishes', body: {'name': 'W1'})
             .context,
       );
       final w1 = idOf(await jsonMap(seed));
@@ -77,7 +81,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'name': 'List',
                 'visibility': 'public',
@@ -92,7 +96,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/$wl/wishes',
+              '/api/v1/wishlists/$wl/wishes',
               body: {
                 'wish': {'name': 'Камера'},
               },
@@ -104,7 +108,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/$wl/wishes',
+              '/api/v1/wishlists/$wl/wishes',
               body: {
                 'wish': {'name': 'Часы'},
               },
@@ -121,7 +125,7 @@ void main() {
 
       final card = await jsonMap(
         await handleWishlistById(
-          app.context(HttpMethod.get, '/api/wishlists/$wl').context,
+          app.context(HttpMethod.get, '/api/v1/wishlists/$wl').context,
           '$wl',
         ),
       );
@@ -138,7 +142,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -148,7 +152,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists/$wl/wishes',
+                '/api/v1/wishlists/$wl/wishes',
                 body: {
                   'wish': {'name': 'Наушники'},
                 },
@@ -158,7 +162,7 @@ void main() {
         );
         final share = await jsonMap(
           await handleWishlistShare(
-            app.context(HttpMethod.post, '/api/wishlists/$wl/share').context,
+            app.context(HttpMethod.post, '/api/v1/wishlists/$wl/share').context,
             '$wl',
           ),
         );
@@ -168,7 +172,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/users/${ScenarioHarness.a.id}',
+                '/api/v1/users/${ScenarioHarness.a.id}',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -185,7 +189,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/shared/$token',
+                '/api/v1/shared/$token',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -202,7 +206,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/wishlists/$wl',
+                '/api/v1/wishlists/$wl',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -217,7 +221,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'name': 'Draft', 'visibility': 'draft'},
             )
             .context,
@@ -227,7 +231,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/$wl/wishes',
+              '/api/v1/wishlists/$wl/wishes',
               body: {
                 'wish': {'name': 'Secret'},
               },
@@ -241,7 +245,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/users/${ScenarioHarness.a.id}',
+                '/api/v1/users/${ScenarioHarness.a.id}',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -259,7 +263,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/wishlists/$wl',
+              '/api/v1/wishlists/$wl',
               as: ScenarioHarness.b,
             )
             .context,
@@ -271,7 +275,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': wl},
             )
@@ -286,7 +290,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'name': 'НГ',
                 'visibility': 'draft',
@@ -304,7 +308,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'НГ'},
               )
               .context,
@@ -316,7 +320,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'visibility': 'draft'},
             )
             .context,
@@ -331,7 +335,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'WL1'},
               )
               .context,
@@ -341,7 +345,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'name': 'WL2'},
             )
             .context,
@@ -350,7 +354,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${first['id']}/wishes',
+              '/api/v1/wishlists/${first['id']}/wishes',
               body: {
                 'wish': {'name': 'Item'},
               },
@@ -360,7 +364,7 @@ void main() {
       );
 
       final listed = await handleWishlistsCollection(
-        app.context(HttpMethod.get, '/api/wishlists').context,
+        app.context(HttpMethod.get, '/api/v1/wishlists').context,
       );
       expect(listed, isOk);
       final lists = await jsonList(listed);
@@ -373,7 +377,7 @@ void main() {
       expect((lists.last as Map)['items'], isEmpty);
 
       final card = await handleWishlistById(
-        app.context(HttpMethod.get, '/api/wishlists/${first['id']}').context,
+        app.context(HttpMethod.get, '/api/v1/wishlists/${first['id']}').context,
         '${first['id']}',
       );
       expect(card, isOk);
@@ -386,7 +390,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Старое', 'visibility': 'draft'},
               )
               .context,
@@ -398,7 +402,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/$wl',
+              '/api/v1/wishlists/$wl',
               body: {
                 'name': 'Новое',
                 'visibility': 'public',
@@ -416,7 +420,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/$wl',
+              '/api/v1/wishlists/$wl',
               as: ScenarioHarness.b,
               body: {'name': 'Hack'},
             )
@@ -429,7 +433,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/$wl',
+              '/api/v1/wishlists/$wl',
               body: <String, Object?>{},
             )
             .context,
@@ -443,7 +447,11 @@ void main() {
       final wish = await jsonMap(
         await handleWishesCollection(
           app
-              .context(HttpMethod.post, '/api/wishes', body: {'name': 'Book'})
+              .context(
+                HttpMethod.post,
+                '/api/v1/wishes',
+                body: {'name': 'Book'},
+              )
               .context,
         ),
       );
@@ -452,7 +460,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'List'},
               )
               .context,
@@ -463,7 +471,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${list['id']}/wishes',
+              '/api/v1/wishlists/${list['id']}/wishes',
               body: {'wishId': wish['id']},
             )
             .context,
@@ -474,7 +482,9 @@ void main() {
 
       final card = await jsonMap(
         await handleWishlistById(
-          app.context(HttpMethod.get, '/api/wishlists/${list['id']}').context,
+          app
+              .context(HttpMethod.get, '/api/v1/wishlists/${list['id']}')
+              .context,
           '${list['id']}',
         ),
       );
@@ -485,7 +495,7 @@ void main() {
 
       final catalog = await jsonList(
         await handleWishesCollection(
-          app.context(HttpMethod.get, '/api/wishes').context,
+          app.context(HttpMethod.get, '/api/v1/wishes').context,
         ),
       );
       expect(catalog, hasLength(1));
@@ -496,7 +506,11 @@ void main() {
       final wish = await jsonMap(
         await handleWishesCollection(
           app
-              .context(HttpMethod.post, '/api/wishes', body: {'name': 'Book'})
+              .context(
+                HttpMethod.post,
+                '/api/v1/wishes',
+                body: {'name': 'Book'},
+              )
               .context,
         ),
       );
@@ -505,7 +519,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {
                   'name': 'List',
                   'wishIds': [wish['id']],
@@ -519,7 +533,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${list['id']}/wishes',
+              '/api/v1/wishlists/${list['id']}/wishes',
               body: {'wishId': wish['id']},
             )
             .context,
@@ -533,7 +547,7 @@ void main() {
       expect(
         await jsonList(
           await handleWishesCollection(
-            app.context(HttpMethod.get, '/api/wishes').context,
+            app.context(HttpMethod.get, '/api/v1/wishes').context,
           ),
         ),
         hasLength(1),
@@ -546,7 +560,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 as: ScenarioHarness.b,
                 body: {'name': 'B list', 'visibility': 'public'},
               )
@@ -558,7 +572,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists/${bList['id']}/wishes',
+                '/api/v1/wishlists/${bList['id']}/wishes',
                 as: ScenarioHarness.b,
                 body: {
                   'wish': {'name': 'Camera'},
@@ -573,7 +587,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'A list'},
               )
               .context,
@@ -584,7 +598,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${aList['id']}/wishes',
+              '/api/v1/wishlists/${aList['id']}/wishes',
               body: {'copyFromWishId': source['id']},
             )
             .context,
@@ -601,7 +615,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/wishes/${source['id']}',
+              '/api/v1/wishes/${source['id']}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -617,7 +631,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishes',
+                '/api/v1/wishes',
                 as: ScenarioHarness.b,
                 body: {'name': 'Secret'},
               )
@@ -629,7 +643,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'A list'},
               )
               .context,
@@ -640,7 +654,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${aList['id']}/wishes',
+              '/api/v1/wishlists/${aList['id']}/wishes',
               body: {'copyFromWishId': source['id']},
             )
             .context,
@@ -650,7 +664,7 @@ void main() {
       expect(
         await jsonList(
           await handleWishesCollection(
-            app.context(HttpMethod.get, '/api/wishes').context,
+            app.context(HttpMethod.get, '/api/v1/wishes').context,
           ),
         ),
         isEmpty,
@@ -667,7 +681,7 @@ void main() {
                 app
                     .context(
                       HttpMethod.post,
-                      '/api/wishlists',
+                      '/api/v1/wishlists',
                       body: {'name': name},
                     )
                     .context,
@@ -681,7 +695,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'order': [ids[2], ids[0], ids[1]],
               },
@@ -692,7 +706,7 @@ void main() {
 
       final listed = await jsonList(
         await handleWishlistsCollection(
-          app.context(HttpMethod.get, '/api/wishlists').context,
+          app.context(HttpMethod.get, '/api/v1/wishlists').context,
         ),
       );
       expect(listed.map((item) => (item as Map)['id']), [
@@ -705,7 +719,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'order': [ids[0], ids[1]],
               },
@@ -721,7 +735,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'List'},
               )
               .context,
@@ -737,7 +751,7 @@ void main() {
                 app
                     .context(
                       HttpMethod.post,
-                      '/api/wishlists/${list['id']}/wishes',
+                      '/api/v1/wishlists/${list['id']}/wishes',
                       body: {
                         'wish': {'name': name},
                       },
@@ -754,7 +768,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/${list['id']}/wishes',
+              '/api/v1/wishlists/${list['id']}/wishes',
               body: {
                 'order': [wishIds[2], wishIds[0], wishIds[1]],
               },
@@ -766,7 +780,9 @@ void main() {
 
       final card = await jsonMap(
         await handleWishlistById(
-          app.context(HttpMethod.get, '/api/wishlists/${list['id']}').context,
+          app
+              .context(HttpMethod.get, '/api/v1/wishlists/${list['id']}')
+              .context,
           '${list['id']}',
         ),
       );
@@ -779,7 +795,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/${list['id']}/wishes',
+              '/api/v1/wishlists/${list['id']}/wishes',
               body: {
                 'order': [wishIds[0]],
               },
@@ -794,7 +810,11 @@ void main() {
       final wish = await jsonMap(
         await handleWishesCollection(
           app
-              .context(HttpMethod.post, '/api/wishes', body: {'name': 'Book'})
+              .context(
+                HttpMethod.post,
+                '/api/v1/wishes',
+                body: {'name': 'Book'},
+              )
               .context,
         ),
       );
@@ -803,7 +823,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {
                   'name': 'List',
                   'wishIds': [wish['id']],
@@ -817,7 +837,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists/${list['id']}/wishes/${wish['id']}',
+              '/api/v1/wishlists/${list['id']}/wishes/${wish['id']}',
             )
             .context,
         '${list['id']}',
@@ -827,14 +847,16 @@ void main() {
 
       final card = await jsonMap(
         await handleWishlistById(
-          app.context(HttpMethod.get, '/api/wishlists/${list['id']}').context,
+          app
+              .context(HttpMethod.get, '/api/v1/wishlists/${list['id']}')
+              .context,
           '${list['id']}',
         ),
       );
       expect(card['items'], isEmpty);
 
       final stillThere = await handleWishById(
-        app.context(HttpMethod.get, '/api/wishes/${wish['id']}').context,
+        app.context(HttpMethod.get, '/api/v1/wishes/${wish['id']}').context,
         '${wish['id']}',
       );
       expect(stillThere, isOk);
@@ -843,7 +865,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists/${list['id']}/wishes/${wish['id']}',
+              '/api/v1/wishlists/${list['id']}/wishes/${wish['id']}',
             )
             .context,
         '${list['id']}',
@@ -857,7 +879,11 @@ void main() {
       final wish = await jsonMap(
         await handleWishesCollection(
           app
-              .context(HttpMethod.post, '/api/wishes', body: {'name': 'Book'})
+              .context(
+                HttpMethod.post,
+                '/api/v1/wishes',
+                body: {'name': 'Book'},
+              )
               .context,
         ),
       );
@@ -866,7 +892,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {
                   'name': 'List',
                   'wishIds': [wish['id']],
@@ -880,7 +906,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists/${list['id']}',
+              '/api/v1/wishlists/${list['id']}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -889,19 +915,21 @@ void main() {
       expect(stranger, isForbidden);
 
       final deleted = await handleWishlistById(
-        app.context(HttpMethod.delete, '/api/wishlists/${list['id']}').context,
+        app
+            .context(HttpMethod.delete, '/api/v1/wishlists/${list['id']}')
+            .context,
         '${list['id']}',
       );
       expect(deleted.statusCode, HttpStatus.noContent);
 
       final missing = await handleWishlistById(
-        app.context(HttpMethod.get, '/api/wishlists/${list['id']}').context,
+        app.context(HttpMethod.get, '/api/v1/wishlists/${list['id']}').context,
         '${list['id']}',
       );
       expect(missing, isNotFound);
 
       final catalog = await handleWishById(
-        app.context(HttpMethod.get, '/api/wishes/${wish['id']}').context,
+        app.context(HttpMethod.get, '/api/v1/wishes/${wish['id']}').context,
         '${wish['id']}',
       );
       expect(catalog, isOk);
@@ -917,7 +945,7 @@ void main() {
                 app
                     .context(
                       HttpMethod.post,
-                      '/api/wishlists',
+                      '/api/v1/wishlists',
                       body: {'name': name},
                     )
                     .context,
@@ -931,7 +959,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'ids': [ids[0], ids[1]],
               },
@@ -942,7 +970,7 @@ void main() {
 
       final listed = await jsonList(
         await handleWishlistsCollection(
-          app.context(HttpMethod.get, '/api/wishlists').context,
+          app.context(HttpMethod.get, '/api/v1/wishlists').context,
         ),
       );
       expect(listed.map((item) => (item as Map)['id']), [ids[2]]);
@@ -951,7 +979,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'ids': <int>[]},
             )
             .context,
@@ -962,7 +990,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {
                 'ids': [ids[2], 999],
               },

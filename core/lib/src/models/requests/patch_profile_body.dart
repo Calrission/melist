@@ -1,7 +1,7 @@
 import '../enums.dart';
 import '../model_codec.dart';
 
-/// Body of `PATCH /api/me`.
+/// Body of `PATCH /api/v1/me`.
 ///
 /// [birthday] and [nickname] default to [jsonOmit] (leave unchanged).
 /// Pass `null` to clear. An empty [nickname] also resets it to the default.

@@ -2,7 +2,7 @@ import 'package:melist/domain/interfaces/i_profile_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist_core/melist_core.dart';
 
-/// Another user's profile with public wishlists (`GET /api/users/{id}`).
+/// Another user's profile with public wishlists (`GET /api/v1/users/{id}`).
 class PublicProfileController extends BaseController<PublicProfileModel> {
   PublicProfileController({required this._repository});
 

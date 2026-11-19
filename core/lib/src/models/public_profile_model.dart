@@ -2,7 +2,7 @@ import 'model_codec.dart';
 import 'user_model.dart';
 import 'wishlist_model.dart';
 
-/// Response of `GET /api/users/{id}`.
+/// Response of `GET /api/v1/users/{id}`.
 class PublicProfileModel {
   const PublicProfileModel({required this.user, this.wishlists = const []});
 

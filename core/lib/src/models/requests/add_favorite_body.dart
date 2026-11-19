@@ -1,6 +1,6 @@
 import '../model_codec.dart';
 
-/// Body of `POST /api/favorites`.
+/// Body of `POST /api/v1/favorites`.
 class AddFavoriteBody {
   const AddFavoriteBody({required this.shareToken});
 

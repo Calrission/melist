@@ -1,8 +1,8 @@
 import '../enums.dart';
 import '../model_codec.dart';
 
-/// Fields of a new wish: `POST /api/wishes` and nested `wish` in
-/// `POST /api/wishlists/{id}/wishes`.
+/// Fields of a new wish: `POST /api/v1/wishes` and nested `wish` in
+/// `POST /api/v1/wishlists/{id}/wishes`.
 class CreateWishBody {
   const CreateWishBody({
     required this.name,
@@ -41,7 +41,7 @@ class CreateWishBody {
   };
 }
 
-/// Body of `PATCH /api/wishes/{id}`.
+/// Body of `PATCH /api/v1/wishes/{id}`.
 ///
 /// [price], [url], [description], [coverUrl] default to [jsonOmit].
 /// Pass `null` to clear them.

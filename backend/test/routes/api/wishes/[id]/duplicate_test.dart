@@ -20,7 +20,7 @@ void main() {
 
   TestRequestContext contextFor({AuthUser auth = user}) {
     return TestRequestContext(
-        path: '/api/wishes/1/duplicate',
+        path: '/api/v1/wishes/1/duplicate',
         method: HttpMethod.post,
       )
       ..provide<AuthUser>(auth)
@@ -32,13 +32,13 @@ void main() {
     service = memoryWishService(data);
   });
 
-  group('POST /api/wishes/{id}/duplicate', () {
+  group('POST /api/v1/wishes/{id}/duplicate', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleWishDuplicate(context, '1'),
         contextBuilder: (method) =>
             TestRequestContext(
-                path: '/api/wishes/1/duplicate',
+                path: '/api/v1/wishes/1/duplicate',
                 method: method,
               )
               ..provide<AuthUser>(user)

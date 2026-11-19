@@ -7,15 +7,15 @@
 ## Общие правила
 
 - Публичные роуты: `/`, `/health`, `/version`, `/auth/*`, `/docs`, `/openapi.json`. Если рядом есть сборка Flutter Web (`frontend/build/web/index.html` или `frontend/.build/web/index.html`), `GET /` отдаёт Mini App, а не JSON; остальные пути из этого списка по-прежнему API.
-- Всё под `/api/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
+- Всё под `/api/v1/**` требует `Authorization: Bearer <accessToken>`. Проверку делает `backend/routes/api/_middleware.dart`; в контекст кладётся `AuthUser` (`context.read<AuthUser>()`). При `DEBUG_AUTH=true` принимается и фиксированная строка из `DEBUG_TOKEN` (не JWT). В Swagger UI: **Authorize** → вставить токен без префикса `Bearer`.
 - Ошибки всегда в формате `{ "error": "<сообщение>" }`.
 - Тела `POST`/`PATCH` на клиенте — модели в `melist_core` (`CreateWishlistBody`, `PatchWishBody`, …). PATCH: нет ключа — поле не менять; `null` — сбросить (`jsonOmit` в конструкторе).
 - Коды: `200` ok, `201` создано, `204` удалено без тела, `400` невалидное тело, `401` нет/плохой токен, `403` чужой ресурс, `404` не найдено, `405` метод не поддерживается, `501` ещё не реализовано.
-- Массовые операции и сортировка выполняются методами на коллекции (`PATCH`/`DELETE /api/wishlists`), а не отдельными статическими путями рядом с `[id]` — в Dart Frog динамический сегмент может перехватить такой путь.
+- Массовые операции и сортировка выполняются методами на коллекции (`PATCH`/`DELETE /api/v1/wishlists`), а не отдельными статическими путями рядом с `[id]` — в Dart Frog динамический сегмент может перехватить такой путь.
 
 ## Аутентификация
 
-Access JWT — короткоживущий, только в JSON (`AuthSessionModel`). Refresh — opaque-токен в HttpOnly cookie `refresh_token` (`Secure` по флагу `COOKIE_SECURE`, `SameSite=Lax`, `Path=/auth`). В JSON refresh **нет**. `/api/**` по-прежнему только `Authorization: Bearer`.
+Access JWT — короткоживущий, только в JSON (`AuthSessionModel`). Refresh — opaque-токен в HttpOnly cookie `refresh_token` (`Secure` по флагу `COOKIE_SECURE`, `SameSite=Lax`, `Path=/auth`). В JSON refresh **нет**. `/api/v1/**` по-прежнему только `Authorization: Bearer`.
 
 ```mermaid
 sequenceDiagram
@@ -24,7 +24,7 @@ sequenceDiagram
   App->>Api: POST /auth/validate { initData }
   Api->>Api: HMAC-SHA256(initData, BOT_TOKEN), auth_date <= 24h
   Api-->>App: JSON accessToken plus Set-Cookie HttpOnly refresh
-  App->>Api: GET /api/me  Authorization: Bearer accessToken
+  App->>Api: GET /api/v1/me  Authorization: Bearer accessToken
   Note over App: F5 clears in-memory access
   App->>Api: POST /auth/refresh Cookie refresh_token
   Api-->>App: new accessToken plus rotated Set-Cookie
@@ -75,7 +75,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 }
 ```
 
-Дальше: `Authorization: Bearer dev-admin` на `/api/**`. Пользователь с `DEBUG_USER_ID` создаётся на старте сервера. `404` — флаг выключен. На проде не включать.
+Дальше: `Authorization: Bearer dev-admin` на `/api/v1/**`. Пользователь с `DEBUG_USER_ID` создаётся на старте сервера. `404` — флаг выключен. На проде не включать.
 
 ### `GET /version`
 
@@ -91,7 +91,7 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ## Профиль
 
-### `GET /api/me` (22)
+### `GET /api/v1/me` (22)
 
 Текущий пользователь: данные из Telegram + настройки. Если строки в `users` ещё нет, она создаётся из JWT.
 
@@ -100,27 +100,27 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
   "birthday": "1990-05-12", "theme": "dark" }
 ```
 
-### `PATCH /api/me` (23, 26)
+### `PATCH /api/v1/me` (23, 26)
 
-Тело: `{ "birthday"?: "YYYY-MM-DD" | null, "nickname"?: string | null, "theme"?: "light" | "dark" | "system" }`. `null` у `birthday` сбрасывает дату. `nickname` по умолчанию — `firstName` и, если фамилия не пустая, `lastName` через пробел. `null` или пустая строка возвращают этот вариант. Ответ — как `GET /api/me`.
+Тело: `{ "birthday"?: "YYYY-MM-DD" | null, "nickname"?: string | null, "theme"?: "light" | "dark" | "system" }`. `null` у `birthday` сбрасывает дату. `nickname` по умолчанию — `firstName` и, если фамилия не пустая, `lastName` через пробел. `null` или пустая строка возвращают этот вариант. Ответ — как `GET /api/v1/me`.
 
-### `GET /api/me/entitlements` (29)
+### `GET /api/v1/me/entitlements` (29)
 
 Доступ к дополнительным функциям: `{ "premiumUntil": "<iso>" | null, "sources": ["ad", "donation"] }`.
 
-### `GET /api/users/{id}` (25)
+### `GET /api/v1/users/{id}` (25)
 
 Публичный профиль пользователя. В `wishlists` — все его вишлисты с `visibility = public` и вишлисты с `visibility = link`, которые текущий пользователь уже добавил в избранное. Черновики не отдаются. Публичный вишлист можно открыть с профиля: если `shareToken` ещё не было, он создаётся при этом запросе. В каждом списке `items` — желания по `position`. `404`, если пользователя нет.
 
 ## Вишлисты
 
-Файлы: `backend/routes/api/wishlists/`.
+Файлы: `backend/routes/api/v1/wishlists/`.
 
-### `GET /api/wishlists` (2.1)
+### `GET /api/v1/wishlists` (2.1)
 
 Свои вишлисты, отсортированные по `position`. В каждом списке `items` — желания по `position`, как в карточке.
 
-### `POST /api/wishlists` (1)
+### `POST /api/v1/wishlists` (1)
 
 ```json
 { "name": "День рождения", "visibility": "public" | "draft" | "link", "wishIds": [1, 2] }
@@ -128,27 +128,27 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 `wishIds` — опционально (1.3). Ответ `201` с созданным вишлистом.
 
-### `PATCH /api/wishlists` (5.1)
+### `PATCH /api/v1/wishlists` (5.1)
 
 Сортировка: `{ "order": [3, 1, 2] }` — полный список id в новом порядке. `204`.
 
-### `DELETE /api/wishlists` (6.2)
+### `DELETE /api/v1/wishlists` (6.2)
 
 Массовое удаление: `{ "ids": [1, 2] }`. `204`.
 
-### `GET /api/wishlists/{id}` (2.2)
+### `GET /api/v1/wishlists/{id}` (2.2)
 
 Карточка вишлиста с желаниями (`items` по `position`).
 
-### `PATCH /api/wishlists/{id}` (3)
+### `PATCH /api/v1/wishlists/{id}` (3)
 
 `{ "name"?, "description"?, "visibility"?: "public" | "draft" | "link" }`. `description: null` или пустая строка снимает описание.
 
-### `DELETE /api/wishlists/{id}` (6.1)
+### `DELETE /api/v1/wishlists/{id}` (6.1)
 
 `204`.
 
-### `POST /api/wishlists/{id}/wishes` (4)
+### `POST /api/v1/wishlists/{id}/wishes` (4)
 
 Одно из трёх тел:
 
@@ -158,46 +158,46 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Ответ `201` — добавленное желание. Повторная привязка того же `wishId` — `409`.
 
-### `PATCH /api/wishlists/{id}/wishes` (5.2)
+### `PATCH /api/v1/wishlists/{id}/wishes` (5.2)
 
 Сортировка желаний внутри вишлиста: `{ "order": [wishId, …] }`. `204`.
 
-### `DELETE /api/wishlists/{id}/wishes/{wishId}`
+### `DELETE /api/v1/wishlists/{id}/wishes/{wishId}`
 
 Убрать желание из вишлиста (само желание не удаляется). `204`.
 
-### `POST /api/wishlists/{id}/share` (7.1)
+### `POST /api/v1/wishlists/{id}/share` (7.1)
 
 Создать или вернуть ссылку доступа: `{ "shareToken": "…", "url": "https://t.me/<bot>?startapp=wl_<token>" }`. Имя бота — `BOT_USERNAME`. Путь без short name открывает Main Mini App; `/<shortName>` открыл бы только именованное приложение.
 
 Пункт 7.2 («поделиться») — на клиенте через Telegram share.
 
-### `GET /api/users/{id}/share`
+### `GET /api/v1/users/{id}/share`
 
 Возвращает ссылку на публичный профиль в Telegram Mini App: `{ "url": "https://t.me/<bot>?startapp=profile_<id>" }`. Имя бота берётся из `BOT_USERNAME`.
 
-### `GET /api/shared/{token}` (7, 8.1)
+### `GET /api/v1/shared/{token}` (7, 8.1)
 
 Просмотр вишлиста по ссылке-приглашению для `public` и `link`. `draft` для не-владельца — `404`. Токен — значение `shareToken` или `wl_<shareToken>` из `startapp`. В `items` все желания списка.
 
 ## Избранное
 
-Файлы: `backend/routes/api/favorites/`.
+Файлы: `backend/routes/api/v1/favorites/`.
 
-- `GET /api/favorites` (9) — чужие вишлисты в избранном, по `position`. Черновик не входит в список, даже если строка избранного осталась. В `items` все желания. У каждого вишлиста `ownerNickname` — ник владельца, а если он не задан, имя и фамилия. `PATCH` перечисляет только видимые элементы, без черновиков.
-- `POST /api/favorites` (8.1) — `{ "shareToken": "…" }` → `201`. Свой вишлист — `400`, повтор — `409`.
-- `PATCH /api/favorites` (10) — `{ "order": [wishlistId, …] }` → `204`
-- `DELETE /api/favorites/{wishlistId}` (11) → `204`
+- `GET /api/v1/favorites` (9) — чужие вишлисты в избранном, по `position`. Черновик не входит в список, даже если строка избранного осталась. В `items` все желания. У каждого вишлиста `ownerNickname` — ник владельца, а если он не задан, имя и фамилия. `PATCH` перечисляет только видимые элементы, без черновиков.
+- `POST /api/v1/favorites` (8.1) — `{ "shareToken": "…" }` → `201`. Свой вишлист — `400`, повтор — `409`.
+- `PATCH /api/v1/favorites` (10) — `{ "order": [wishlistId, …] }` → `204`
+- `DELETE /api/v1/favorites/{wishlistId}` (11) → `204`
 
 ## Желания
 
-Файлы: `backend/routes/api/wishes/`.
+Файлы: `backend/routes/api/v1/wishes/`.
 
-### `GET /api/wishes` (16, 17)
+### `GET /api/v1/wishes` (16, 17)
 
 Свои желания, новые сверху. Query: `query` — поиск по названию (17.1, `ILIKE`); `mine=true` — только свои (17.2, значение по умолчанию; иное — `400`). Пагинация: `limit` (по умолчанию 50, максимум 100), `offset`. Ответ — массив.
 
-### `POST /api/wishes` (12)
+### `POST /api/v1/wishes` (12)
 
 ```json
 { "name": "Наушники", "price": 12000, "url": "https://…", "description": "…", "coverUrl": "https://…",
@@ -206,59 +206,59 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Обязательно только `name`. `201`.
 
-### `DELETE /api/wishes` (21.2)
+### `DELETE /api/v1/wishes` (21.2)
 
 `{ "ids": [1, 2] }` → `204`.
 
-### `GET /api/wishes/{id}`
+### `GET /api/v1/wishes/{id}`
 
 Одно своё желание. В `wishlists` — вишлисты владельца, куда оно добавлено: `[{ "id", "name" }]`, по `position` вишлиста. Если таких нет, поля нет.
 
-### `PATCH /api/wishes/{id}` (18, 20)
+### `PATCH /api/v1/wishes/{id}` (18, 20)
 
 Любые поля из `POST`, включая `status` (20).
 
-### `DELETE /api/wishes/{id}` (21.1)
+### `DELETE /api/v1/wishes/{id}` (21.1)
 
 `204`.
 
-### `POST /api/wishes/{id}/duplicate` (13)
+### `POST /api/v1/wishes/{id}/duplicate` (13)
 
 Копия своего желания. `201`.
 
 ## Подписки
 
-Файлы: `backend/routes/api/subscriptions/`. Свой вишлист или свой профиль — `400`. Чужой черновик вишлиста — `404`. Повтор — `409`. Список — новые сверху; в списке вишлистов только `public`.
+Файлы: `backend/routes/api/v1/subscriptions/`. Свой вишлист или свой профиль — `400`. Чужой черновик вишлиста — `404`. Повтор — `409`. Список — новые сверху; в списке вишлистов только `public`.
 
-- `GET /api/subscriptions/wishlists` (31) — публичные вишлисты, на которые подписан пользователь. В каждом списке `items` — желания по `position`.
-- `POST /api/subscriptions/wishlists` (30) — `{ "wishlistId": 1 }` → `201` с вишлистом и его `items`.
-- `DELETE /api/subscriptions/wishlists/{wishlistId}` (32) → `204`
-- `GET /api/subscriptions/users` (34) — профили, на которые подписан пользователь.
-- `POST /api/subscriptions/users` (33) — `{ "userId": 1 }` → `201` с пользователем.
-- `DELETE /api/subscriptions/users/{userId}` (35) → `204`
+- `GET /api/v1/subscriptions/wishlists` (31) — публичные вишлисты, на которые подписан пользователь. В каждом списке `items` — желания по `position`.
+- `POST /api/v1/subscriptions/wishlists` (30) — `{ "wishlistId": 1 }` → `201` с вишлистом и его `items`.
+- `DELETE /api/v1/subscriptions/wishlists/{wishlistId}` (32) → `204`
+- `GET /api/v1/subscriptions/users` (34) — профили, на которые подписан пользователь.
+- `POST /api/v1/subscriptions/users` (33) — `{ "userId": 1 }` → `201` с пользователем.
+- `DELETE /api/v1/subscriptions/users/{userId}` (35) → `204`
 
 ## Монетизация
 
-- `POST /api/ads/reward` (29.1) — подтверждение просмотра рекламы: `{ "provider": "adsgram", "payload": "…" }` → обновлённые entitlements. Показ рекламы (27.1) — SDK на клиенте.
-- `POST /api/donations` (28, 29.2) — создать инвойс Telegram Stars: `{ "amount": 100 }` → `{ "invoiceLink": "…" }`.
+- `POST /api/v1/ads/reward` (29.1) — подтверждение просмотра рекламы: `{ "provider": "adsgram", "payload": "…" }` → обновлённые entitlements. Показ рекламы (27.1) — SDK на клиенте.
+- `POST /api/v1/donations` (28, 29.2) — создать инвойс Telegram Stars: `{ "amount": 100 }` → `{ "invoiceLink": "…" }`.
 
 ## Соответствие функционал → эндпоинт
 
-- 1 → `POST /api/wishlists`
-- 2 → `GET /api/wishlists`, `GET /api/wishlists/{id}`
-- 3 → `PATCH /api/wishlists/{id}`
-- 4 → `POST /api/wishlists/{id}/wishes`
-- 5 → `PATCH /api/wishlists`, `PATCH /api/wishlists/{id}/wishes`
-- 6 → `DELETE /api/wishlists/{id}`, `DELETE /api/wishlists`
-- 7 → `POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`
-- 8–11 → `/api/favorites`
-- 12, 16–21 → `/api/wishes`
-- 13 → `POST /api/wishes/{id}/duplicate`
-- 22, 23, 26 → `/api/me`
-- 25 → `GET /api/users/{id}`
-- 27–29 → `POST /api/ads/reward`, `POST /api/donations`, `GET /api/me/entitlements`
-- 30–35 → `/api/subscriptions/*`
+- 1 → `POST /api/v1/wishlists`
+- 2 → `GET /api/v1/wishlists`, `GET /api/v1/wishlists/{id}`
+- 3 → `PATCH /api/v1/wishlists/{id}`
+- 4 → `POST /api/v1/wishlists/{id}/wishes`
+- 5 → `PATCH /api/v1/wishlists`, `PATCH /api/v1/wishlists/{id}/wishes`
+- 6 → `DELETE /api/v1/wishlists/{id}`, `DELETE /api/v1/wishlists`
+- 7 → `POST /api/v1/wishlists/{id}/share`, `GET /api/v1/shared/{token}`
+- 8–11 → `/api/v1/favorites`
+- 12, 16–21 → `/api/v1/wishes`
+- 13 → `POST /api/v1/wishes/{id}/duplicate`
+- 22, 23, 26 → `/api/v1/me`
+- 25 → `GET /api/v1/users/{id}`
+- 27–29 → `POST /api/v1/ads/reward`, `POST /api/v1/donations`, `GET /api/v1/me/entitlements`
+- 30–35 → `/api/v1/subscriptions/*`
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/wishlists`, `GET`/`PATCH`/`DELETE /api/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/wishes`, `GET`/`PATCH`/`DELETE /api/wishes/{id}`, `POST /api/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/wishlists/{id}/wishes`, `DELETE /api/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/wishlists/{id}/share`, `GET /api/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/favorites`, `DELETE /api/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/me`, `GET /api/users/{id}`), подписки (`GET`/`POST /api/subscriptions/wishlists`, `DELETE /api/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/subscriptions/users`, `DELETE /api/subscriptions/users/{userId}`). Остальные `/api/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
+Работают: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/v1/wishlists`, `GET`/`PATCH`/`DELETE /api/v1/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/v1/wishes`, `GET`/`PATCH`/`DELETE /api/v1/wishes/{id}`, `POST /api/v1/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/v1/wishlists/{id}/wishes`, `DELETE /api/v1/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/v1/wishlists/{id}/share`, `GET /api/v1/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/v1/favorites`, `DELETE /api/v1/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/v1/me`, `GET /api/v1/users/{id}`), подписки (`GET`/`POST /api/v1/subscriptions/wishlists`, `DELETE /api/v1/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/v1/subscriptions/users`, `DELETE /api/v1/subscriptions/users/{userId}`). Остальные `/api/v1/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).

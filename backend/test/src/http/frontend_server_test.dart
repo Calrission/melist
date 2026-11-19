@@ -108,7 +108,7 @@ void main() {
     test('reserves API, auth, health, version, and Swagger', () {
       expect(isBackendPath('/health'), isTrue);
       expect(isBackendPath('/version'), isTrue);
-      expect(isBackendPath('/api/me'), isTrue);
+      expect(isBackendPath('/api/v1/me'), isTrue);
       expect(isBackendPath('/auth/validate'), isTrue);
       expect(isBackendPath('/docs'), isTrue);
       expect(isBackendPath('/openapi.json'), isTrue);
@@ -171,7 +171,7 @@ void main() {
 
       for (final path in [
         '/health',
-        '/api/me',
+        '/api/v1/me',
         '/auth/validate',
         '/docs',
         '/openapi.json',

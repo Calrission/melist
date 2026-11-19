@@ -97,7 +97,7 @@ test('responds with 400 when initData is missing', () async {
 import 'package:dart_frog_test/dart_frog_test.dart';
 
 test('returns 501 for authenticated user', () async {
-  final context = TestRequestContext(path: '/api/wishlists')
+  final context = TestRequestContext(path: '/api/v1/wishlists')
     ..provide<AuthUser>(const AuthUser(id: 1));
 
   final response = await route.onRequest(context.context);
@@ -110,7 +110,7 @@ test('rejects unsupported methods', () async {
   await expectNotAllowedMethods(
     route.onRequest,
     contextBuilder: (method) => TestRequestContext(
-      path: '/api/wishlists',
+      path: '/api/v1/wishlists',
       method: method,
     ),
     allowedMethods: [HttpMethod.get, HttpMethod.post, HttpMethod.patch, HttpMethod.delete],
@@ -130,7 +130,7 @@ Middleware — функция `Handler middleware(Handler handler)`. Тести�
 test('rejects request without Bearer token', () async {
   final handler = middleware((_) => Response(body: 'ok'));
   final context = _MockRequestContext();
-  when(() => context.request).thenReturn(Request.get(Uri.parse('http://localhost/api/me')));
+  when(() => context.request).thenReturn(Request.get(Uri.parse('http://localhost/api/v1/me')));
 
   final response = await handler(context);
 
@@ -176,6 +176,6 @@ expect(pool.sqlTexts, contains('SELECT ...'));   // параметризован
 
 - `dart analyze` — без issues.
 - `dart test` — зелёный.
-- Для нового эндпоинта: тест на `405`, на успешный ответ, на `401` (если под `/api`), на `400` при невалидном теле.
+- Для нового эндпоинта: тест на `405`, на успешный ответ, на `401` (если под `/api/v1`), на `400` при невалидном теле.
 - Если менялись `@Route` — `dart run dart_frog_swagger` и проверка `/docs`.
 - Если добавлена миграция — `dart test test/integration` с `TEST_DATABASE_URL` и обновлённый `docs/backend/data-model.md`.

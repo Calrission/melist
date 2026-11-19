@@ -89,7 +89,7 @@ void main() {
     final url = await auth.getProfileShareUrl(42);
 
     expect(url, 'https://t.me/test_bot?startapp=profile_42');
-    expect(adapter.requests.single.path, '/api/users/42/share');
+    expect(adapter.requests.single.path, '/api/v1/users/42/share');
   });
 
   test('favorites, wishes and subscriptions hit their routes', () async {
@@ -141,25 +141,25 @@ void main() {
     expect(
       adapter.requests.map((request) => '${request.method} ${request.path}'),
       [
-        'POST /api/favorites',
-        'GET /api/favorites',
-        'PATCH /api/favorites',
-        'DELETE /api/favorites/1',
-        'POST /api/wishes',
-        'POST /api/wishes/10/duplicate',
-        'GET /api/wishes',
-        'GET /api/wishes/10',
-        'PATCH /api/wishes/10',
-        'DELETE /api/wishes',
-        'DELETE /api/wishes/10',
-        'POST /api/wishlists/4/wishes',
-        'PATCH /api/wishlists/4/wishes',
-        'POST /api/subscriptions/users',
-        'POST /api/subscriptions/wishlists',
-        'GET /api/subscriptions/users',
-        'GET /api/subscriptions/wishlists',
-        'DELETE /api/subscriptions/users/2',
-        'DELETE /api/subscriptions/wishlists/1',
+        'POST /api/v1/favorites',
+        'GET /api/v1/favorites',
+        'PATCH /api/v1/favorites',
+        'DELETE /api/v1/favorites/1',
+        'POST /api/v1/wishes',
+        'POST /api/v1/wishes/10/duplicate',
+        'GET /api/v1/wishes',
+        'GET /api/v1/wishes/10',
+        'PATCH /api/v1/wishes/10',
+        'DELETE /api/v1/wishes',
+        'DELETE /api/v1/wishes/10',
+        'POST /api/v1/wishlists/4/wishes',
+        'PATCH /api/v1/wishlists/4/wishes',
+        'POST /api/v1/subscriptions/users',
+        'POST /api/v1/subscriptions/wishlists',
+        'GET /api/v1/subscriptions/users',
+        'GET /api/v1/subscriptions/wishlists',
+        'DELETE /api/v1/subscriptions/users/2',
+        'DELETE /api/v1/subscriptions/wishlists/1',
       ],
     );
     expect(adapter.requests[6].queryParameters, {'mine': 'true'});

@@ -109,7 +109,7 @@ Map<String, dynamic> applyOpenApiPathParameters(Map<String, dynamic> spec) {
   return spec;
 }
 
-/// Adds Bearer auth so Swagger UI shows Authorize. Applied only to `/api/**`.
+/// Adds Bearer auth so Swagger UI shows Authorize. Applied only to `/api/v1/**`.
 Map<String, dynamic> applyOpenApiBearerAuth(Map<String, dynamic> spec) {
   final components = _asStringMap(spec['components']) ?? <String, dynamic>{};
   spec['components'] = components;
@@ -133,7 +133,7 @@ Map<String, dynamic> applyOpenApiBearerAuth(Map<String, dynamic> spec) {
   spec['paths'] = paths;
 
   for (final path in paths.keys.toList()) {
-    if (!path.startsWith('/api/')) {
+    if (!path.startsWith('/api/v1/')) {
       continue;
     }
     final rawOps = paths[path];

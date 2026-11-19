@@ -10,7 +10,7 @@ void main() {
           '/auth/debug': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'debug'},
           },
-          '/api/wishlists': <String, dynamic>{
+          '/api/v1/wishlists': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'list'},
             'parameters': <Map<String, Object>>[],
           },
@@ -38,7 +38,7 @@ void main() {
       );
 
       final wishlists =
-          (spec['paths'] as Map<String, dynamic>)['/api/wishlists']
+          (spec['paths'] as Map<String, dynamic>)['/api/v1/wishlists']
               as Map<String, dynamic>;
       expect(
         (wishlists['get'] as Map<String, dynamic>)['security'],
@@ -69,13 +69,13 @@ void main() {
     test('declares path params from the template', () {
       final spec = <String, dynamic>{
         'paths': <String, dynamic>{
-          '/api/wishlists/{id}/wishes/{wishId}': <String, dynamic>{
+          '/api/v1/wishlists/{id}/wishes/{wishId}': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'item'},
           },
-          '/api/shared/{token}': <String, dynamic>{
+          '/api/v1/shared/{token}': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'share'},
           },
-          '/api/wishlists': <String, dynamic>{
+          '/api/v1/wishlists': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'list'},
           },
         },
@@ -85,7 +85,7 @@ void main() {
       final paths = spec['paths'] as Map<String, dynamic>;
 
       expect(
-        (paths['/api/wishlists/{id}/wishes/{wishId}']
+        (paths['/api/v1/wishlists/{id}/wishes/{wishId}']
             as Map<String, dynamic>)['parameters'],
         equals([
           {
@@ -103,7 +103,7 @@ void main() {
         ]),
       );
       expect(
-        (paths['/api/shared/{token}'] as Map<String, dynamic>)['parameters'],
+        (paths['/api/v1/shared/{token}'] as Map<String, dynamic>)['parameters'],
         equals([
           {
             'name': 'token',
@@ -114,7 +114,7 @@ void main() {
         ]),
       );
       expect(
-        (paths['/api/wishlists'] as Map<String, dynamic>).containsKey(
+        (paths['/api/v1/wishlists'] as Map<String, dynamic>).containsKey(
           'parameters',
         ),
         isFalse,
@@ -124,7 +124,7 @@ void main() {
     test('does not duplicate an existing parameter', () {
       final spec = <String, dynamic>{
         'paths': <String, dynamic>{
-          '/api/users/{id}': <String, dynamic>{
+          '/api/v1/users/{id}': <String, dynamic>{
             'get': <String, dynamic>{'summary': 'user'},
             'parameters': [
               {
@@ -140,7 +140,7 @@ void main() {
 
       applyOpenApiPathParameters(spec);
       final item =
-          (spec['paths'] as Map<String, dynamic>)['/api/users/{id}']
+          (spec['paths'] as Map<String, dynamic>)['/api/v1/users/{id}']
               as Map<String, dynamic>;
       expect(item['parameters'] as List<Object?>, hasLength(1));
     });
@@ -149,7 +149,7 @@ void main() {
   test('applyOpenApiSpec adds both bearer and path params', () {
     final spec = <String, dynamic>{
       'paths': <String, dynamic>{
-        '/api/wishlists/{id}': <String, dynamic>{
+        '/api/v1/wishlists/{id}': <String, dynamic>{
           'get': <String, dynamic>{'summary': 'card'},
         },
       },
@@ -157,7 +157,7 @@ void main() {
 
     applyOpenApiSpec(spec);
     final item =
-        (spec['paths'] as Map<String, dynamic>)['/api/wishlists/{id}']
+        (spec['paths'] as Map<String, dynamic>)['/api/v1/wishlists/{id}']
             as Map<String, dynamic>;
 
     expect(item['parameters'], isNotEmpty);

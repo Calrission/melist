@@ -9,7 +9,7 @@ import 'package:melist_backend/src/openapi/auth_docs.dart';
   summary: 'Return the local debug Bearer token',
   description:
       'Available only when DEBUG_AUTH=true. Use the token as '
-      '`Authorization: Bearer <accessToken>` on `/api/**`.',
+      '`Authorization: Bearer <accessToken>` on `/api/v1/**`.',
   tags: ['Auth'],
   responses: debugAuthResponses,
 )

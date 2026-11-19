@@ -21,7 +21,7 @@ void main() {
 
   TestRequestContext contextFor(HttpMethod method) {
     return TestRequestContext(
-        path: '/api/subscriptions/wishlists/1',
+        path: '/api/v1/subscriptions/wishlists/1',
         method: method,
       )
       ..provide<AuthUser>(guest)
@@ -34,7 +34,7 @@ void main() {
     subscriptions = memorySubscriptionService(data);
   });
 
-  group('/api/subscriptions/wishlists/{wishlistId}', () {
+  group('/api/v1/subscriptions/wishlists/{wishlistId}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleWishlistUnsubscribe(context, '1'),

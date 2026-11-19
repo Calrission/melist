@@ -97,7 +97,7 @@
 
 | Задача | Статус |
 |---|---|
-| Backend: `GET`/`PATCH /api/me/notifications`, `PATCH /api/subscriptions/wishlists/{id}`, `PATCH /api/subscriptions/users/{id}`, `muted` в `GET /api/subscriptions/*`; `@Route`, тесты, `api.md`, `docs/backend/roadmap.md` | очередь |
+| Backend: `GET`/`PATCH /api/v1/me/notifications`, `PATCH /api/v1/subscriptions/wishlists/{id}`, `PATCH /api/v1/subscriptions/users/{id}`, `muted` в `GET /api/v1/subscriptions/*`; `@Route`, тесты, `api.md`, `docs/backend/roadmap.md` | очередь |
 | Frontend: `requestWriteAccess()` при первой подписке, если `allows_write_to_pm` не `true`; запоминать отказ | очередь |
 | Frontend: экран настроек уведомлений (вкл/выкл, статус бота, ссылка «Открыть чат с ботом», если `blocked`), переключатель mute в списках подписок | очередь |
 | Frontend: `startapp=list_<id>` — открыть публичный список (нужен backend-эндпоинт чтения чужого публичного списка по id) | очередь |

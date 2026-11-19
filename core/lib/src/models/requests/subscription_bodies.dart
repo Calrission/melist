@@ -1,6 +1,6 @@
 import '../model_codec.dart';
 
-/// Body of `POST /api/subscriptions/wishlists`.
+/// Body of `POST /api/v1/subscriptions/wishlists`.
 class SubscribeWishlistBody {
   const SubscribeWishlistBody({required this.wishlistId});
 
@@ -15,7 +15,7 @@ class SubscribeWishlistBody {
   Map<String, Object?> toJson() => {'wishlistId': wishlistId};
 }
 
-/// Body of `POST /api/subscriptions/users`.
+/// Body of `POST /api/v1/subscriptions/users`.
 class SubscribeUserBody {
   const SubscribeUserBody({required this.userId});
 

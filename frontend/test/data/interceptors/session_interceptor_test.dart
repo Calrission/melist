@@ -24,7 +24,7 @@ void main() {
     session.setAccessToken('access');
     adapter.enqueue(_json(200, {'ok': true}));
 
-    await dio.get('/api/me');
+    await dio.get('/api/v1/me');
 
     expect(adapter.requests.single.headers['Authorization'], 'Bearer access');
   });
@@ -58,16 +58,13 @@ void main() {
     );
     adapter.enqueue(_json(200, {'id': 1}));
 
-    final response = await dio.get('/api/me');
+    final response = await dio.get('/api/v1/me');
 
     expect(response.statusCode, 200);
     expect(session.accessToken, 'refreshed');
     expect(adapter.requests, hasLength(3));
     expect(adapter.requests[1].path, '/auth/refresh');
-    expect(
-      adapter.requests.last.headers['Authorization'],
-      'Bearer refreshed',
-    );
+    expect(adapter.requests.last.headers['Authorization'], 'Bearer refreshed');
   });
 
   test('does not refresh a 401 from /auth/refresh', () async {

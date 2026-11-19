@@ -28,12 +28,12 @@ Future<Response> onRequest(RequestContext context) async {
 
 - `routes/x/index.dart` → `/x`, `routes/x/[id].dart` → `/x/:id`, `routes/x/[id]/y.dart` → `/x/:id/y`.
 - Не создавайте `routes/x.dart` при существующем каталоге `routes/x/` («rogue route»).
-- Не ставьте статический файл рядом с динамическим (`routes/x/[id].dart` + `routes/x/reorder.dart`): динамический сегмент может перехватить путь. Массовые операции и сортировка — методами на коллекции (`PATCH /api/wishlists`), как в [api.md](api.md).
+- Не ставьте статический файл рядом с динамическим (`routes/x/[id].dart` + `routes/x/reorder.dart`): динамический сегмент может перехватить путь. Массовые операции и сортировка — методами на коллекции (`PATCH /api/v1/wishlists`), как в [api.md](api.md).
 - Один файл обслуживает все методы пути: ветвите по `context.request.method`, на остальные отвечайте `405`.
 
 ## 3. Middleware и DI
 
-- `routes/_middleware.dart` — глобально; `routes/api/_middleware.dart` — только для `/api/**`. Аутентификацию вешайте на подпапку, а не на корень, чтобы `/health` и `/auth/*` оставались открытыми.
+- `routes/_middleware.dart` — глобально; `routes/api/_middleware.dart` — только для `/api/v1/**`. Аутентификацию вешайте на подпапку, а не на корень, чтобы `/health` и `/auth/*` оставались открытыми.
 - Зависимости отдаются через `provider<T>` и читаются `context.read<T>()`. Провайдер ленивый: объект создаётся при первом `read`.
 - Порядок важен: Dart Frog резолвит снизу вверх. Если `B` зависит от `A`, то `handler.use(B()).use(A())` — `A` объявляется **после** (ниже) `B`. В `routes/_middleware.dart` `AppConfig` объявлен выше `InitDataValidator`/`JwtService`, потому что они читают конфиг внутри своего `create`-колбэка, а не в момент регистрации.
 - Тяжёлые ресурсы (пул БД, HTTP-клиенты) создавайте один раз и проверяйте на старте, а не на первом запросе. Место для этого — кастомная точка входа `main.dart` (`Future<HttpServer> run(Handler handler, InternetAddress ip, int port)`): там создаются `AppConfig` и `Database`, выполняется `await database.connect()`, и готовые экземпляры отдаются через `handler.use(provider<T>((_) => instance))` над всем роутером. Ленивые `provider` в `_middleware.dart` для таких зависимостей не используйте — иначе сервер стартует с неверным `DATABASE_URL` и падает только на первом запросе к БД.
@@ -55,7 +55,7 @@ Future<Response> onRequest(RequestContext context) async {
 ## 4. Аутентификация
 
 - Пароля нет: вход только через проверенный Telegram `initData` (HMAC токеном бота), затем access JWT в JSON и opaque refresh в HttpOnly cookie (`SameSite=Lax`, `Path=/auth`). Refresh в теле ответа не отдаётся. `initDataUnsafe` на сервере не используется.
-- Тихое обновление — `POST /auth/refresh` (cookie); выход — `POST /auth/logout`. Защищённые роуты — `dart_frog_auth` `bearerAuthentication<AuthUser>` в `routes/api/_middleware.dart` (только Bearer, cookie на `/api/**` не смотрим). При невалидном токене middleware сам отвечает `401`; в хендлере пользователь доступен как `context.read<AuthUser>()`.
+- Тихое обновление — `POST /auth/refresh` (cookie); выход — `POST /auth/logout`. Защищённые роуты — `dart_frog_auth` `bearerAuthentication<AuthUser>` в `routes/api/_middleware.dart` (только Bearer, cookie на `/api/v1/**` не смотрим). При невалидном токене middleware сам отвечает `401`; в хендлере пользователь доступен как `context.read<AuthUser>()`.
 - Никогда не доверяйте `userId` из тела запроса — только из `AuthUser`.
 - Проверку владения ресурсом (`owner_id == AuthUser.id`) делайте в сервисе и возвращайте `403`.
 

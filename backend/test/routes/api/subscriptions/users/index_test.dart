@@ -25,7 +25,7 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-        path: '/api/subscriptions/users',
+        path: '/api/v1/subscriptions/users',
         method: method,
         body: body == null ? null : jsonEncode(body),
         headers: body == null
@@ -42,7 +42,7 @@ void main() {
     subscriptions = memorySubscriptionService(data);
   });
 
-  group('/api/subscriptions/users', () {
+  group('/api/v1/subscriptions/users', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         handleUserSubscriptions,

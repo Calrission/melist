@@ -25,7 +25,7 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-        path: '/api/wishes/1',
+        path: '/api/v1/wishes/1',
         method: method,
         body: body == null ? null : jsonEncode(body),
         headers: body == null
@@ -41,7 +41,7 @@ void main() {
     service = memoryWishService(data);
   });
 
-  group('/api/wishes/{id}', () {
+  group('/api/v1/wishes/{id}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleWishById(context, '1'),

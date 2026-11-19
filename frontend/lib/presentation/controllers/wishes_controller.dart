@@ -4,7 +4,7 @@ import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist_core/melist_core.dart';
 
-/// The user's wish catalog (`GET /api/wishes`).
+/// The user's wish catalog (`GET /api/v1/wishes`).
 class WishesController extends BaseController<List<WishModel>> {
   WishesController({
     required this._repository,

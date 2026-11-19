@@ -181,16 +181,16 @@ CREATE INDEX IF NOT EXISTS notifications_due_idx
 
 | Эндпоинт | Описание |
 |---|---|
-| `GET /api/me/notifications` | `{ "enabled": true, "botStatus": "active" \| "blocked" \| "unknown" }` |
-| `PATCH /api/me/notifications` | `{ "enabled": false }` |
-| `PATCH /api/subscriptions/wishlists/{wishlistId}` | `{ "muted": true }` |
-| `PATCH /api/subscriptions/users/{userId}` | `{ "muted": true }` |
+| `GET /api/v1/me/notifications` | `{ "enabled": true, "botStatus": "active" \| "blocked" \| "unknown" }` |
+| `PATCH /api/v1/me/notifications` | `{ "enabled": false }` |
+| `PATCH /api/v1/subscriptions/wishlists/{wishlistId}` | `{ "muted": true }` |
+| `PATCH /api/v1/subscriptions/users/{userId}` | `{ "muted": true }` |
 
-`GET /api/subscriptions/*` дополнительно возвращают `muted`. Контракты добавляются в [api.md](../backend/api.md) по правилам backend.
+`GET /api/v1/subscriptions/*` дополнительно возвращают `muted`. Контракты добавляются в [api.md](../backend/api.md) по правилам backend.
 
 ## Вне первой версии
 
 - Режим дайджеста (раз в день) поверх тех же `notifications`: `notification_settings.mode`, `deliver_after` на ближайшее окно.
 - Напоминание о дне рождения подписки за N дней (cron в боте, без outbox).
-- Лента уведомлений в Mini App (`GET /api/me/notifications/feed`).
+- Лента уведомлений в Mini App (`GET /api/v1/me/notifications/feed`).
 - Тихие часы по часовому поясу пользователя.

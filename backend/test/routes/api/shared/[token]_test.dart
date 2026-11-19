@@ -24,7 +24,7 @@ void main() {
     String token = 'abc',
   }) {
     return TestRequestContext(
-        path: '/api/shared/$token',
+        path: '/api/v1/shared/$token',
         method: method,
       )
       ..provide<AuthUser>(auth)
@@ -36,7 +36,7 @@ void main() {
     service = memoryWishlistService(data);
   });
 
-  group('/api/shared/{token}', () {
+  group('/api/v1/shared/{token}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleSharedWishlist(context, 'abc'),

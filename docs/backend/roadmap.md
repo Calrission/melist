@@ -29,7 +29,7 @@
 | `POST /auth/refresh` | готово |
 | `POST /auth/logout` | готово |
 | `GET /auth/debug` | готово (только `DEBUG_AUTH`) |
-| Bearer `/api/**` | готово |
+| Bearer `/api/v1/**` | готово |
 
 ### 2. Вишлисты: карточка и список (1–3, 6) — готово
 
@@ -37,12 +37,12 @@
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/wishlists` | 1 | готово |
-| `GET /api/wishlists` | 2.1 | готово |
-| `GET /api/wishlists/{id}` | 2.2 | готово |
-| `PATCH /api/wishlists/{id}` | 3 | готово |
-| `DELETE /api/wishlists/{id}` | 6.1 | готово |
-| `DELETE /api/wishlists` | 6.2 | готово |
+| `POST /api/v1/wishlists` | 1 | готово |
+| `GET /api/v1/wishlists` | 2.1 | готово |
+| `GET /api/v1/wishlists/{id}` | 2.2 | готово |
+| `PATCH /api/v1/wishlists/{id}` | 3 | готово |
+| `DELETE /api/v1/wishlists/{id}` | 6.1 | готово |
+| `DELETE /api/v1/wishlists` | 6.2 | готово |
 
 ### 3. Желания: каталог (12, 13, 16–21) — готово
 
@@ -50,13 +50,13 @@
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/wishes` | 12 | готово |
-| `GET /api/wishes` | 16, 17 | готово |
-| `GET /api/wishes/{id}` | — | готово |
-| `PATCH /api/wishes/{id}` | 18, 20 | готово |
-| `DELETE /api/wishes/{id}` | 21.1 | готово |
-| `DELETE /api/wishes` | 21.2 | готово |
-| `POST /api/wishes/{id}/duplicate` | 13 | готово |
+| `POST /api/v1/wishes` | 12 | готово |
+| `GET /api/v1/wishes` | 16, 17 | готово |
+| `GET /api/v1/wishes/{id}` | — | готово |
+| `PATCH /api/v1/wishes/{id}` | 18, 20 | готово |
+| `DELETE /api/v1/wishes/{id}` | 21.1 | готово |
+| `DELETE /api/v1/wishes` | 21.2 | готово |
+| `POST /api/v1/wishes/{id}/duplicate` | 13 | готово |
 
 ### 4. Желания внутри вишлиста (4, 5.2) — готово
 
@@ -64,9 +64,9 @@
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/wishlists/{id}/wishes` | 4.1, 4.2, 4.3 | готово |
-| `PATCH /api/wishlists/{id}/wishes` | 5.2 | готово |
-| `DELETE /api/wishlists/{id}/wishes/{wishId}` | убрать из списка, желание остаётся | готово |
+| `POST /api/v1/wishlists/{id}/wishes` | 4.1, 4.2, 4.3 | готово |
+| `PATCH /api/v1/wishlists/{id}/wishes` | 5.2 | готово |
+| `DELETE /api/v1/wishlists/{id}/wishes/{wishId}` | убрать из списка, желание остаётся | готово |
 
 ### 5. Сортировка вишлистов (5.1) — готово
 
@@ -74,16 +74,16 @@
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `PATCH /api/wishlists` | 5.1 | готово |
+| `PATCH /api/v1/wishlists` | 5.1 | готово |
 
 ### 6. Шеринг (7) — готово
 
-7.2 — кнопка шаринга в Mini App, сервер только выдаёт токен. `GET /api/shared/{token}` нужен избранному.
+7.2 — кнопка шаринга в Mini App, сервер только выдаёт токен. `GET /api/v1/shared/{token}` нужен избранному.
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/wishlists/{id}/share` | 7.1 | готово |
-| `GET /api/shared/{token}` | 7, 8.1 | готово |
+| `POST /api/v1/wishlists/{id}/share` | 7.1 | готово |
+| `GET /api/v1/shared/{token}` | 7, 8.1 | готово |
 | Поделиться в Telegram | 7.2 | клиент |
 
 ### 7. Избранное (8–11) — готово
@@ -92,21 +92,21 @@
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/favorites` | 8.1 | готово |
-| `GET /api/favorites` | 9 | готово |
-| `PATCH /api/favorites` | 10 | готово |
-| `DELETE /api/favorites/{wishlistId}` | 11 | готово |
+| `POST /api/v1/favorites` | 8.1 | готово |
+| `GET /api/v1/favorites` | 9 | готово |
+| `PATCH /api/v1/favorites` | 10 | готово |
+| `DELETE /api/v1/favorites/{wishlistId}` | 11 | готово |
 
 ### 8. Профиль (22, 23, 26) — готово
 
-Upsert пользователя при `POST /auth/validate` пишет строку `users` (включая `avatar_url`). `GET /api/me` тоже создаёт запись из JWT, если её ещё нет.
+Upsert пользователя при `POST /auth/validate` пишет строку `users` (включая `avatar_url`). `GET /api/v1/me` тоже создаёт запись из JWT, если её ещё нет.
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `GET /api/me` | 22, 26 | готово |
-| `PATCH /api/me` | 23, 26 | готово |
+| `GET /api/v1/me` | 22, 26 | готово |
+| `PATCH /api/v1/me` | 23, 26 | готово |
 
-`GET /api/me/entitlements` (29) — монетизация, не здесь.
+`GET /api/v1/me/entitlements` (29) — монетизация, не здесь.
 
 ### 9. Чужой профиль (25) — готово
 
@@ -114,7 +114,7 @@ Upsert пользователя при `POST /auth/validate` пишет стро
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `GET /api/users/{id}` | 25 | готово |
+| `GET /api/v1/users/{id}` | 25 | готово |
 
 ### 10. Подписки (30–35) — готово
 
@@ -122,21 +122,21 @@ Upsert пользователя при `POST /auth/validate` пишет стро
 
 | Эндпоинт | Функции | Статус |
 |---|---|---|
-| `POST /api/subscriptions/wishlists` | 30 | готово |
-| `GET /api/subscriptions/wishlists` | 31 | готово |
-| `DELETE /api/subscriptions/wishlists/{wishlistId}` | 32 | готово |
-| `POST /api/subscriptions/users` | 33 | готово |
-| `GET /api/subscriptions/users` | 34 | готово |
-| `DELETE /api/subscriptions/users/{userId}` | 35 | готово |
+| `POST /api/v1/subscriptions/wishlists` | 30 | готово |
+| `GET /api/v1/subscriptions/wishlists` | 31 | готово |
+| `DELETE /api/v1/subscriptions/wishlists/{wishlistId}` | 32 | готово |
+| `POST /api/v1/subscriptions/users` | 33 | готово |
+| `GET /api/v1/subscriptions/users` | 34 | готово |
+| `DELETE /api/v1/subscriptions/users/{userId}` | 35 | готово |
 
 ### 11. Уведомления о подписках — очередь
 
-Ведётся в [docs/bot/roadmap.md](../bot/roadmap.md): вынос доменного слоя в `melist_domain` (фаза 1), outbox-события в сервисах (фаза 4), эндпоинты настроек `GET`/`PATCH /api/me/notifications` и `PATCH /api/subscriptions/*` (фаза 6). Закрывая эти задачи, отмечай их там.
+Ведётся в [docs/bot/roadmap.md](../bot/roadmap.md): вынос доменного слоя в `melist_domain` (фаза 1), outbox-события в сервисах (фаза 4), эндпоинты настроек `GET`/`PATCH /api/v1/me/notifications` и `PATCH /api/v1/subscriptions/*` (фаза 6). Закрывая эти задачи, отмечай их там.
 
 ## Вне скоупа (монетизация)
 
 Не планировать, пока продукт явно не вернётся к 27–29:
 
-- `POST /api/ads/reward`
-- `POST /api/donations`
-- `GET /api/me/entitlements`
+- `POST /api/v1/ads/reward`
+- `POST /api/v1/donations`
+- `GET /api/v1/me/entitlements`

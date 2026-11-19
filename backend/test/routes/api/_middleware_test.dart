@@ -26,7 +26,7 @@ void main() {
   RequestContext contextWith({String? authorization}) {
     final context = _MockRequestContext();
     final request = Request.get(
-      Uri.parse('http://localhost/api/me'),
+      Uri.parse('http://localhost/api/v1/me'),
       headers: {
         if (authorization != null)
           HttpHeaders.authorizationHeader: authorization,

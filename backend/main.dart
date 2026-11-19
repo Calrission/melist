@@ -17,7 +17,7 @@ import 'package:melist_backend/melist_backend.dart';
 /// The resulting singletons are injected with `provider` above the whole
 /// router, so `routes/**` read them via `context.read<T>()`.
 /// When `DEBUG_AUTH=true`, the debug user is upserted and a fixed Bearer
-/// string is accepted under `/api/**`.
+/// string is accepted under `/api/v1/**`.
 Future<HttpServer> run(Handler handler, InternetAddress ip, int port) async {
   final config = AppConfig.load();
   final debugAuth = DebugAuth.fromConfig(config);

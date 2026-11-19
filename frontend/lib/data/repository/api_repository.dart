@@ -76,19 +76,19 @@ class ApiRepository
 
   @override
   Future<UserModel> getMyProfile() async {
-    final response = await _dio.get('/api/me');
+    final response = await _dio.get('/api/v1/me');
     return UserModel.fromJson(response.data);
   }
 
   @override
   Future<PublicProfileModel> getPublicProfile(int profileId) async {
-    final response = await _dio.get('/api/users/$profileId');
+    final response = await _dio.get('/api/v1/users/$profileId');
     return PublicProfileModel.fromJson(response.data);
   }
 
   @override
   Future<String> getProfileShareUrl(int profileId) async {
-    final response = await _dio.get('/api/users/$profileId/share');
+    final response = await _dio.get('/api/v1/users/$profileId/share');
     final data = _asMap(response.data);
     final url = data['url'];
     if (url is! String || url.isEmpty) {
@@ -99,35 +99,35 @@ class ApiRepository
 
   @override
   Future<UserModel> patchMyProfile(PatchProfileBody body) async {
-    final response = await _dio.patch('/api/me', data: body.toJson());
+    final response = await _dio.patch('/api/v1/me', data: body.toJson());
     return UserModel.fromJson(response.data);
   }
 
   @override
   Future<WishlistModel> createWishlist(CreateWishlistBody body) async {
-    final response = await _dio.post('/api/wishlists', data: body.toJson());
+    final response = await _dio.post('/api/v1/wishlists', data: body.toJson());
     return WishlistModel.fromJson(response.data);
   }
 
   @override
   Future<void> deleteBulkWishlistsByIds(List<int> ids) async {
-    await _dio.delete('/api/wishlists', data: {'ids': ids});
+    await _dio.delete('/api/v1/wishlists', data: {'ids': ids});
   }
 
   @override
   Future<void> deleteWishlistById(int wishlistId) async {
-    await _dio.delete('/api/wishlists/$wishlistId');
+    await _dio.delete('/api/v1/wishlists/$wishlistId');
   }
 
   @override
   Future<WishlistModel> getMyWishlistById(int wishlistId) async {
-    final response = await _dio.get('/api/wishlists/$wishlistId');
+    final response = await _dio.get('/api/v1/wishlists/$wishlistId');
     return WishlistModel.fromJson(response.data);
   }
 
   @override
   Future<List<WishlistModel>> getMyWishlists() async {
-    final response = await _dio.get('/api/wishlists');
+    final response = await _dio.get('/api/v1/wishlists');
     return WishlistModel.listFromJson(response.data);
   }
 
@@ -137,7 +137,7 @@ class ApiRepository
     PatchWishlistBody body,
   ) async {
     final response = await _dio.patch(
-      '/api/wishlists/$wishlistId',
+      '/api/v1/wishlists/$wishlistId',
       data: body.toJson(),
     );
     return WishlistModel.fromJson(response.data);
@@ -145,54 +145,54 @@ class ApiRepository
 
   @override
   Future<void> reorderWishlists(ReorderIdsBody body) async {
-    await _dio.patch('/api/wishlists', data: body.toJson());
+    await _dio.patch('/api/v1/wishlists', data: body.toJson());
   }
 
   @override
   Future<WishlistShareModel> shareWishlist(int wishlistId) async {
-    final response = await _dio.post('/api/wishlists/$wishlistId/share');
+    final response = await _dio.post('/api/v1/wishlists/$wishlistId/share');
     return WishlistShareModel.fromJson(_asMap(response.data));
   }
 
   @override
   Future<WishlistModel> getSharedWishlist(String token) async {
     final response = await _dio.get(
-      '/api/shared/${Uri.encodeComponent(token)}',
+      '/api/v1/shared/${Uri.encodeComponent(token)}',
     );
     return WishlistModel.fromJson(_asMap(response.data));
   }
 
   @override
   Future<WishlistModel> addWishlistToFavorites(AddFavoriteBody body) async {
-    final response = await _dio.post('/api/favorites', data: body.toJson());
+    final response = await _dio.post('/api/v1/favorites', data: body.toJson());
     return WishlistModel.fromJson(response.data);
   }
 
   @override
   Future<List<WishlistModel>> getMyFavoriteWishlists() async {
-    final response = await _dio.get('/api/favorites');
+    final response = await _dio.get('/api/v1/favorites');
     return WishlistModel.listFromJson(response.data);
   }
 
   @override
   Future<void> reorderFavorites(ReorderIdsBody body) async {
-    await _dio.patch('/api/favorites', data: body.toJson());
+    await _dio.patch('/api/v1/favorites', data: body.toJson());
   }
 
   @override
   Future<void> deleteFavoriteById(int wishlistId) async {
-    await _dio.delete('/api/favorites/$wishlistId');
+    await _dio.delete('/api/v1/favorites/$wishlistId');
   }
 
   @override
   Future<WishModel> createWish(CreateWishBody body) async {
-    final response = await _dio.post('/api/wishes', data: body.toJson());
+    final response = await _dio.post('/api/v1/wishes', data: body.toJson());
     return WishModel.fromJson(response.data);
   }
 
   @override
   Future<WishModel> duplicateWishById(int wishId) async {
-    final response = await _dio.post('/api/wishes/$wishId/duplicate');
+    final response = await _dio.post('/api/v1/wishes/$wishId/duplicate');
     return WishModel.fromJson(response.data);
   }
 
@@ -203,7 +203,7 @@ class ApiRepository
     int? offset,
   }) async {
     final response = await _dio.get(
-      '/api/wishes',
+      '/api/v1/wishes',
       queryParameters: {
         'mine': 'true',
         if (query != null && query.isNotEmpty) 'query': query,
@@ -216,14 +216,14 @@ class ApiRepository
 
   @override
   Future<WishModel> getMyWishById(int wishId) async {
-    final response = await _dio.get('/api/wishes/$wishId');
+    final response = await _dio.get('/api/v1/wishes/$wishId');
     return WishModel.fromJson(response.data);
   }
 
   @override
   Future<WishModel> patchWishById(int wishId, PatchWishBody body) async {
     final response = await _dio.patch(
-      '/api/wishes/$wishId',
+      '/api/v1/wishes/$wishId',
       data: body.toJson(),
     );
     return WishModel.fromJson(response.data);
@@ -231,12 +231,12 @@ class ApiRepository
 
   @override
   Future<void> deleteBulkWishesByIds(List<int> ids) async {
-    await _dio.delete('/api/wishes', data: {'ids': ids});
+    await _dio.delete('/api/v1/wishes', data: {'ids': ids});
   }
 
   @override
   Future<void> deleteWishById(int wishId) async {
-    await _dio.delete('/api/wishes/$wishId');
+    await _dio.delete('/api/v1/wishes/$wishId');
   }
 
   @override
@@ -245,7 +245,7 @@ class ApiRepository
     AddWishlistWishBody body,
   ) async {
     final response = await _dio.post(
-      '/api/wishlists/$wishlistId/wishes',
+      '/api/v1/wishlists/$wishlistId/wishes',
       data: body.toJson(),
     );
     return WishModel.fromJson(response.data);
@@ -256,18 +256,21 @@ class ApiRepository
     int wishlistId,
     ReorderIdsBody body,
   ) async {
-    await _dio.patch('/api/wishlists/$wishlistId/wishes', data: body.toJson());
+    await _dio.patch(
+      '/api/v1/wishlists/$wishlistId/wishes',
+      data: body.toJson(),
+    );
   }
 
   @override
   Future<void> removeWishFromWishlist(int wishlistId, int wishId) async {
-    await _dio.delete('/api/wishlists/$wishlistId/wishes/$wishId');
+    await _dio.delete('/api/v1/wishlists/$wishlistId/wishes/$wishId');
   }
 
   @override
   Future<UserModel> subscribeToProfile(SubscribeUserBody body) async {
     final response = await _dio.post(
-      '/api/subscriptions/users',
+      '/api/v1/subscriptions/users',
       data: body.toJson(),
     );
     return UserModel.fromJson(response.data);
@@ -276,7 +279,7 @@ class ApiRepository
   @override
   Future<WishlistModel> subscribeToWishlist(SubscribeWishlistBody body) async {
     final response = await _dio.post(
-      '/api/subscriptions/wishlists',
+      '/api/v1/subscriptions/wishlists',
       data: body.toJson(),
     );
     return WishlistModel.fromJson(response.data);
@@ -284,23 +287,23 @@ class ApiRepository
 
   @override
   Future<List<UserModel>> getMyProfileSubscriptions() async {
-    final response = await _dio.get('/api/subscriptions/users');
+    final response = await _dio.get('/api/v1/subscriptions/users');
     return UserModel.listFromJson(response.data);
   }
 
   @override
   Future<List<WishlistModel>> getMyWishlistSubscriptions() async {
-    final response = await _dio.get('/api/subscriptions/wishlists');
+    final response = await _dio.get('/api/v1/subscriptions/wishlists');
     return WishlistModel.listFromJson(response.data);
   }
 
   @override
   Future<void> unsubscribeProfile(int userId) async {
-    await _dio.delete('/api/subscriptions/users/$userId');
+    await _dio.delete('/api/v1/subscriptions/users/$userId');
   }
 
   @override
   Future<void> unsubscribeWishlist(int wishlistId) async {
-    await _dio.delete('/api/subscriptions/wishlists/$wishlistId');
+    await _dio.delete('/api/v1/subscriptions/wishlists/$wishlistId');
   }
 }

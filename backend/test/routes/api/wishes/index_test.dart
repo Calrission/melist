@@ -20,7 +20,7 @@ void main() {
 
   TestRequestContext contextFor(
     HttpMethod method, {
-    String path = '/api/wishes',
+    String path = '/api/v1/wishes',
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
@@ -40,7 +40,7 @@ void main() {
     service = memoryWishService(data);
   });
 
-  group('/api/wishes', () {
+  group('/api/v1/wishes', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         handleWishesCollection,
@@ -69,7 +69,7 @@ void main() {
 
     test('GET rejects mine=false', () async {
       final response = await handleWishesCollection(
-        contextFor(HttpMethod.get, path: '/api/wishes?mine=false').context,
+        contextFor(HttpMethod.get, path: '/api/v1/wishes?mine=false').context,
       );
 
       expect(response, isBadRequest);

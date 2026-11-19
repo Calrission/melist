@@ -27,7 +27,7 @@ void main() {
     Map<String, Object?>? body,
   }) {
     return TestRequestContext(
-        path: '/api/me',
+        path: '/api/v1/me',
         method: method,
         body: body == null ? null : jsonEncode(body),
         headers: body == null
@@ -43,7 +43,7 @@ void main() {
     profiles = memoryProfileService(data);
   });
 
-  group('/api/me', () {
+  group('/api/v1/me', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         handleMe,
@@ -83,7 +83,7 @@ void main() {
     test('PATCH returns 400 for invalid JSON and empty body', () async {
       final invalidContext =
           TestRequestContext(
-              path: '/api/me',
+              path: '/api/v1/me',
               method: HttpMethod.patch,
               body: '[]',
               headers: {HttpHeaders.contentTypeHeader: 'application/json'},

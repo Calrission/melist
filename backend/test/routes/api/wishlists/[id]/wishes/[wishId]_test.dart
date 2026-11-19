@@ -23,7 +23,7 @@ void main() {
     AuthUser auth = user,
   }) {
     return TestRequestContext(
-        path: '/api/wishlists/1/wishes/1',
+        path: '/api/v1/wishlists/1/wishes/1',
         method: method,
       )
       ..provide<AuthUser>(auth)
@@ -35,7 +35,7 @@ void main() {
     service = memoryWishlistService(data);
   });
 
-  group('/api/wishlists/{id}/wishes/{wishId}', () {
+  group('/api/v1/wishlists/{id}/wishes/{wishId}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleWishlistWishById(context, '1', '1'),

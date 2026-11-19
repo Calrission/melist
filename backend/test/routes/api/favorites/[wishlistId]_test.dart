@@ -21,7 +21,7 @@ void main() {
 
   TestRequestContext contextFor(HttpMethod method) {
     return TestRequestContext(
-        path: '/api/favorites/1',
+        path: '/api/v1/favorites/1',
         method: method,
       )
       ..provide<AuthUser>(guest)
@@ -34,7 +34,7 @@ void main() {
     favorites = memoryFavoriteService(data);
   });
 
-  group('/api/favorites/{wishlistId}', () {
+  group('/api/v1/favorites/{wishlistId}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handleFavoriteByWishlistId(context, '1'),

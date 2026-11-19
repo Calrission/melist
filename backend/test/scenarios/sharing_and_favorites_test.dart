@@ -26,7 +26,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               as: as,
               body: {'name': name, 'visibility': visibility},
             )
@@ -38,7 +38,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${list['id']}/share',
+              '/api/v1/wishlists/${list['id']}/share',
               as: as,
             )
             .context,
@@ -55,7 +55,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Draft', 'visibility': 'draft'},
               )
               .context,
@@ -66,7 +66,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists/${list['id']}/share',
+                '/api/v1/wishlists/${list['id']}/share',
               )
               .context,
           '${list['id']}',
@@ -77,7 +77,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists/${list['id']}/share',
+                '/api/v1/wishlists/${list['id']}/share',
               )
               .context,
           '${list['id']}',
@@ -94,7 +94,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${list['id']}/share',
+              '/api/v1/wishlists/${list['id']}/share',
               as: ScenarioHarness.b,
             )
             .context,
@@ -116,7 +116,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/shared/$token',
+                '/api/v1/shared/$token',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -130,7 +130,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/shared/missing',
+              '/api/v1/shared/missing',
               as: ScenarioHarness.b,
             )
             .context,
@@ -144,7 +144,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/shared/${draft.token}',
+              '/api/v1/shared/${draft.token}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -159,7 +159,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${shared.wl}/wishes',
+              '/api/v1/wishlists/${shared.wl}/wishes',
               body: {
                 'wish': {'name': 'Public'},
               },
@@ -171,7 +171,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${shared.wl}/wishes',
+              '/api/v1/wishlists/${shared.wl}/wishes',
               body: {
                 'wish': {'name': 'Second'},
               },
@@ -185,7 +185,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/shared/${shared.token}',
+                '/api/v1/shared/${shared.token}',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -202,7 +202,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/shared/${shared.token}',
+                '/api/v1/shared/${shared.token}',
               )
               .context,
           shared.token,
@@ -224,7 +224,7 @@ void main() {
             app
                 .context(
                   HttpMethod.delete,
-                  '/api/favorites/${shared.wl}',
+                  '/api/v1/favorites/${shared.wl}',
                   as: ScenarioHarness.b,
                 )
                 .context,
@@ -235,7 +235,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/favorites',
+                '/api/v1/favorites',
                 as: ScenarioHarness.b,
                 body: {'shareToken': token},
               )
@@ -253,7 +253,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': first.token},
             )
@@ -263,7 +263,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': second.token},
             )
@@ -274,7 +274,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
             )
             .context,
@@ -297,7 +297,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${shared.wl}/wishes',
+              '/api/v1/wishlists/${shared.wl}/wishes',
               body: {
                 'wish': {'name': 'Public'},
               },
@@ -309,7 +309,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists/${shared.wl}/wishes',
+              '/api/v1/wishlists/${shared.wl}/wishes',
               body: {
                 'wish': {'name': 'Second'},
               },
@@ -321,7 +321,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': shared.token},
             )
@@ -333,7 +333,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/favorites',
+                '/api/v1/favorites',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -350,7 +350,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': first.token},
             )
@@ -360,7 +360,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': second.token},
             )
@@ -371,7 +371,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {
                 'order': [second.wl, first.wl],
@@ -386,7 +386,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/favorites',
+                '/api/v1/favorites',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -401,7 +401,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {
                 'order': [first.wl],
@@ -418,7 +418,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': shared.token},
             )
@@ -429,7 +429,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/favorites/${shared.wl}',
+              '/api/v1/favorites/${shared.wl}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -438,7 +438,7 @@ void main() {
       expect(removed.statusCode, HttpStatus.noContent);
 
       final card = await handleWishlistById(
-        app.context(HttpMethod.get, '/api/wishlists/${shared.wl}').context,
+        app.context(HttpMethod.get, '/api/v1/wishlists/${shared.wl}').context,
         '${shared.wl}',
       );
       expect(card, isOk);
@@ -448,7 +448,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/favorites',
+                '/api/v1/favorites',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -460,7 +460,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/favorites/${shared.wl}',
+              '/api/v1/favorites/${shared.wl}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -476,7 +476,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               body: {'shareToken': shared.token},
             )
             .context,
@@ -494,7 +494,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': shared.token},
             )
@@ -504,7 +504,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/favorites',
+              '/api/v1/favorites',
               as: ScenarioHarness.b,
               body: {'shareToken': shared.token},
             )

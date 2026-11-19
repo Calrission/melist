@@ -2,7 +2,7 @@ import '../enums.dart';
 import '../model_codec.dart';
 import 'wish_bodies.dart';
 
-/// Body of `POST /api/wishlists`.
+/// Body of `POST /api/v1/wishlists`.
 class CreateWishlistBody {
   const CreateWishlistBody({
     required this.name,
@@ -37,7 +37,7 @@ class CreateWishlistBody {
   };
 }
 
-/// Body of `PATCH /api/wishlists/{id}`.
+/// Body of `PATCH /api/v1/wishlists/{id}`.
 ///
 /// [description] defaults to [jsonOmit]. Pass `null` to clear.
 class PatchWishlistBody {
@@ -74,7 +74,7 @@ class PatchWishlistBody {
   }
 }
 
-/// Body of `POST /api/wishlists/{id}/wishes`. Exactly one variant.
+/// Body of `POST /api/v1/wishlists/{id}/wishes`. Exactly one variant.
 class AddWishlistWishBody {
   const AddWishlistWishBody.create(CreateWishBody this.wish)
     : wishId = null,
@@ -123,8 +123,8 @@ class AddWishlistWishBody {
   };
 }
 
-/// `{ "order": [id, …] }` for `PATCH /api/wishlists`,
-/// `PATCH /api/wishlists/{id}/wishes`, `PATCH /api/favorites`.
+/// `{ "order": [id, …] }` for `PATCH /api/v1/wishlists`,
+/// `PATCH /api/v1/wishlists/{id}/wishes`, `PATCH /api/v1/favorites`.
 class ReorderIdsBody {
   const ReorderIdsBody({required this.order});
 

@@ -25,7 +25,7 @@ void main() {
     AuthUser auth = guest,
   }) {
     return TestRequestContext(
-        path: '/api/users/$id',
+        path: '/api/v1/users/$id',
         method: method,
       )
       ..provide<AuthUser>(auth)
@@ -46,7 +46,7 @@ void main() {
     profiles = memoryProfileService(data);
   });
 
-  group('/api/users/{id}', () {
+  group('/api/v1/users/{id}', () {
     test('rejects unsupported methods with 405', () async {
       await expectNotAllowedMethods(
         (context) => handlePublicUser(context, '1'),
@@ -94,7 +94,7 @@ void main() {
     });
   });
 
-  group('/api/users/{id}/share', () {
+  group('/api/v1/users/{id}/share', () {
     test('returns a Telegram Mini App profile link', () async {
       await wishlists.create(owner, name: 'Birthday', visibility: 'public');
 

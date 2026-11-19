@@ -5,7 +5,7 @@ import 'package:melist/presentation/controllers/wishes_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist_core/melist_core.dart';
 
-/// Wishlist opened by a share token (`GET /api/shared/{token}`).
+/// Wishlist opened by a share token (`GET /api/v1/shared/{token}`).
 class SharedWishlistController extends BaseController<WishlistModel> {
   SharedWishlistController({
     required this._wishlistRepository,

@@ -33,7 +33,7 @@ void main() {
   });
 
   group('docs/scenarios.md profile', () {
-    test('37. validate then GET /api/me; missing Bearer is 401', () async {
+    test('37. validate then GET /api/v1/me; missing Bearer is 401', () async {
       final now = DateTime.utc(2026, 9, 19, 8, 13);
       final validator = InitDataValidator(
         botToken: testBotToken,
@@ -79,7 +79,7 @@ void main() {
         jwtService.verify(issuedBody['accessToken'] as String),
       )!;
       final me = await handleMe(
-        app.context(HttpMethod.get, '/api/me', as: jwtUser).context,
+        app.context(HttpMethod.get, '/api/v1/me', as: jwtUser).context,
       );
       expect(me, isOk);
       final meBody = await jsonMap(me);
@@ -90,7 +90,7 @@ void main() {
 
       final mwContext = _MockRequestContext();
       when(() => mwContext.request).thenReturn(
-        Request.get(Uri.parse('http://localhost/api/me')),
+        Request.get(Uri.parse('http://localhost/api/v1/me')),
       );
       when(() => mwContext.read<JwtService>()).thenReturn(jwtService);
       when(() => mwContext.read<DebugAuth>()).thenReturn(
@@ -159,7 +159,7 @@ void main() {
           app
               .context(
                 HttpMethod.patch,
-                '/api/me',
+                '/api/v1/me',
                 body: {'birthday': birthday},
               )
               .context,
@@ -193,7 +193,7 @@ void main() {
           app
               .context(
                 HttpMethod.patch,
-                '/api/me',
+                '/api/v1/me',
                 as: named,
                 body: {'nickname': nickname},
               )
@@ -202,7 +202,7 @@ void main() {
       }
 
       final initial = await handleMe(
-        app.context(HttpMethod.get, '/api/me', as: named).context,
+        app.context(HttpMethod.get, '/api/v1/me', as: named).context,
       );
       expect(initial, isOk);
       final initialBody = await jsonMap(initial);
@@ -236,7 +236,7 @@ void main() {
           app
               .context(
                 HttpMethod.patch,
-                '/api/me',
+                '/api/v1/me',
                 body: {'theme': theme},
               )
               .context,
@@ -249,7 +249,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/me',
+              '/api/v1/me',
               body: {'theme': 'neon'},
             )
             .context,
@@ -264,7 +264,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/me',
+              '/api/v1/me',
               body: <String, Object?>{},
             )
             .context,
@@ -279,7 +279,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -290,7 +290,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Draft', 'visibility': 'draft'},
               )
               .context,
@@ -301,7 +301,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/users/${ScenarioHarness.a.id}',
+              '/api/v1/users/${ScenarioHarness.a.id}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -321,7 +321,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/users/404',
+              '/api/v1/users/404',
               as: ScenarioHarness.b,
             )
             .context,
@@ -334,7 +334,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/users/abc',
+              '/api/v1/users/abc',
               as: ScenarioHarness.b,
             )
             .context,
@@ -349,7 +349,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -359,7 +359,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/${pub['id']}',
+              '/api/v1/wishlists/${pub['id']}',
               body: {'visibility': 'draft'},
             )
             .context,
@@ -371,7 +371,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/users/${ScenarioHarness.a.id}',
+                '/api/v1/users/${ScenarioHarness.a.id}',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -394,7 +394,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -405,7 +405,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -418,7 +418,7 @@ void main() {
         app
             .context(
               HttpMethod.get,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
             )
             .context,
@@ -433,7 +433,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: <String, Object?>{},
             )
@@ -448,7 +448,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Draft', 'visibility': 'draft'},
               )
               .context,
@@ -459,7 +459,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -473,7 +473,7 @@ void main() {
             app
                 .context(
                   HttpMethod.get,
-                  '/api/subscriptions/wishlists',
+                  '/api/v1/subscriptions/wishlists',
                   as: ScenarioHarness.b,
                 )
                 .context,
@@ -489,7 +489,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -499,7 +499,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -510,7 +510,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/subscriptions/wishlists/${list['id']}',
+              '/api/v1/subscriptions/wishlists/${list['id']}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -523,7 +523,7 @@ void main() {
             app
                 .context(
                   HttpMethod.get,
-                  '/api/subscriptions/wishlists',
+                  '/api/v1/subscriptions/wishlists',
                   as: ScenarioHarness.b,
                 )
                 .context,
@@ -536,7 +536,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/subscriptions/wishlists/${list['id']}',
+              '/api/v1/subscriptions/wishlists/${list['id']}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -554,7 +554,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'name': 'Mine'},
             )
             .context,
@@ -564,7 +564,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: {'userId': ScenarioHarness.a.id},
             )
@@ -578,7 +578,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/subscriptions/users',
+                '/api/v1/subscriptions/users',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -590,7 +590,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: <String, Object?>{},
             )
@@ -602,7 +602,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: {'userId': 404},
             )
@@ -617,7 +617,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/wishlists',
+              '/api/v1/wishlists',
               body: {'name': 'Mine'},
             )
             .context,
@@ -626,7 +626,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: {'userId': ScenarioHarness.a.id},
             )
@@ -637,7 +637,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/subscriptions/users/${ScenarioHarness.a.id}',
+              '/api/v1/subscriptions/users/${ScenarioHarness.a.id}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -649,7 +649,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/subscriptions/users/${ScenarioHarness.a.id}',
+              '/api/v1/subscriptions/users/${ScenarioHarness.a.id}',
               as: ScenarioHarness.b,
             )
             .context,
@@ -665,7 +665,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -676,7 +676,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               body: {'wishlistId': list['id']},
             )
             .context,
@@ -691,7 +691,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               body: {'userId': ScenarioHarness.a.id},
             )
             .context,
@@ -709,7 +709,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -719,7 +719,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -729,7 +729,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: {'userId': ScenarioHarness.a.id},
             )
@@ -740,7 +740,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -756,7 +756,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/users',
+              '/api/v1/subscriptions/users',
               as: ScenarioHarness.b,
               body: {'userId': ScenarioHarness.a.id},
             )
@@ -775,7 +775,7 @@ void main() {
           app
               .context(
                 HttpMethod.post,
-                '/api/wishlists',
+                '/api/v1/wishlists',
                 body: {'name': 'Public', 'visibility': 'public'},
               )
               .context,
@@ -785,7 +785,7 @@ void main() {
         app
             .context(
               HttpMethod.post,
-              '/api/subscriptions/wishlists',
+              '/api/v1/subscriptions/wishlists',
               as: ScenarioHarness.b,
               body: {'wishlistId': list['id']},
             )
@@ -796,7 +796,7 @@ void main() {
         app
             .context(
               HttpMethod.patch,
-              '/api/wishlists/${list['id']}',
+              '/api/v1/wishlists/${list['id']}',
               body: {'visibility': 'draft'},
             )
             .context,
@@ -808,7 +808,7 @@ void main() {
           app
               .context(
                 HttpMethod.get,
-                '/api/subscriptions/wishlists',
+                '/api/v1/subscriptions/wishlists',
                 as: ScenarioHarness.b,
               )
               .context,
@@ -820,7 +820,7 @@ void main() {
         app
             .context(
               HttpMethod.delete,
-              '/api/subscriptions/wishlists/${list['id']}',
+              '/api/v1/subscriptions/wishlists/${list['id']}',
               as: ScenarioHarness.b,
             )
             .context,

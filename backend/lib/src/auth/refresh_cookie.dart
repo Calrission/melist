@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 
-/// HttpOnly refresh cookie. Path is `/auth` so `/api/**` never sees it.
+/// HttpOnly refresh cookie. Path is `/auth` so `/api/v1/**` never sees it.
 class RefreshCookie {
   const RefreshCookie._();
 

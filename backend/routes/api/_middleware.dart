@@ -3,7 +3,7 @@ import 'package:dart_frog_auth/dart_frog_auth.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:melist_backend/melist_backend.dart';
 
-/// Protects every route under `/api` with `Authorization: Bearer <token>`.
+/// Protects every route under `/api/v1` with `Authorization: Bearer <token>`.
 /// A signed JWT is accepted always; when `DEBUG_AUTH=true` the configured
 /// debug string is accepted too. On success [AuthUser] is available via
 /// `context.read<AuthUser>()`.

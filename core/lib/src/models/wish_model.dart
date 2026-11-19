@@ -68,7 +68,7 @@ class WishModel {
   final String? coverUrl;
   final WishStatus status;
 
-  /// Owner's wishlists that contain this wish. Filled on `GET /api/wishes/{id}`.
+  /// Owner's wishlists that contain this wish. Filled on `GET /api/v1/wishes/{id}`.
   final List<WishWishlistModel> wishlists;
   final int? copiedFrom;
   final DateTime? createdAt;

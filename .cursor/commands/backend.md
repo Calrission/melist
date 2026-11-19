@@ -18,7 +18,7 @@
 
 ## Порядок работы
 
-1. Найди в [docs/backend/roadmap.md](../../docs/backend/roadmap.md) текущую фазу и эндпоинт; сверни контракт с `docs/backend/api.md` и `routes/api/**`. Не берись за монетизацию (27–29), пока её нет в roadmap.
+1. Найди в [docs/backend/roadmap.md](../../docs/backend/roadmap.md) текущую фазу и эндпоинт; сверни контракт с `docs/backend/api.md` и `routes/api/v1/**`. Не берись за монетизацию (27–29), пока её нет в roadmap.
 2. Логику пиши в `backend/lib/src/**`, роут оставляй тонким; пользователя бери из `context.read<AuthUser>()`.
 3. Обнови или добавь `@Route(...)`; общие схемы — `lib/src/openapi/common_docs.dart`.
 4. Напиши тесты: `test/routes/<тот же путь>_test.dart` и `test/src/**` для сервисов.

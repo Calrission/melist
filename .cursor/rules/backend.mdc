@@ -20,9 +20,9 @@ alwaysApply: false
 
 - `routes/` — только транспорт: проверка метода, разбор тела, вызов сервиса. Логика, валидация, БД — в `lib/src/**`.
 - Каждый эндпоинт помечен `@Route(...)` из `dart_frog_swagger` (по одной аннотации на метод). Общие схемы — `lib/src/openapi/common_docs.dart`. После правок: `dart run dart_frog_swagger`.
-- Всё под `routes/api/**` защищено Bearer (`routes/api/_middleware.dart`): подписанный JWT или, при `DEBUG_AUTH=true`, фиксированная строка `DEBUG_TOKEN`. Пользователь — только `context.read<AuthUser>()`; `userId` из тела не принимать.
+- Всё под `routes/api/v1/**` защищено Bearer (`routes/api/_middleware.dart`): подписанный JWT или, при `DEBUG_AUTH=true`, фиксированная строка `DEBUG_TOKEN`. Пользователь — только `context.read<AuthUser>()`; `userId` из тела не принимать.
 - Ошибки в формате `{ "error": "..." }` через хелперы из `lib/src/http/responses.dart`; неверный метод — `405`, невалидное тело — `400`, чужой ресурс — `403`.
-- Не создавать статический файл рядом с `[id].dart` в одном каталоге; массовые операции и сортировка — методами на коллекции (`PATCH`/`DELETE /api/wishlists`).
+- Не создавать статический файл рядом с `[id].dart` в одном каталоге; массовые операции и сортировка — методами на коллекции (`PATCH`/`DELETE /api/v1/wishlists`).
 - БД только через `context.read<Database>()` (`lib/src/data/database.dart`); SQL — в репозиториях `lib/src/data/*_repository.dart`, принимающих `DbExecutor`. Только параметры `@name`, без интерполяции; связанные изменения — в `db.transaction`. `package:postgres` в `routes/` не импортировать.
 - Схема меняется только миграцией: новый `lib/src/data/migrations/mNNNN_<name>.dart` + запись в `allMigrations` + правка SQL в `docs/backend/data-model.md`. Применённые миграции не редактировать. После новой миграции — `dart test test/integration` с `TEST_DATABASE_URL`.
 - Секреты только через `AppConfig` из `.env`; новую переменную добавлять в `.example_env` и `docs/backend/README.md`.
