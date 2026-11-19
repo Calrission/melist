@@ -16,6 +16,7 @@ import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
+import 'package:melist/presentation/widgets/to_profile_widget.dart';
 import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
@@ -242,18 +243,9 @@ class _LoadedShared extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton(
-                onPressed: () => context.pushNamed(
-                  publicProfileGoKey,
-                  pathParameters: {'id': wishlist.ownerId.toString()},
-                ),
-                child: const Text("Профиль владельца"),
-              ),
-            ],
+          ToProfileWidget(
+            ownerId: wishlist.ownerId,
+            fallbackName: wishlist.ownerNickname,
           ),
           const SizedBox(height: 16),
           Expanded(
