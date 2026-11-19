@@ -89,20 +89,17 @@ class _WishlistListPageState extends State<WishlistListPage> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
-        child: switch (controller.state) {
-          ControllerState.init => LoadingWidget(),
-          ControllerState.loading => LoadingWidget(),
-          ControllerState.loaded => _LoadedWishlistPage(
-            wishlists: controller.data!,
-          ),
-          ControllerState.error => ErrorPlaceholderWidget(
-            error: controller.error,
-            onRetry: controller.loadMyWishlist,
-          ),
-        },
-      ),
+      body: switch (controller.state) {
+        ControllerState.init => LoadingWidget(),
+        ControllerState.loading => LoadingWidget(),
+        ControllerState.loaded => _LoadedWishlistPage(
+          wishlists: controller.data!,
+        ),
+        ControllerState.error => ErrorPlaceholderWidget(
+          error: controller.error,
+          onRetry: controller.loadMyWishlist,
+        ),
+      },
     );
   }
 }
@@ -118,16 +115,24 @@ class _LoadedWishlistPage extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: smallSep),
-        AddElemListButton(
-          text: "Добавить новый вишлист",
-          onTap: () => context.goNamed(wishlistCreateGoKey),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
+          child: AddElemListButton(
+            text: "Добавить новый вишлист",
+            onTap: () => context.goNamed(wishlistCreateGoKey),
+          ),
         ),
         const SizedBox(height: bigSep),
         Expanded(
           child: wishlists.isNotEmpty
               ? MelistReorderableListView(
                   reorderEnabled: !selectionMode,
-                  padding: const EdgeInsets.fromLTRB(4, 4, 4, 32),
+                  padding: const EdgeInsets.fromLTRB(
+                    horPagePadding + 4,
+                    4,
+                    horPagePadding + 4,
+                    32,
+                  ),
                   onReorderItem: (oldIndex, newIndex) {
                     final order = controller.currentOrder;
                     if (order != null) {

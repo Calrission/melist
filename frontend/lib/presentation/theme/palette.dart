@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
+import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/theme/themes.dart';
 import 'package:melist_core/melist_core.dart';
 
@@ -15,11 +16,15 @@ class Palette {
   final Color container;
 
   Palette({
-    required this.background, required this.text,
-    required this.accent, required this.textOnAccent,
-    required this.container, required this.subText,
-    required this.hint, required this.containerAccent,
-    required this.uiTheme
+    required this.background,
+    required this.text,
+    required this.accent,
+    required this.textOnAccent,
+    required this.container,
+    required this.subText,
+    required this.hint,
+    required this.containerAccent,
+    required this.uiTheme,
   });
 
   factory Palette.light() {
@@ -32,7 +37,7 @@ class Palette {
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
       hint: Colors.grey,
-      uiTheme: UiTheme.light
+      uiTheme: UiTheme.light,
     );
   }
 
@@ -46,7 +51,7 @@ class Palette {
       textOnAccent: Colors.white,
       container: Color(0xFF1E1E1E),
       hint: Colors.grey,
-        uiTheme: UiTheme.dark
+      uiTheme: UiTheme.dark,
     );
   }
 
@@ -59,9 +64,15 @@ class Palette {
   }
 
   Palette copyWith({
-    Color? background, Color? text, Color? accent, Color? textOnAccent,
-    Color? hint, Color? container, Color? subText, Color? lightAccent,
-    UiTheme? uiTheme
+    Color? background,
+    Color? text,
+    Color? accent,
+    Color? textOnAccent,
+    Color? hint,
+    Color? container,
+    Color? subText,
+    Color? lightAccent,
+    UiTheme? uiTheme,
   }) {
     return Palette(
       uiTheme: uiTheme ?? this.uiTheme,
@@ -91,33 +102,32 @@ class Palette {
   }
 
   ThemeData get themeData {
-    final brightness = uiTheme == UiTheme.light ? Brightness.light : Brightness.dark;
+    final brightness = uiTheme == UiTheme.light
+        ? Brightness.light
+        : Brightness.dark;
     return ThemeData(
       scaffoldBackgroundColor: background,
       brightness: brightness,
-      textTheme: TextTheme().apply(
-        bodyColor: text,
-        displayColor: text,
-      ),
-      extensions: [
-        PaletteThemeExtension(palette: this),
-      ],
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: accent,
-        brightness: brightness,
-      ).copyWith(
-        primary: accent,
-        onPrimary: textOnAccent,
-        secondary: accent,
-        onSecondary: textOnAccent,
-      ),
+      textTheme: TextTheme().apply(bodyColor: text, displayColor: text),
+      extensions: [PaletteThemeExtension(palette: this)],
+      colorScheme:
+          ColorScheme.fromSeed(
+            seedColor: accent,
+            brightness: brightness,
+          ).copyWith(
+            primary: accent,
+            onPrimary: textOnAccent,
+            secondary: accent,
+            onSecondary: textOnAccent,
+          ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: text,
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: getClassicFilledButtonStyle(this)
+        style: getClassicFilledButtonStyle(this),
       ),
+      scrollbarTheme: const ScrollbarThemeData(crossAxisMargin: scrollbarInset),
     );
   }
 }

@@ -165,7 +165,7 @@ class _SharedWishlistPageState extends State<SharedWishlistPage> {
               icon: Icon(
                 subscriptions.isSubscribed(wishlist.id)
                     ? Icons.notifications_active_outlined
-                    : Icons.notifications_none_outlined
+                    : Icons.notifications_none_outlined,
               ),
             ),
         ],
@@ -226,55 +226,61 @@ class _LoadedShared extends StatelessWidget {
     final myId = context.watch<ProfileController>().profile?.id;
     final isOwn = myId != null && myId == wishlist.ownerId;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 8),
-          ToProfileWidget(
-            ownerId: wishlist.ownerId,
-            fallbackName: wishlist.ownerNickname,
-          ),
-          const SizedBox(height: 16),
-          if (wishlist.description != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                wishlist.description!,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w300,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 8),
+              ToProfileWidget(
+                ownerId: wishlist.ownerId,
+                fallbackName: wishlist.ownerNickname,
               ),
-            ),
-          Expanded(
-            child: wishlist.items.isEmpty
-                ? EmptyPlaceholderWidget()
-                : ListView(
-                    children: [
-                      for (final wish in wishlist.items)
-                        WishTile(
-                          wishModel: wish,
-                          onTap: () => context.pushNamed(
-                            wishDetailsGoKey,
-                            pathParameters: {'id': wish.id.toString()},
-                            extra: WishDetailsArguments(wish: wish),
-                          ),
-                          actions: [
-                            if (!isOwn)
-                              IconButton(
-                                tooltip: "Скопировать к себе",
-                                onPressed: () => _copy(context, wish),
-                                icon: Icon(Icons.copy),
-                              ),
-                          ],
-                        ),
-                    ],
+              const SizedBox(height: 16),
+              if (wishlist.description != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    wishlist.description!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
+                ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: wishlist.items.isEmpty
+              ? EmptyPlaceholderWidget()
+              : ListView(
+                  padding: context.listContentPadding(),
+                  children: [
+                    for (final wish in wishlist.items)
+                      WishTile(
+                        wishModel: wish,
+                        onTap: () => context.pushNamed(
+                          wishDetailsGoKey,
+                          pathParameters: {'id': wish.id.toString()},
+                          extra: WishDetailsArguments(wish: wish),
+                        ),
+                        actions: [
+                          if (!isOwn)
+                            IconButton(
+                              tooltip: "Скопировать к себе",
+                              onPressed: () => _copy(context, wish),
+                              icon: Icon(Icons.copy),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
+        ),
+      ],
     );
   }
 }

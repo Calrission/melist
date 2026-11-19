@@ -141,40 +141,38 @@ class _WishesList extends StatelessWidget {
       return EmptyPlaceholderWidget();
     }
     final selectionMode = controller.selectionMode;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
-      child: ListView.builder(
-        itemCount: wishes.length,
-        itemBuilder: (context, index) {
-          final e = wishes[index];
-          return WishTile(
-            key: ValueKey(e.id),
-            wishModel: e,
-            selected: selectionMode
-                ? controller.selectedIds.contains(e.id)
-                : null,
-            onSelect: (_) => controller.toggleSelect(e.id),
-            onTap: selectionMode
-                ? () => controller.toggleSelect(e.id)
-                : () => context.goNamed(
-                    wishDetailsGoKey,
-                    pathParameters: {'id': e.id.toString()},
-                    extra: WishDetailsArguments(wish: e),
-                  ),
-            actions: [
-              if (!selectionMode)
-                IconButton(
-                  tooltip: "Дублировать",
-                  onPressed: () => context.guard(
-                    () => controller.duplicate(e.id),
-                    success: "Копия создана",
-                  ),
-                  icon: Icon(Icons.copy),
+    return ListView.builder(
+      padding: context.listContentPadding(),
+      itemCount: wishes.length,
+      itemBuilder: (context, index) {
+        final e = wishes[index];
+        return WishTile(
+          key: ValueKey(e.id),
+          wishModel: e,
+          selected: selectionMode
+              ? controller.selectedIds.contains(e.id)
+              : null,
+          onSelect: (_) => controller.toggleSelect(e.id),
+          onTap: selectionMode
+              ? () => controller.toggleSelect(e.id)
+              : () => context.goNamed(
+                  wishDetailsGoKey,
+                  pathParameters: {'id': e.id.toString()},
+                  extra: WishDetailsArguments(wish: e),
                 ),
-            ],
-          );
-        },
-      ),
+          actions: [
+            if (!selectionMode)
+              IconButton(
+                tooltip: "Дублировать",
+                onPressed: () => context.guard(
+                  () => controller.duplicate(e.id),
+                  success: "Копия создана",
+                ),
+                icon: Icon(Icons.copy),
+              ),
+          ],
+        );
+      },
     );
   }
 }
