@@ -10,8 +10,8 @@ import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
-const double _avatarSize = 40;
-const double _arrowCircleSize = 32;
+const double _avatarSize = 28;
+const double _arrowCircleSize = 28;
 
 /// Bordered row that opens the wishlist owner's profile.
 class ToProfileWidget extends StatefulWidget {

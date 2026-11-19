@@ -231,9 +231,15 @@ class _LoadedShared extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: 8),
+          ToProfileWidget(
+            ownerId: wishlist.ownerId,
+            fallbackName: wishlist.ownerNickname,
+          ),
+          const SizedBox(height: 16),
           if (wishlist.description != null)
             Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(bottom: 16),
               child: Text(
                 wishlist.description!,
                 style: const TextStyle(
@@ -242,12 +248,6 @@ class _LoadedShared extends StatelessWidget {
                 ),
               ),
             ),
-          const SizedBox(height: 16),
-          ToProfileWidget(
-            ownerId: wishlist.ownerId,
-            fallbackName: wishlist.ownerNickname,
-          ),
-          const SizedBox(height: 16),
           Expanded(
             child: wishlist.items.isEmpty
                 ? EmptyPlaceholderWidget()
