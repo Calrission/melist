@@ -112,7 +112,7 @@ bot/
 ```
 BOT_TOKEN=                  # тот же токен, что у backend
 BOT_USERNAME=meelist_dev_bot
-DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
+DATABASE_URL=postgres://melist:melist@localhost:15432/melist?sslmode=disable
 BOT_UPDATES_MODE=polling    # polling | webhook
 BOT_WEBHOOK_URL=            # https://<host>/telegram/webhook, обязателен при webhook
 BOT_WEBHOOK_SECRET=         # 1–256 символов [A-Za-z0-9_-], обязателен при webhook
@@ -147,7 +147,7 @@ dart pub get
 dart run bin/bot.dart              # локально, BOT_UPDATES_MODE=polling
 dart analyze
 dart test
-$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
+$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration
 ```
 
 Весь стек из `backend/`:

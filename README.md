@@ -51,10 +51,10 @@ DEBUG_AUTH=true
 
 `DEBUG_AUTH=true` — локальный Bearer без Telegram (`DEBUG_TOKEN`, по умолчанию `dev-admin`). На проде не включать.
 
-`DATABASE_URL` в `.env` нужен **хостовому** `dart_frog dev` (порт **5433**). Контейнер API его игнорирует и ходит в сервис `db` на `5432`.
+`DATABASE_URL` в `.env` нужен **хостовому** `dart_frog dev` (порт **15432**). Контейнер API его игнорирует и ходит в сервис `db` на `5432`.
 
 ```
-DATABASE_URL=postgres://melist:melist@localhost:5433/melist?sslmode=disable
+DATABASE_URL=postgres://melist:melist@localhost:15432/melist?sslmode=disable
 ```
 
 Зависимости frontend/core — если будете собирать frontend или гонять тесты:
@@ -83,7 +83,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 | Сервис | Контейнер | С хоста |
 |---|---|---|
 | API | `melist-api` | [http://localhost:8080](http://localhost:8080) |
-| PostgreSQL | `melist-pg` | `localhost:5433` |
+| PostgreSQL | `melist-pg` | `localhost:15432` |
 
 - Health: [http://localhost:8080/health](http://localhost:8080/health)
 - Swagger: [http://localhost:8080/docs](http://localhost:8080/docs), спецификация — `/openapi.json`
@@ -157,13 +157,13 @@ HTTPS из ngrok указать в BotFather как Web App URL. После пр
 
 ## Тесты и анализ
 
-Нужны `flutter pub get` из корня, `dart pub get` из `backend/` и живой Postgres на `localhost:5433` для интеграционных тестов.
+Нужны `flutter pub get` из корня, `dart pub get` из `backend/` и живой Postgres на `localhost:15432` для интеграционных тестов.
 
 ```powershell
 cd backend
 dart analyze
 dart test
-$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
+$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration
 
 cd ../core
 dart analyze

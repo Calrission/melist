@@ -32,7 +32,7 @@
 1. Создать `lib/src/data/migrations/m0002_<name>.dart` с `Migration(version: 2, name: '<name>', sql: r'''...''')`. Имя — `snake_case`. Использовать `IF NOT EXISTS` / `DO $$ ... $$` там, где возможно, чтобы скрипт был идемпотентным.
 2. Добавить константу в `allMigrations`.
 3. Обновить SQL в этом документе (он должен отражать итоговую схему).
-4. Прогнать `dart test` (юнит-тесты `Migrator` и проверка списка) и интеграционный тест на живой БД: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration`.
+4. Прогнать `dart test` (юнит-тесты `Migrator` и проверка списка) и интеграционный тест на живой БД: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration`.
 
 Уже применённую где-либо миграцию не редактировать — только новая версия. `CREATE INDEX CONCURRENTLY` внутри транзакции не работает; для больших таблиц такие индексы создавать вне миграций.
 

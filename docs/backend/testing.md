@@ -53,7 +53,7 @@ test/
 2. **Хендлеры в `routes/`**: коды ответов, формат тела, `405` на неверный метод, `400` на плохое тело. Зависимости подменяются через `context.read<T>()`.
 3. **Middleware**: пропускает/отклоняет запрос и кладёт нужное в контекст.
 4. **Работа с БД**: `Database` и `Migrator` тестируются без сервера — через `FakePool` из `test/helpers/fake_pool.dart`. Репозитории: подмените `DbExecutor` фейком, который записывает SQL и параметры и отдаёт заготовленные строки.
-5. **Интеграционные с реальной PostgreSQL** (`test/integration/`): помечены `@Tags(['integration'])`, читают `TEST_DATABASE_URL`, без него — skip, поэтому `dart test` зелёный офлайн. Тест сам создаёт временную базу `melist_migrator_test_<ts>`, прогоняет миграции и удаляет её — dev-база не затрагивается. Запуск: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration`. Обязателен после любой новой миграции.
+5. **Интеграционные с реальной PostgreSQL** (`test/integration/`): помечены `@Tags(['integration'])`, читают `TEST_DATABASE_URL`, без него — skip, поэтому `dart test` зелёный офлайн. Тест сам создаёт временную базу `melist_migrator_test_<ts>`, прогоняет миграции и удаляет её — dev-база не затрагивается. Запуск: `$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration`. Обязателен после любой новой миграции.
 
 ## Хендлер с `mocktail`
 

@@ -8,7 +8,8 @@ services:
       POSTGRES_PASSWORD: melist
       POSTGRES_DB: melist
     ports:
-      - "5433:5432"
+      # 5432 is a local Postgres. Windows excludes TCP 5433–5532, so that host port cannot be bound.
+      - "15432:5432"
     volumes:
       - melist-pg-data:/var/lib/postgresql/data
     healthcheck:

@@ -122,7 +122,7 @@ Ctrl+C / SIGTERM закрывают пул.
 
 Пароль с спецсимволами — percent-encode (`p%40ss`). Неизвестный параметр или неверное значение — `FormatException` на старте.
 
-Локальный стек — [`docker-compose.dev.yml`](../../backend/docker-compose.dev.yml): PostgreSQL и API. Образ API собирается из [`Dockerfile`](../../backend/Dockerfile) (workspace без frontend). С хоста Postgres — порт **5433**, API — **8080**. `DATABASE_URL` внутри контейнера — `postgres://melist:melist@db:5432/melist?sslmode=disable` (хост `db`, не `localhost`).
+Локальный стек — [`docker-compose.dev.yml`](../../backend/docker-compose.dev.yml): PostgreSQL и API. Образ API собирается из [`Dockerfile`](../../backend/Dockerfile) (workspace без frontend). С хоста Postgres — порт **15432**, API — **8080**. `DATABASE_URL` внутри контейнера — `postgres://melist:melist@db:5432/melist?sslmode=disable` (хост `db`, не `localhost`).
 
 ```powershell
 cd backend
@@ -143,7 +143,7 @@ cd backend
 docker compose up -d --build
 ```
 
-`DATABASE_URL` в `.env` для хоста: `postgres://melist:melist@localhost:5433/melist?sslmode=disable`.
+`DATABASE_URL` в `.env` для хоста: `postgres://melist:melist@localhost:15432/melist?sslmode=disable`.
 
 ## Команды
 
@@ -171,7 +171,7 @@ dart analyze
 dart test
 
 # интеграционные тесты миграций на живой PostgreSQL (создаёт и удаляет временную базу)
-$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
+$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration
 
 # один файл / фильтр по имени
 dart test test/routes/auth/validate_test.dart

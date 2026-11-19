@@ -32,7 +32,7 @@
 ```powershell
 dart analyze
 dart test
-$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:5433/melist?sslmode=disable'; dart test test/integration
+$env:TEST_DATABASE_URL='postgres://melist:melist@localhost:15432/melist?sslmode=disable'; dart test test/integration
 ```
 
    В backend после изменения `@Route` ещё `dart run dart_frog_swagger`. Если менялись Dockerfile или compose — `docker compose -f docker-compose.dev.yml up -d --build` из `backend/` и проверка `docker compose -f docker-compose.dev.yml ps`.

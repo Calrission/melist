@@ -13,7 +13,7 @@ import 'package:test/test.dart';
 /// `CREATE DATABASE` (the docker-compose `melist` user is a superuser):
 ///
 /// ```powershell
-/// $env:TEST_DATABASE_URL = 'postgres://melist:melist@localhost:5433/melist?sslmode=disable'
+/// $env:TEST_DATABASE_URL = 'postgres://melist:melist@localhost:15432/melist?sslmode=disable'
 /// dart test test/integration
 /// ```
 ///
