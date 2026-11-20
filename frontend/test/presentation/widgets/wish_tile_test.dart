@@ -56,6 +56,7 @@ void main() {
 
     expect(find.byIcon(Icons.lock), findsOneWidget);
     expect(find.byType(ColorFiltered), findsOneWidget);
+    expect(_borderColor(tester), Colors.transparent);
     for (final label in ['Book', 'Hardcover', '10 ₽']) {
       expect(
         tester.widget<Text>(find.text(label)).style?.color,
@@ -82,6 +83,7 @@ void main() {
     expect(find.byIcon(Icons.lock), findsNothing);
     expect(find.byType(ColorFiltered), findsNothing);
     expect(tester.widget<Text>(find.text('Book')).style?.color, palette.accent);
+    expect(_borderColor(tester), palette.accent);
   });
 
   testWidgets('subtitle replaces the description', (tester) async {
@@ -105,4 +107,10 @@ void main() {
     expect(find.text('Hardcover'), findsNothing);
     expect(find.byIcon(Icons.lock), findsNothing);
   });
+}
+
+Color _borderColor(WidgetTester tester) {
+  final decoration =
+      tester.widget<Ink>(find.byType(Ink)).decoration! as BoxDecoration;
+  return decoration.border!.top.color;
 }

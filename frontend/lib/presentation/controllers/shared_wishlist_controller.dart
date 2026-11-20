@@ -63,6 +63,23 @@ class SharedWishlistController extends BaseController<WishlistModel> {
     }
   }
 
+  /// Reloads the open list without replacing it with a spinner.
+  Future<void> reload() async {
+    final token = _token;
+    if (token == null || token.isEmpty) {
+      return;
+    }
+    try {
+      final fresh = await _wishlistRepository.getSharedWishlist(token);
+      if (_token != token) {
+        return;
+      }
+      data = fresh;
+    } on Object catch (error) {
+      setError(error, silence: true, changeState: false);
+    }
+  }
+
   Future<void> copyWishTo(int wishId, int targetWishlistId) async {
     await _wishRepository.addWishToWishlist(
       targetWishlistId,

@@ -226,11 +226,16 @@ class _LoadedWishlistView extends StatelessWidget {
                   wishModel: e,
                   onTapDelete: () =>
                       context.guard(() => controller.removeWish(e.id)),
-                  onTap: () => context.pushNamed(
-                    wishDetailsGoKey,
-                    pathParameters: {'id': e.id.toString()},
-                    extra: WishDetailsArguments(wish: e),
-                  ),
+                  onTap: () async {
+                    await context.pushNamed(
+                      wishDetailsGoKey,
+                      pathParameters: {'id': e.id.toString()},
+                      extra: WishDetailsArguments(wish: e),
+                    );
+                    if (context.mounted) {
+                      await context.read<WishlistController>().refresh();
+                    }
+                  },
                 );
               },
               itemCount: items.length,

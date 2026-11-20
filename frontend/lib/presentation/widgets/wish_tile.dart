@@ -147,7 +147,7 @@ class WishTile extends StatelessWidget {
                           : palette.container,
                       borderRadius: radius,
                       border: Border.all(
-                        color: selected == true
+                        color: selected == true || wishModel.reservedByMe
                             ? palette.accent
                             : Colors.transparent,
                         width: 2,

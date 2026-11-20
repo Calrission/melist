@@ -270,11 +270,16 @@ class _LoadedShared extends StatelessWidget {
                 final wish = items[index];
                 return WishTile(
                   wishModel: wish,
-                  onTap: () => context.pushNamed(
-                    wishDetailsGoKey,
-                    pathParameters: {'id': wish.id.toString()},
-                    extra: WishDetailsArguments(wish: wish),
-                  ),
+                  onTap: () async {
+                    await context.pushNamed(
+                      wishDetailsGoKey,
+                      pathParameters: {'id': wish.id.toString()},
+                      extra: WishDetailsArguments(wish: wish),
+                    );
+                    if (context.mounted) {
+                      await context.read<SharedWishlistController>().reload();
+                    }
+                  },
                   actions: [
                     if (!isOwn)
                       IconButton(
