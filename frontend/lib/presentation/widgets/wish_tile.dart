@@ -82,6 +82,10 @@ class WishTile extends StatelessWidget {
   final ValueChanged<bool?>? onSelect;
   final List<Widget> actions;
 
+  /// Accent outline when this wish is reserved by the viewer.
+  /// Off on the reservations page, where every card is already the viewer's.
+  final bool borderWhenReservedByMe;
+
   const WishTile({
     super.key,
     required this.wishModel,
@@ -91,6 +95,7 @@ class WishTile extends StatelessWidget {
     this.selected,
     this.onSelect,
     this.actions = const [],
+    this.borderWhenReservedByMe = true,
   });
 
   @override
@@ -105,6 +110,7 @@ class WishTile extends StatelessWidget {
         ? "0 ₽"
         : "${_formatPrice(wishModel.price!)} ₽";
     final radius = BorderRadius.circular(borderRadius);
+    final showBorder = selected == true || borderWhenReservedByMe;
     final cover = ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: SizedBox(
@@ -147,10 +153,12 @@ class WishTile extends StatelessWidget {
                           : palette.container,
                       borderRadius: radius,
                       border: Border.all(
-                        color: selected == true || wishModel.reservedByMe
+                        color: selected == true ||
+                                (borderWhenReservedByMe &&
+                                    wishModel.reservedByMe)
                             ? palette.accent
                             : Colors.transparent,
-                        width: 2,
+                        width: showBorder ? 2 : 0,
                       ),
                     ),
                     child: Row(

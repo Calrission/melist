@@ -92,6 +92,7 @@ class _LoadedReservations extends StatelessWidget {
                 final owner = wish.ownerNickname?.trim();
                 return WishTile(
                   wishModel: wish,
+                  borderWhenReservedByMe: false,
                   subtitle: owner == null || owner.isEmpty
                       ? 'Для:'
                       : 'Для: $owner',
