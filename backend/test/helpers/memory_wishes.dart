@@ -6,6 +6,7 @@ class MemoryWishData {
   final userIds = <int>{};
   final wishes = <int, WishModel>{};
   final reservedBy = <int, int>{};
+  final reservedAt = <int, DateTime>{};
   int nextWishId = 1;
 }
 
@@ -41,10 +42,11 @@ class MemoryWishUserRepository implements UserRepository {
 }
 
 class MemoryWishRepository implements WishRepository {
-  MemoryWishRepository(this.data, {this.wishlistsFor});
+  MemoryWishRepository(this.data, {this.wishlistsFor, this.ownerName});
 
   final MemoryWishData data;
   final List<WishWishlistModel> Function(int wishId)? wishlistsFor;
+  final String? Function(int ownerId)? ownerName;
 
   @override
   Future<List<WishModel>> listByOwner({
@@ -139,6 +141,7 @@ class MemoryWishRepository implements WishRepository {
     data.wishes[id] = updated;
     if (status != null && status != WishStatus.reserved) {
       data.reservedBy.remove(id);
+      data.reservedAt.remove(id);
     }
     return updated;
   }
@@ -151,6 +154,7 @@ class MemoryWishRepository implements WishRepository {
     }
     data.wishes.remove(id);
     data.reservedBy.remove(id);
+    data.reservedAt.remove(id);
     return 1;
   }
 
@@ -213,6 +217,7 @@ class MemoryWishRepository implements WishRepository {
       return null;
     }
     data.reservedBy[id] = userId;
+    data.reservedAt[id] = DateTime.now();
     final stored = WishModel(
       id: wish.id,
       ownerId: wish.ownerId,
@@ -243,6 +248,7 @@ class MemoryWishRepository implements WishRepository {
       return null;
     }
     data.reservedBy.remove(id);
+    data.reservedAt.remove(id);
     final released = WishModel(
       id: wish.id,
       ownerId: wish.ownerId,
@@ -257,6 +263,52 @@ class MemoryWishRepository implements WishRepository {
     );
     data.wishes[id] = released;
     return released;
+  }
+
+  @override
+  Future<List<WishModel>> listReservedBy(int userId) async {
+    final ids =
+        [
+          for (final entry in data.reservedBy.entries)
+            if (entry.value == userId) entry.key,
+        ]..sort((a, b) {
+          final left = data.reservedAt[a];
+          final right = data.reservedAt[b];
+          if (left == null && right == null) {
+            return b.compareTo(a);
+          }
+          if (left == null) {
+            return 1;
+          }
+          if (right == null) {
+            return -1;
+          }
+          final byTime = right.compareTo(left);
+          return byTime != 0 ? byTime : b.compareTo(a);
+        });
+    return [
+      for (final id in ids)
+        if (data.wishes[id] case final wish?) _reservedView(wish),
+    ];
+  }
+
+  WishModel _reservedView(WishModel wish) {
+    final name = ownerName?.call(wish.ownerId)?.trim();
+    return WishModel(
+      id: wish.id,
+      ownerId: wish.ownerId,
+      name: wish.name,
+      price: wish.price,
+      url: wish.url,
+      description: wish.description,
+      coverUrl: wish.coverUrl,
+      status: wish.status,
+      reservedByMe: true,
+      ownerNickname: name == null || name.isEmpty ? null : name,
+      copiedFrom: wish.copiedFrom,
+      createdAt: wish.createdAt,
+      updatedAt: wish.updatedAt,
+    );
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:melist/presentation/pages/error_page.dart';
 import 'package:melist/presentation/pages/favorites_wishlist_page.dart';
 import 'package:melist/presentation/pages/home_page.dart';
 import 'package:melist/presentation/pages/public_profile_page.dart';
+import 'package:melist/presentation/pages/reservations_page.dart';
 import 'package:melist/presentation/pages/shared_wishlist_page.dart';
 import 'package:melist/presentation/pages/settings_page.dart';
 import 'package:melist/presentation/pages/subscriptions_page.dart';
@@ -27,6 +28,7 @@ const String wishCreateGoKey = 'wish_create';
 const String wishAttachGoKey = 'wish_attach';
 const String wishlistFavoritesGoKey = 'wishlist_favorites';
 const String wishesGoKey = 'wishes';
+const String reservationsGoKey = 'reservations';
 const String wishNewGoKey = 'wish_new';
 const String wishEditGoKey = 'wish_edit';
 const String wishDetailsGoKey = 'wish_details';
@@ -122,6 +124,11 @@ GoRouter createAppRouter() => GoRouter(
                   ),
                 ),
               ],
+            ),
+            GoRoute(
+              path: '/reservations',
+              name: reservationsGoKey,
+              builder: (_, _) => const ReservationsPage(),
             ),
             GoRoute(
               path: "/favorites",

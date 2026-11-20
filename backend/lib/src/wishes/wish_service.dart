@@ -36,6 +36,10 @@ class WishService {
   static const maxLimit = 100;
   static const _maxNameLength = 255;
 
+  Future<List<WishModel>> listReservations(AuthUser user) {
+    return _repo.listReservedBy(user.id);
+  }
+
   Future<List<WishModel>> listMine(
     AuthUser user, {
     String? query,

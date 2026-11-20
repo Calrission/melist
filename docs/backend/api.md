@@ -226,6 +226,10 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 Копия своего желания. `201`.
 
+### `GET /api/v1/reservations`
+
+Чужие хотелки, которые забронировал текущий пользователь. Новые сверху. У каждой `reservedByMe: true` и `ownerNickname` — ник владельца, а если он не задан, имя и фамилия. Идентификатор того, кто забронировал, не отдаётся.
+
 ## Подписки
 
 Файлы: `backend/routes/api/v1/subscriptions/`. Свой вишлист или свой профиль — `400`. Чужой черновик вишлиста — `404`. Повтор — `409`. Список — новые сверху; в списке вишлистов только `public`.
@@ -261,4 +265,4 @@ JWT: `sub` = Telegram user id, claims `firstName`, `lastName`, `username`. TTL a
 
 ## Статус реализации
 
-Работают: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/v1/wishlists`, `GET`/`PATCH`/`DELETE /api/v1/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/v1/wishes`, `GET`/`PATCH`/`DELETE /api/v1/wishes/{id}`, `POST /api/v1/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/v1/wishlists/{id}/wishes`, `DELETE /api/v1/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/v1/wishlists/{id}/share`, `GET /api/v1/shared/{token}`), избранное (`GET`/`POST`/`PATCH /api/v1/favorites`, `DELETE /api/v1/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/v1/me`, `GET /api/v1/users/{id}`), подписки (`GET`/`POST /api/v1/subscriptions/wishlists`, `DELETE /api/v1/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/v1/subscriptions/users`, `DELETE /api/v1/subscriptions/users/{userId}`). Остальные `/api/v1/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).
+Работают: `/`, `/health`, `/version`, `/auth/validate`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/debug`, CRUD вишлистов (`GET`/`POST`/`PATCH`/`DELETE /api/v1/wishlists`, `GET`/`PATCH`/`DELETE /api/v1/wishlists/{id}`), CRUD желаний (`GET`/`POST`/`DELETE /api/v1/wishes`, `GET`/`PATCH`/`DELETE /api/v1/wishes/{id}`, `POST /api/v1/wishes/{id}/duplicate`), желания внутри вишлиста (`POST`/`PATCH /api/v1/wishlists/{id}/wishes`, `DELETE /api/v1/wishlists/{id}/wishes/{wishId}`), шеринг (`POST /api/v1/wishlists/{id}/share`, `GET /api/v1/shared/{token}`, `POST`/`DELETE /api/v1/shared/{token}/wishes/{wishId}/reservation`), свои брони (`GET /api/v1/reservations`), избранное (`GET`/`POST`/`PATCH /api/v1/favorites`, `DELETE /api/v1/favorites/{wishlistId}`), профиль (`GET`/`PATCH /api/v1/me`, `GET /api/v1/users/{id}`), подписки (`GET`/`POST /api/v1/subscriptions/wishlists`, `DELETE /api/v1/subscriptions/wishlists/{wishlistId}`, `GET`/`POST /api/v1/subscriptions/users`, `DELETE /api/v1/subscriptions/users/{userId}`). Остальные `/api/v1/**` — заглушки: проверяют метод и Bearer JWT, отвечают `501 { "error": "Not implemented" }`. Очередь работ — [roadmap.md](roadmap.md) (монетизация 27–29 там не планируется).

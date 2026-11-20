@@ -83,4 +83,26 @@ void main() {
     expect(find.byType(ColorFiltered), findsNothing);
     expect(tester.widget<Text>(find.text('Book')).style?.color, palette.accent);
   });
+
+  testWidgets('subtitle replaces the description', (tester) async {
+    await tester.pumpWidget(
+      host(
+        const WishTile(
+          wishModel: WishModel(
+            id: 1,
+            ownerId: 2,
+            name: 'Book',
+            description: 'Hardcover',
+            status: WishStatus.reserved,
+            reservedByMe: true,
+          ),
+          subtitle: 'Для: Света Миндаль',
+        ),
+      ),
+    );
+
+    expect(find.text('Для: Света Миндаль'), findsOneWidget);
+    expect(find.text('Hardcover'), findsNothing);
+    expect(find.byIcon(Icons.lock), findsNothing);
+  });
 }

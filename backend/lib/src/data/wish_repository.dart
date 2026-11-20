@@ -151,7 +151,9 @@ RETURNING $_columns
       sets.add('status = CAST(@status AS wish_status)');
       params['status'] = status.name;
       if (status != WishStatus.reserved) {
-        sets.add('reserved_by = NULL');
+        sets
+          ..add('reserved_by = NULL')
+          ..add('reserved_at = NULL');
       }
     }
 
@@ -249,6 +251,7 @@ WHERE id = @id
 UPDATE wishes
 SET status = CAST('reserved' AS wish_status),
     reserved_by = @userId,
+    reserved_at = now(),
     updated_at = now()
 WHERE id = @id
   AND owner_id <> @userId
@@ -271,6 +274,7 @@ RETURNING $_columns, TRUE AS reserved_by_me
 UPDATE wishes
 SET status = CAST('free' AS wish_status),
     reserved_by = NULL,
+    reserved_at = NULL,
     updated_at = now()
 WHERE id = @id AND reserved_by = @userId
 RETURNING $_columns, FALSE AS reserved_by_me
@@ -278,6 +282,35 @@ RETURNING $_columns, FALSE AS reserved_by_me
       {'id': id, 'userId': userId},
     );
     return row == null ? null : WishModel.fromRow(row);
+  }
+
+  /// Wishes reserved by [userId], newest first.
+  ///
+  /// The owner display name is included. The reserver id is not selected.
+  Future<List<WishModel>> listReservedBy(int userId) async {
+    final rows = await _db.query(
+      '''
+SELECT
+  w.id, w.owner_id, w.name, w.price, w.url, w.description, w.cover_url,
+  w.status::text AS status,
+  w.copied_from, w.created_at, w.updated_at,
+  TRUE AS reserved_by_me,
+  COALESCE(
+    NULLIF(btrim(owner.nickname), ''),
+    NULLIF(btrim(concat_ws(
+      ' ',
+      NULLIF(btrim(owner.first_name), ''),
+      NULLIF(btrim(owner.last_name), '')
+    )), '')
+  ) AS owner_nickname
+FROM wishes w
+JOIN users owner ON owner.id = w.owner_id
+WHERE w.reserved_by = @userId
+ORDER BY w.reserved_at DESC NULLS LAST, w.id DESC
+''',
+      {'userId': userId},
+    );
+    return [for (final row in rows) WishModel.fromRow(row)];
   }
 }
 

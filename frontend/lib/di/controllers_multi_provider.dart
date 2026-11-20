@@ -4,6 +4,7 @@ import 'package:melist/presentation/controllers/deep_link_controller.dart';
 import 'package:melist/presentation/controllers/favorites_wishlist_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/public_profile_controller.dart';
+import 'package:melist/presentation/controllers/reservations_controller.dart';
 import 'package:melist/presentation/controllers/shared_wishlist_controller.dart';
 import 'package:melist/presentation/controllers/theme_controller.dart';
 import 'package:melist/presentation/controllers/user_subscriptions_controller.dart';
@@ -33,10 +34,8 @@ class ControllersMultiProvider {
     ChangeNotifierProvider<ThemeController>(create: (ctx) => ThemeController()),
 
     ChangeNotifierProvider<ProfileController>(
-      create: (ctx) => ProfileController(
-        repository: ctx.read(),
-        theme: ctx.read(),
-      ),
+      create: (ctx) =>
+          ProfileController(repository: ctx.read(), theme: ctx.read()),
     ),
 
     ChangeNotifierProvider<PublicProfileController>(
@@ -63,8 +62,12 @@ class ControllersMultiProvider {
       create: (ctx) => WishlistController(
         wishlistRepository: ctx.read(),
         wishRepository: ctx.read(),
-        wishlistListController: ctx.read()
+        wishlistListController: ctx.read(),
       ),
+    ),
+
+    ChangeNotifierProvider<ReservationsController>(
+      create: (ctx) => ReservationsController(repository: ctx.read()),
     ),
 
     ChangeNotifierProvider<WishesController>(

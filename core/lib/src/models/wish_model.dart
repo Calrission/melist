@@ -13,6 +13,7 @@ class WishModel {
     this.coverUrl,
     this.status = WishStatus.free,
     this.reservedByMe = false,
+    this.ownerNickname,
     this.wishlists = const [],
     this.copiedFrom,
     this.createdAt,
@@ -36,6 +37,7 @@ class WishModel {
           ? WishStatus.free
           : WishStatus.fromName(json['status']),
       reservedByMe: json['reservedByMe'] == true,
+      ownerNickname: optionalString(json['ownerNickname']),
       wishlists: _wishlistsFrom(json['wishlists']),
       copiedFrom: optionalInt(json['copiedFrom'], 'copiedFrom'),
       createdAt: optionalDateTime(json['createdAt'], 'createdAt'),
@@ -56,6 +58,7 @@ class WishModel {
           ? WishStatus.free
           : WishStatus.fromName(row['status']),
       reservedByMe: row['reserved_by_me'] == true,
+      ownerNickname: optionalString(row['owner_nickname']),
       copiedFrom: optionalInt(row['copied_from'], 'copiedFrom'),
       createdAt: optionalDateTime(row['created_at'], 'createdAt'),
       updatedAt: optionalDateTime(row['updated_at'], 'updatedAt'),
@@ -76,6 +79,10 @@ class WishModel {
   /// Never identifies another reserver.
   final bool reservedByMe;
 
+  /// Owner's nickname, or the first and last name when it is not set.
+  /// Filled on `GET /api/v1/reservations`.
+  final String? ownerNickname;
+
   /// Owner's wishlists that contain this wish. Filled on `GET /api/v1/wishes/{id}`.
   final List<WishWishlistModel> wishlists;
   final int? copiedFrom;
@@ -92,6 +99,7 @@ class WishModel {
     'coverUrl': coverUrl,
     'status': status.name,
     'reservedByMe': reservedByMe,
+    if (ownerNickname != null) 'ownerNickname': ownerNickname,
     if (wishlists.isNotEmpty)
       'wishlists': [for (final wishlist in wishlists) wishlist.toJson()],
     'copiedFrom': copiedFrom,
@@ -110,6 +118,7 @@ class WishModel {
       coverUrl: coverUrl,
       status: status,
       reservedByMe: reservedByMe,
+      ownerNickname: ownerNickname,
       wishlists: wishlists,
       copiedFrom: copiedFrom,
       createdAt: createdAt,
@@ -128,6 +137,7 @@ class WishModel {
       coverUrl: coverUrl,
       status: status,
       reservedByMe: reservedByMe,
+      ownerNickname: ownerNickname,
       wishlists: wishlists,
       copiedFrom: copiedFrom,
       createdAt: createdAt,

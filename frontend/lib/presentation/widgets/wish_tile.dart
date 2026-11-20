@@ -71,6 +71,9 @@ const ColorFilter wishTakenGrayscale = ColorFilter.matrix(<double>[
 
 class WishTile extends StatelessWidget {
   final WishModel wishModel;
+
+  /// Replaces the description line. Used for "Для: …" on reserved wishes.
+  final String? subtitle;
   final VoidCallback? onTapDelete;
   final VoidCallback? onTap;
 
@@ -82,6 +85,7 @@ class WishTile extends StatelessWidget {
   const WishTile({
     super.key,
     required this.wishModel,
+    this.subtitle,
     this.onTapDelete,
     this.onTap,
     this.selected,
@@ -177,7 +181,7 @@ class WishTile extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                description ?? "",
+                                subtitle ?? description ?? "",
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

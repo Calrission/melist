@@ -134,6 +134,11 @@ const wishSchema = <String, Object?>{
           'True only when the authenticated caller reserved this wish. '
           'Does not identify any other reserver.',
     },
+    'ownerNickname': {
+      'type': 'string',
+      'description':
+          'Wish owner display name. Present on the caller\'s reservations.',
+    },
     'wishlists': {
       'type': 'array',
       'items': {

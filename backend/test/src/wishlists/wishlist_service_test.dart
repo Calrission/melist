@@ -593,5 +593,24 @@ void main() {
       expect(after.items.single.status, WishStatus.free);
       expect(after.items.single.reservedByMe, isFalse);
     });
+
+    test('lists the caller reservations with the owner name', () async {
+      final (list: _, :token, :wish) = await sharedWish();
+      data.users[owner.id] = const UserModel(
+        id: 7,
+        nickname: 'Света Миндаль',
+      );
+      await service.reserveSharedWish(stranger, token, wish.id);
+
+      final wishes = memoryWishServiceFromLists(data);
+      final reserved = await wishes.listReservations(stranger);
+
+      expect(reserved, hasLength(1));
+      expect(reserved.single.name, 'Book');
+      expect(reserved.single.reservedByMe, isTrue);
+      expect(reserved.single.ownerNickname, 'Света Миндаль');
+      expect(reserved.single.toJson().containsKey('reservedBy'), isFalse);
+      expect(await wishes.listReservations(third), isEmpty);
+    });
   });
 }

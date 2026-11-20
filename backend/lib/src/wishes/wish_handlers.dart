@@ -1,6 +1,23 @@
 import 'package:dart_frog/dart_frog.dart';
 import 'package:melist_backend/melist_backend.dart';
 
+Future<Response> handleReservations(RequestContext context) async {
+  final rejected = rejectUnlessMethod(context, {HttpMethod.get});
+  if (rejected != null) {
+    return rejected;
+  }
+
+  final user = context.read<AuthUser>();
+  final wishes = context.read<WishService>();
+
+  try {
+    final items = await wishes.listReservations(user);
+    return Response.json(body: [for (final item in items) item.toJson()]);
+  } on AppException catch (error) {
+    return appError(error);
+  }
+}
+
 Future<Response> handleWishesCollection(RequestContext context) async {
   final rejected = rejectUnlessMethod(
     context,

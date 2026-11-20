@@ -51,10 +51,7 @@ class _BuildVersionLabelState extends State<_BuildVersionLabel> {
 
   @override
   Widget build(BuildContext context) {
-    final label = [
-      ?_version,
-      ?_backendVersion,
-    ].join(' | ');
+    final label = [?_version, ?_backendVersion].join(' | ');
     if (label.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -155,6 +152,14 @@ class _HomePageState extends State<HomePage> {
               iconAlignment: IconAlignment.end,
               icon: Icon(MelistIcons.arrowRight),
               label: Text("Все мои хотелки").row(),
+              style: getMenuItemFilledButtonStyle(context.palette),
+            ),
+            SizedBox(height: smallSep),
+            FilledButton.icon(
+              onPressed: () => context.goNamed(reservationsGoKey),
+              iconAlignment: IconAlignment.end,
+              icon: Icon(MelistIcons.arrowRight),
+              label: Text("Забронированные хотелки").row(),
               style: getMenuItemFilledButtonStyle(context.palette),
             ),
             SizedBox(height: smallSep),

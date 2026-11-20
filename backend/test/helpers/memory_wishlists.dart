@@ -427,6 +427,7 @@ WishService memoryWishServiceFromLists(MemoryWishlistData data) {
     wishes: (_) => MemoryWishRepository(
       data.wishStore,
       wishlistsFor: (wishId) => _wishlistsContaining(data, wishId),
+      ownerName: (ownerId) => data.users[ownerId]?.displayName,
     ),
     users: (_) => MemoryUserRepository(data),
   );

@@ -234,6 +234,12 @@ class ApiRepository
   }
 
   @override
+  Future<List<WishModel>> getMyReservations() async {
+    final response = await _dio.get('/api/v1/reservations');
+    return WishModel.listFromJson(response.data);
+  }
+
+  @override
   Future<WishModel> getMyWishById(int wishId) async {
     final response = await _dio.get('/api/v1/wishes/$wishId');
     return WishModel.fromJson(response.data);
