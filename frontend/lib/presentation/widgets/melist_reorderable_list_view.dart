@@ -20,10 +20,41 @@ class MelistReorderableListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ReorderableListView.builder(
-      padding: padding,
+    return CustomScrollView(
       clipBehavior: Clip.hardEdge,
-      buildDefaultDragHandles: false,
+      slivers: [
+        SliverPadding(
+          padding: padding ?? EdgeInsets.zero,
+          sliver: MelistReorderableSliver(
+            itemCount: itemCount,
+            itemBuilder: itemBuilder,
+            onReorderItem: onReorderItem,
+            reorderEnabled: reorderEnabled,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Reorderable sliver used inside a [CustomScrollView] that also has headers.
+class MelistReorderableSliver extends StatelessWidget {
+  const MelistReorderableSliver({
+    super.key,
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.onReorderItem,
+    this.reorderEnabled = true,
+  });
+
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+  final void Function(int oldIndex, int newIndex) onReorderItem;
+  final bool reorderEnabled;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverReorderableList(
       proxyDecorator: (child, index, animation) => child,
       onReorderItem: onReorderItem,
       itemCount: itemCount,

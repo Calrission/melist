@@ -11,7 +11,6 @@ import 'package:melist/presentation/extensions/error_extension.dart';
 import 'package:melist/presentation/extensions/theme_extension.dart';
 import 'package:melist/presentation/pages/wish_details_page.dart';
 import 'package:melist/presentation/router/app_router.dart';
-import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/empty_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
@@ -226,60 +225,67 @@ class _LoadedShared extends StatelessWidget {
     final myId = context.watch<ProfileController>().profile?.id;
     final isOwn = myId != null && myId == wishlist.ownerId;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 8),
-              ToProfileWidget(
-                ownerId: wishlist.ownerId,
-                fallbackName: wishlist.ownerNickname,
-              ),
-              const SizedBox(height: 16),
-              if (wishlist.description != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    wishlist.description!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w300,
+    final padding = context.listContentPadding();
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: padding.copyWith(bottom: 0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                ToProfileWidget(
+                  ownerId: wishlist.ownerId,
+                  fallbackName: wishlist.ownerNickname,
+                ),
+                const SizedBox(height: 16),
+                if (wishlist.description != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      wishlist.description!,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
-        Expanded(
-          child: wishlist.items.isEmpty
-              ? EmptyPlaceholderWidget()
-              : ListView(
-                  padding: context.listContentPadding(),
-                  children: [
-                    for (final wish in wishlist.items)
-                      WishTile(
-                        wishModel: wish,
-                        onTap: () => context.pushNamed(
-                          wishDetailsGoKey,
-                          pathParameters: {'id': wish.id.toString()},
-                          extra: WishDetailsArguments(wish: wish),
-                        ),
-                        actions: [
-                          if (!isOwn)
-                            IconButton(
-                              tooltip: "Скопировать к себе",
-                              onPressed: () => _copy(context, wish),
-                              icon: Icon(Icons.copy),
-                            ),
-                        ],
+        if (wishlist.items.isEmpty)
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyPlaceholderWidget(),
+          )
+        else
+          SliverPadding(
+            padding: padding.copyWith(top: 0),
+            sliver: SliverList.builder(
+              itemCount: wishlist.items.length,
+              itemBuilder: (context, index) {
+                final wish = wishlist.items[index];
+                return WishTile(
+                  wishModel: wish,
+                  onTap: () => context.pushNamed(
+                    wishDetailsGoKey,
+                    pathParameters: {'id': wish.id.toString()},
+                    extra: WishDetailsArguments(wish: wish),
+                  ),
+                  actions: [
+                    if (!isOwn)
+                      IconButton(
+                        tooltip: "Скопировать к себе",
+                        onPressed: () => _copy(context, wish),
+                        icon: Icon(Icons.copy),
                       ),
                   ],
-                ),
-        ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }

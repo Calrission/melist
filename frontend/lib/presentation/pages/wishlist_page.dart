@@ -161,58 +161,80 @@ class _LoadedWishlistView extends StatelessWidget {
     final controller = context.watch<WishlistController>();
     final wishlist = controller.data!;
     final id = wishlistId.toString();
-    return Column(
-      crossAxisAlignment: .start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: horPagePadding),
-          child: Column(
-            crossAxisAlignment: .start,
-            children: [
-              if (wishlist.description != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    wishlist.description!,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w300),
+    final padding = context.listContentPadding();
+    return CustomScrollView(
+      clipBehavior: Clip.hardEdge,
+      slivers: [
+        SliverPadding(
+          padding: padding.copyWith(bottom: 0),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: .start,
+              children: [
+                if (wishlist.description != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      wishlist.description!,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w300,
+                      ),
+                    ),
                   ),
-                ),
-              const SizedBox(height: 18),
-              AddElemListButton(
+                const SizedBox(height: 18),
+              ],
+            ),
+          ),
+        ),
+        PinnedHeaderSliver(
+          child: ColoredBox(
+            color: context.palette.background,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                horPagePadding,
+                0,
+                horPagePadding,
+                16,
+              ),
+              child: AddElemListButton(
                 text: "Добавить желание",
                 onTap: () => _showAddWishDialog(context, id),
               ),
-              const SizedBox(height: 16),
-            ],
+            ),
           ),
         ),
-        Expanded(
-          child: (wishlist.items.isEmpty)
-              ? EmptyPlaceholderWidget()
-              : MelistReorderableListView(
-                  padding: context.listContentPadding(),
-                  onReorderItem: (oldIndex, newIndex) {
-                    final order = controller.currentOrder;
-                    order.reorder(oldIndex, newIndex);
-                    controller.reorderWishes(wishlistId, order);
-                  },
-                  itemBuilder: (ctx, index) {
-                    final e = wishlist.items[index];
-                    return WishTile(
-                      key: ValueKey(e),
-                      wishModel: e,
-                      onTapDelete: () =>
-                          context.guard(() => controller.removeWish(e.id)),
-                      onTap: () => context.pushNamed(
-                        wishDetailsGoKey,
-                        pathParameters: {'id': e.id.toString()},
-                        extra: WishDetailsArguments(wish: e),
-                      ),
-                    );
-                  },
-                  itemCount: wishlist.items.length,
-                ),
-        ),
+        if (wishlist.items.isEmpty)
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: EmptyPlaceholderWidget(),
+          )
+        else
+          SliverPadding(
+            padding: padding.copyWith(top: 0),
+            sliver: MelistReorderableSliver(
+              onReorderItem: (oldIndex, newIndex) {
+                final order = controller.currentOrder;
+                order.reorder(oldIndex, newIndex);
+                controller.reorderWishes(wishlistId, order);
+              },
+              itemBuilder: (ctx, index) {
+                final e = wishlist.items[index];
+                return WishTile(
+                  key: ValueKey(e),
+                  wishModel: e,
+                  onTapDelete: () =>
+                      context.guard(() => controller.removeWish(e.id)),
+                  onTap: () => context.pushNamed(
+                    wishDetailsGoKey,
+                    pathParameters: {'id': e.id.toString()},
+                    extra: WishDetailsArguments(wish: e),
+                  ),
+                );
+              },
+              itemCount: wishlist.items.length,
+            ),
+          ),
       ],
     );
   }
