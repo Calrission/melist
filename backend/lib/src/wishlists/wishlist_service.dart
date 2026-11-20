@@ -48,7 +48,7 @@ class WishlistService {
     }
     final itemsByList = await _repo.listItemsFor([
       for (final list in lists) list.id,
-    ]);
+    ], viewerId: user.id);
     return [
       for (final list in lists)
         list.copyWith(items: itemsByList[list.id] ?? const []),
@@ -57,7 +57,7 @@ class WishlistService {
 
   Future<WishlistModel> getById(AuthUser user, int id) async {
     final wishlist = await _requireOwned(user.id, id);
-    final items = await _repo.listItems(id);
+    final items = await _repo.listItems(id, viewerId: user.id);
     return wishlist.copyWith(items: items);
   }
 
@@ -109,7 +109,7 @@ class WishlistService {
       if (uniqueWishIds.isEmpty) {
         return created;
       }
-      final items = await wishlists.listItems(created.id);
+      final items = await wishlists.listItems(created.id, viewerId: user.id);
       return created.copyWith(items: items);
     });
   }
@@ -234,8 +234,93 @@ class WishlistService {
       throw const NotFoundException('Wishlist not found');
     }
 
-    final items = await _repo.listItems(wishlist.id);
+    final items = await _repo.listItems(wishlist.id, viewerId: user.id);
     return wishlist.copyWith(items: items);
+  }
+
+  Future<WishModel> reserveSharedWish(
+    AuthUser user,
+    String token,
+    int wishId,
+  ) async {
+    final wishlist = await _requireVisibleShare(user, token);
+    return _changeReservation(user, wishlist.id, wishId, claim: true);
+  }
+
+  Future<WishModel> cancelSharedReservation(
+    AuthUser user,
+    String token,
+    int wishId,
+  ) async {
+    final wishlist = await _requireVisibleShare(user, token);
+    return _changeReservation(user, wishlist.id, wishId, claim: false);
+  }
+
+  Future<WishlistModel> _requireVisibleShare(
+    AuthUser user,
+    String token,
+  ) async {
+    final parsed = normalizeShareToken(token);
+    if (parsed.isEmpty) {
+      throw const NotFoundException('Wishlist not found');
+    }
+    final wishlist = await _repo.findByShareToken(parsed);
+    if (wishlist == null ||
+        (wishlist.ownerId != user.id &&
+            wishlist.visibility == WishlistVisibility.draft)) {
+      throw const NotFoundException('Wishlist not found');
+    }
+    return wishlist;
+  }
+
+  Future<WishModel> _changeReservation(
+    AuthUser user,
+    int wishlistId,
+    int wishId, {
+    required bool claim,
+  }) async {
+    if (!await _repo.isAttached(wishlistId: wishlistId, wishId: wishId)) {
+      throw const NotFoundException('Wish is not in the wishlist');
+    }
+
+    final wishes = _wishes(_db);
+    final state = await wishes.findReservation(wishId);
+    if (state == null) {
+      throw const NotFoundException('Wish not found');
+    }
+    if (state.ownerId == user.id) {
+      throw const ForbiddenException('Cannot reserve your own wish');
+    }
+
+    if (claim) {
+      if (state.reservedBy == user.id) {
+        final current = await wishes.findById(wishId);
+        return current!.withReservedByMe(true);
+      }
+      if (state.reservedBy != null || state.status != WishStatus.free) {
+        throw const ConflictException('Wish is already reserved');
+      }
+      final reserved = await wishes.claimReservation(
+        id: wishId,
+        userId: user.id,
+      );
+      if (reserved == null) {
+        throw const ConflictException('Wish is already reserved');
+      }
+      return reserved;
+    }
+
+    if (state.reservedBy != user.id) {
+      throw const ConflictException('Wish is not reserved by you');
+    }
+    final released = await wishes.releaseReservation(
+      id: wishId,
+      userId: user.id,
+    );
+    if (released == null) {
+      throw const ConflictException('Wish is not reserved by you');
+    }
+    return released;
   }
 
   Future<WishModel> addWish(

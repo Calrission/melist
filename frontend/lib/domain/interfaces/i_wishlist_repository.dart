@@ -13,4 +13,6 @@ abstract class IWishlistRepository {
   Future<void> deleteWishlistById(int wishlistId);
   Future<WishlistShareModel> shareWishlist(int wishlistId);
   Future<WishlistModel> getSharedWishlist(String token);
+  Future<WishModel> reserveSharedWish(String token, int wishId);
+  Future<WishModel> cancelSharedWishReservation(String token, int wishId);
 }

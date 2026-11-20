@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:melist/domain/interfaces/i_wish_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
+import 'package:melist/presentation/controllers/shared_wishlist_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
@@ -15,6 +16,8 @@ import 'package:melist/presentation/theme/consts.dart';
 import 'package:melist/presentation/widgets/error_placeholder_widget.dart';
 import 'package:melist/presentation/widgets/loading_widget.dart';
 import 'package:melist/presentation/widgets/melist_app_bar.dart';
+import 'package:melist/presentation/widgets/wish_booking_button.dart';
+import 'package:melist/presentation/widgets/wish_tile.dart';
 import 'package:melist_core/melist_core.dart';
 import 'package:provider/provider.dart';
 
@@ -103,15 +106,49 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
     WishStatus.reserved => "Зарезервировано",
   };
 
+  WishModel? _shownWish(List<WishModel>? sharedItems) {
+    final wish = _wish;
+    if (wish == null || sharedItems == null) {
+      return wish;
+    }
+    for (final item in sharedItems) {
+      if (item.id == wish.id) {
+        return item;
+      }
+    }
+    return wish;
+  }
+
+  WishBooking _bookingOf(WishModel wish) {
+    if (wish.reservedByMe) {
+      return WishBooking.mine;
+    }
+    if (wish.status == WishStatus.reserved) {
+      return WishBooking.taken;
+    }
+    return WishBooking.available;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final wish = _wish;
+    final sharedItems = context.watch<SharedWishlistController>().data?.items;
+    final wish = _shownWish(sharedItems);
     final profileId = context.watch<ProfileController>().profile?.id;
+    final isOwner =
+        wish != null && profileId != null && wish.ownerId == profileId;
+    final booking =
+        wish != null &&
+            profileId != null &&
+            !isOwner &&
+            _error == null &&
+            !_loading
+        ? _bookingOf(wish)
+        : null;
     return Scaffold(
       appBar: MelistAppBar(
         title: wish?.name ?? "Желание",
         actions: [
-          if (wish != null && wish.ownerId == profileId)
+          if (isOwner)
             IconButton(
               tooltip: "Редактировать",
               icon: Icon(MelistIcons.edit),
@@ -127,6 +164,35 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
           : _loading || wish == null
           ? const LoadingWidget()
           : _buildDetails(context, wish),
+      bottomNavigationBar: booking == null || wish == null
+          ? null
+          : _bookingBar(context, wish, booking),
+    );
+  }
+
+  Widget _bookingBar(
+    BuildContext context,
+    WishModel wish,
+    WishBooking booking,
+  ) {
+    return Material(
+      color: context.palette.background,
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 8, 22, 16),
+          child: WishBookingButton(
+            booking: booking,
+            onPressed: booking == WishBooking.taken
+                ? null
+                : () => context.guard(() {
+                    final bookings = context.read<SharedWishlistController>();
+                    return wish.reservedByMe
+                        ? bookings.cancelReservation(wish.id)
+                        : bookings.reserveWish(wish.id);
+                  }),
+          ),
+        ),
+      ),
     );
   }
 
@@ -141,6 +207,45 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
             )
             .map((wishlist) => wishlist.name)
             .join(', ');
+    final taken = wishIsTakenBySomeoneElse(wish);
+    final accent = taken ? context.palette.inactive : context.palette.accent;
+    final cover = ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: wish.coverUrl == null || wish.coverUrl!.isEmpty
+          ? SizedBox(
+              width: double.infinity,
+              height: 400,
+              child: ColoredBox(
+                color: accent,
+                child: Center(
+                  child: Text(
+                    "Обложка не добавлена",
+                    style: TextStyle(color: context.palette.textOnAccent),
+                  ),
+                ),
+              ),
+            )
+          : CachedNetworkImage(
+              imageUrl: wish.coverUrl!,
+              height: 400,
+              fit: BoxFit.fitHeight,
+              placeholder: (context, url) => SizedBox(
+                height: 400,
+                child: Center(child: CircularProgressIndicator(color: accent)),
+              ),
+              errorWidget: (context, url, error) => SizedBox(
+                height: 400,
+                child: Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    color: taken
+                        ? context.palette.inactive
+                        : context.palette.subText,
+                  ),
+                ),
+              ),
+            ),
+    );
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
       child: Column(
@@ -150,43 +255,9 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
           Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 350),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(borderRadius),
-                child: wish.coverUrl == null || wish.coverUrl!.isEmpty
-                    ? SizedBox(
-                        width: double.infinity,
-                        height: 400,
-                        child: ColoredBox(
-                          color: context.palette.accent,
-                          child: Center(
-                            child: Text(
-                              "Обложка не добавлена",
-                              style: TextStyle(
-                                color: context.palette.textOnAccent,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : CachedNetworkImage(
-                        imageUrl: wish.coverUrl!,
-                        height: 400,
-                        fit: BoxFit.fitHeight,
-                        placeholder: (context, url) => const SizedBox(
-                          height: 400,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                        errorWidget: (context, url, error) => SizedBox(
-                          height: 400,
-                          child: Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: context.palette.subText,
-                            ),
-                          ),
-                        ),
-                      ),
-              ),
+              child: taken
+                  ? ColorFiltered(colorFilter: wishTakenGrayscale, child: cover)
+                  : cover,
             ),
           ),
           if (wish.description?.isNotEmpty ?? false)
@@ -199,15 +270,21 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
               ),
             ),
           if (!isOwner)
-            _WishDetailField(label: "Статус", value: _statusLabel(wish.status)),
+            _WishDetailField(
+              label: "Статус",
+              value: _statusLabel(wish.status),
+              accent: accent,
+            ),
           _WishDetailField(
             label: "Цена",
             value: wish.price == null ? "—" : "${wish.price} ₽",
+            accent: accent,
           ),
           _WishDetailField(
             label: "Ссылка",
             value: wish.url ?? "—",
             maxLines: 1,
+            accent: accent,
             onCopy: wish.url == null || wish.url!.isEmpty
                 ? null
                 : () => context.guard(
@@ -220,6 +297,7 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
             _WishDetailField(
               label: "Вишлисты",
               value: wishlistNames.isEmpty ? "—" : wishlistNames,
+              accent: accent,
             ),
         ],
       ),
@@ -231,12 +309,14 @@ class _WishDetailField extends StatelessWidget {
   const _WishDetailField({
     required this.label,
     required this.value,
+    required this.accent,
     this.maxLines,
     this.onCopy,
   });
 
   final String label;
   final String value;
+  final Color accent;
   final int? maxLines;
   final VoidCallback? onCopy;
 
@@ -250,7 +330,7 @@ class _WishDetailField extends StatelessWidget {
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w500,
-            color: context.palette.accent,
+            color: accent,
           ),
         ),
         const SizedBox(height: 6),
@@ -276,8 +356,9 @@ class _WishDetailField extends StatelessWidget {
                 IconButton(
                   tooltip: "Скопировать ссылку",
                   onPressed: onCopy,
-                  icon: const Icon(Icons.copy, size: 16),
+                  icon: Icon(Icons.copy, size: 16, color: accent),
                   style: IconButton.styleFrom(
+                    foregroundColor: accent,
                     minimumSize: Size.zero,
                     padding: EdgeInsets.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,

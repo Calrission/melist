@@ -12,6 +12,7 @@ class WishModel {
     this.description,
     this.coverUrl,
     this.status = WishStatus.free,
+    this.reservedByMe = false,
     this.wishlists = const [],
     this.copiedFrom,
     this.createdAt,
@@ -34,6 +35,7 @@ class WishModel {
       status: json['status'] == null
           ? WishStatus.free
           : WishStatus.fromName(json['status']),
+      reservedByMe: json['reservedByMe'] == true,
       wishlists: _wishlistsFrom(json['wishlists']),
       copiedFrom: optionalInt(json['copiedFrom'], 'copiedFrom'),
       createdAt: optionalDateTime(json['createdAt'], 'createdAt'),
@@ -53,6 +55,7 @@ class WishModel {
       status: row['status'] == null
           ? WishStatus.free
           : WishStatus.fromName(row['status']),
+      reservedByMe: row['reserved_by_me'] == true,
       copiedFrom: optionalInt(row['copied_from'], 'copiedFrom'),
       createdAt: optionalDateTime(row['created_at'], 'createdAt'),
       updatedAt: optionalDateTime(row['updated_at'], 'updatedAt'),
@@ -67,6 +70,11 @@ class WishModel {
   final String? description;
   final String? coverUrl;
   final WishStatus status;
+
+  /// Whether the user who requested this payload reserved the wish.
+  ///
+  /// Never identifies another reserver.
+  final bool reservedByMe;
 
   /// Owner's wishlists that contain this wish. Filled on `GET /api/v1/wishes/{id}`.
   final List<WishWishlistModel> wishlists;
@@ -83,6 +91,7 @@ class WishModel {
     'description': description,
     'coverUrl': coverUrl,
     'status': status.name,
+    'reservedByMe': reservedByMe,
     if (wishlists.isNotEmpty)
       'wishlists': [for (final wishlist in wishlists) wishlist.toJson()],
     'copiedFrom': copiedFrom,
@@ -100,6 +109,25 @@ class WishModel {
       description: description,
       coverUrl: coverUrl,
       status: status,
+      reservedByMe: reservedByMe,
+      wishlists: wishlists,
+      copiedFrom: copiedFrom,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  WishModel withReservedByMe(bool reservedByMe) {
+    return WishModel(
+      id: id,
+      ownerId: ownerId,
+      name: name,
+      price: price,
+      url: url,
+      description: description,
+      coverUrl: coverUrl,
+      status: status,
+      reservedByMe: reservedByMe,
       wishlists: wishlists,
       copiedFrom: copiedFrom,
       createdAt: createdAt,

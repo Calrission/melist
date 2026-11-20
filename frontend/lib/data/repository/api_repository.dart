@@ -163,6 +163,25 @@ class ApiRepository
   }
 
   @override
+  Future<WishModel> reserveSharedWish(String token, int wishId) async {
+    final response = await _dio.post(_sharedReservationPath(token, wishId));
+    return WishModel.fromJson(_asMap(response.data));
+  }
+
+  @override
+  Future<WishModel> cancelSharedWishReservation(
+    String token,
+    int wishId,
+  ) async {
+    final response = await _dio.delete(_sharedReservationPath(token, wishId));
+    return WishModel.fromJson(_asMap(response.data));
+  }
+
+  String _sharedReservationPath(String token, int wishId) {
+    return '/api/v1/shared/${Uri.encodeComponent(token)}/wishes/$wishId/reservation';
+  }
+
+  @override
   Future<WishlistModel> addWishlistToFavorites(AddFavoriteBody body) async {
     final response = await _dio.post('/api/v1/favorites', data: body.toJson());
     return WishlistModel.fromJson(response.data);

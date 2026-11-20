@@ -50,7 +50,7 @@ class SubscriptionService {
     }
     final itemsByList = await _wishlists(_db).listItemsFor([
       for (final list in lists) list.id,
-    ]);
+    ], viewerId: user.id);
     return [
       for (final list in lists)
         list.copyWith(items: itemsByList[list.id] ?? const []),
@@ -87,7 +87,10 @@ class SubscriptionService {
 
       await _users(tx).ensure(user);
       await subscriptions.insert(userId: user.id, wishlistId: wishlist.id);
-      final items = await _wishlists(tx).listItems(wishlist.id);
+      final items = await _wishlists(tx).listItems(
+        wishlist.id,
+        viewerId: user.id,
+      );
       return wishlist.copyWith(items: items);
     });
   }

@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 class MemoryWishData {
   final userIds = <int>{};
   final wishes = <int, WishModel>{};
+  final reservedBy = <int, int>{};
   int nextWishId = 1;
 }
 
@@ -136,6 +137,9 @@ class MemoryWishRepository implements WishRepository {
       updatedAt: current.updatedAt,
     );
     data.wishes[id] = updated;
+    if (status != null && status != WishStatus.reserved) {
+      data.reservedBy.remove(id);
+    }
     return updated;
   }
 
@@ -146,6 +150,7 @@ class MemoryWishRepository implements WishRepository {
       return 0;
     }
     data.wishes.remove(id);
+    data.reservedBy.remove(id);
     return 1;
   }
 
@@ -180,6 +185,78 @@ class MemoryWishRepository implements WishRepository {
       coverUrl: current.coverUrl,
       copiedFrom: current.id,
     );
+  }
+
+  @override
+  Future<WishReservationState?> findReservation(int id) async {
+    final wish = data.wishes[id];
+    if (wish == null) {
+      return null;
+    }
+    return WishReservationState(
+      ownerId: wish.ownerId,
+      status: wish.status,
+      reservedBy: data.reservedBy[id],
+    );
+  }
+
+  @override
+  Future<WishModel?> claimReservation({
+    required int id,
+    required int userId,
+  }) async {
+    final wish = data.wishes[id];
+    if (wish == null ||
+        wish.ownerId == userId ||
+        wish.status != WishStatus.free ||
+        data.reservedBy.containsKey(id)) {
+      return null;
+    }
+    data.reservedBy[id] = userId;
+    final stored = WishModel(
+      id: wish.id,
+      ownerId: wish.ownerId,
+      name: wish.name,
+      price: wish.price,
+      url: wish.url,
+      description: wish.description,
+      coverUrl: wish.coverUrl,
+      status: WishStatus.reserved,
+      copiedFrom: wish.copiedFrom,
+      createdAt: wish.createdAt,
+      updatedAt: wish.updatedAt,
+    );
+    data.wishes[id] = stored;
+    return stored.withReservedByMe(true);
+  }
+
+  @override
+  Future<WishModel?> releaseReservation({
+    required int id,
+    required int userId,
+  }) async {
+    if (data.reservedBy[id] != userId) {
+      return null;
+    }
+    final wish = data.wishes[id];
+    if (wish == null) {
+      return null;
+    }
+    data.reservedBy.remove(id);
+    final released = WishModel(
+      id: wish.id,
+      ownerId: wish.ownerId,
+      name: wish.name,
+      price: wish.price,
+      url: wish.url,
+      description: wish.description,
+      coverUrl: wish.coverUrl,
+      copiedFrom: wish.copiedFrom,
+      createdAt: wish.createdAt,
+      updatedAt: wish.updatedAt,
+    );
+    data.wishes[id] = released;
+    return released;
   }
 }
 

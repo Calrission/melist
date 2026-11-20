@@ -162,6 +162,7 @@ class _LoadedWishlistView extends StatelessWidget {
     final wishlist = controller.data!;
     final id = wishlistId.toString();
     final padding = context.listContentPadding();
+    final items = wishesWithTakenLast(wishlist.items);
     return CustomScrollView(
       clipBehavior: Clip.hardEdge,
       slivers: [
@@ -204,7 +205,7 @@ class _LoadedWishlistView extends StatelessWidget {
             ),
           ),
         ),
-        if (wishlist.items.isEmpty)
+        if (items.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyPlaceholderWidget(),
@@ -214,12 +215,12 @@ class _LoadedWishlistView extends StatelessWidget {
             padding: padding.copyWith(top: 0),
             sliver: MelistReorderableSliver(
               onReorderItem: (oldIndex, newIndex) {
-                final order = controller.currentOrder;
+                final order = [for (final wish in items) wish.id];
                 order.reorder(oldIndex, newIndex);
                 controller.reorderWishes(wishlistId, order);
               },
               itemBuilder: (ctx, index) {
-                final e = wishlist.items[index];
+                final e = items[index];
                 return WishTile(
                   key: ValueKey(e),
                   wishModel: e,
@@ -232,7 +233,7 @@ class _LoadedWishlistView extends StatelessWidget {
                   ),
                 );
               },
-              itemCount: wishlist.items.length,
+              itemCount: items.length,
             ),
           ),
       ],

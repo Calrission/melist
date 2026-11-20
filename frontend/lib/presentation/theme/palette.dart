@@ -14,6 +14,7 @@ class Palette {
   final Color textOnAccent;
   final Color hint;
   final Color container;
+  final Color inactive;
 
   Palette({
     required this.background,
@@ -24,6 +25,7 @@ class Palette {
     required this.subText,
     required this.hint,
     required this.containerAccent,
+    required this.inactive,
     required this.uiTheme,
   });
 
@@ -37,6 +39,7 @@ class Palette {
       textOnAccent: Colors.white,
       container: Color(0xFFF9F9F9),
       hint: Colors.grey,
+      inactive: const Color(0xFF9F9F9F),
       uiTheme: UiTheme.light,
     );
   }
@@ -51,6 +54,7 @@ class Palette {
       textOnAccent: Colors.white,
       container: Color(0xFF1E1E1E),
       hint: Colors.grey,
+      inactive: const Color(0xFF9F9F9F),
       uiTheme: UiTheme.dark,
     );
   }
@@ -72,6 +76,7 @@ class Palette {
     Color? container,
     Color? subText,
     Color? lightAccent,
+    Color? inactive,
     UiTheme? uiTheme,
   }) {
     return Palette(
@@ -84,6 +89,7 @@ class Palette {
       containerAccent: lightAccent ?? this.containerAccent,
       container: container ?? this.container,
       subText: subText ?? this.subText,
+      inactive: inactive ?? this.inactive,
     );
   }
 
@@ -98,6 +104,7 @@ class Palette {
       uiTheme: uiTheme,
       container: Color.lerp(container, other.container, t)!,
       containerAccent: Color.lerp(containerAccent, other.containerAccent, t)!,
+      inactive: Color.lerp(inactive, other.inactive, t)!,
     );
   }
 

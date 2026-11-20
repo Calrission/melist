@@ -308,18 +308,24 @@ class MemoryWishlistRepository implements WishlistRepository {
   }
 
   @override
-  Future<List<WishModel>> listItems(int wishlistId) async {
-    final grouped = await listItemsFor([wishlistId]);
+  Future<List<WishModel>> listItems(int wishlistId, {int? viewerId}) async {
+    final grouped = await listItemsFor([wishlistId], viewerId: viewerId);
     return grouped[wishlistId] ?? const [];
   }
 
   @override
-  Future<Map<int, List<WishModel>>> listItemsFor(List<int> wishlistIds) async {
+  Future<Map<int, List<WishModel>>> listItemsFor(
+    List<int> wishlistIds, {
+    int? viewerId,
+  }) async {
     return {
       for (final wishlistId in wishlistIds)
         wishlistId: [
           for (final id in data.items[wishlistId] ?? const <int>[])
-            if (data.wishes[id] case final wish?) wish,
+            if (data.wishes[id] case final wish?)
+              wish.withReservedByMe(
+                viewerId != null && data.wishStore.reservedBy[id] == viewerId,
+              ),
         ],
     };
   }

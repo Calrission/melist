@@ -27,6 +27,48 @@ String _formatPrice(double price) {
       '${decimalIndex == -1 ? '' : value.substring(decimalIndex)}';
 }
 
+/// Reserved by somebody other than the viewer.
+bool wishIsTakenBySomeoneElse(WishModel wish) {
+  return wish.status == WishStatus.reserved && !wish.reservedByMe;
+}
+
+/// Keeps the current order, then appends wishes taken by someone else.
+List<WishModel> wishesWithTakenLast(List<WishModel> wishes) {
+  final open = <WishModel>[];
+  final taken = <WishModel>[];
+  for (final wish in wishes) {
+    if (wishIsTakenBySomeoneElse(wish)) {
+      taken.add(wish);
+    } else {
+      open.add(wish);
+    }
+  }
+  return [...open, ...taken];
+}
+
+const ColorFilter wishTakenGrayscale = ColorFilter.matrix(<double>[
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0.2126,
+  0.7152,
+  0.0722,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+]);
+
 class WishTile extends StatelessWidget {
   final WishModel wishModel;
   final VoidCallback? onTapDelete;
@@ -50,12 +92,35 @@ class WishTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
+    final taken = wishIsTakenBySomeoneElse(wishModel);
+    final textColor = taken ? palette.inactive : palette.accent;
+    final descriptionColor = taken ? palette.inactive : palette.text;
     final coverUrl = wishModel.coverUrl;
     final description = wishModel.description?.trim();
     final price = wishModel.price == null
         ? "0 ₽"
         : "${_formatPrice(wishModel.price!)} ₽";
     final radius = BorderRadius.circular(borderRadius);
+    final cover = ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: SizedBox(
+        width: 80,
+        height: 80,
+        child: coverUrl == null || coverUrl.isEmpty
+            ? ColoredBox(
+                color: palette.subText.withValues(alpha: 0.12),
+                child: Icon(Icons.image, color: palette.subText),
+              )
+            : Image.network(
+                coverUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => ColoredBox(
+                  color: palette.subText.withValues(alpha: 0.12),
+                  child: Icon(Icons.broken_image, color: palette.subText),
+                ),
+              ),
+      ),
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -87,36 +152,13 @@ class WishTile extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: .start,
                       children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(borderRadius),
-                          child: SizedBox(
-                            width: 80,
-                            height: 80,
-                            child: coverUrl == null || coverUrl.isEmpty
-                                ? ColoredBox(
-                                    color: palette.subText.withValues(
-                                      alpha: 0.12,
-                                    ),
-                                    child: Icon(
-                                      Icons.image,
-                                      color: palette.subText,
-                                    ),
-                                  )
-                                : Image.network(
-                                    coverUrl,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => ColoredBox(
-                                      color: palette.subText.withValues(
-                                        alpha: 0.12,
-                                      ),
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        color: palette.subText,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
+                        if (taken)
+                          ColorFiltered(
+                            colorFilter: wishTakenGrayscale,
+                            child: cover,
+                          )
+                        else
+                          cover,
                         const SizedBox(width: 14),
                         Expanded(
                           child: Column(
@@ -131,7 +173,7 @@ class WishTile extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w500,
-                                  color: palette.accent,
+                                  color: textColor,
                                 ),
                               ),
                               Text(
@@ -141,7 +183,7 @@ class WishTile extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w300,
-                                  color: palette.text,
+                                  color: descriptionColor,
                                 ),
                               ),
                               Text(
@@ -149,13 +191,25 @@ class WishTile extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: palette.accent,
+                                  color: textColor,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(width: 33),
+                        SizedBox(
+                          width: 33,
+                          height: 20,
+                          child: taken
+                              ? Center(
+                                  child: Icon(
+                                    Icons.lock,
+                                    size: 16,
+                                    color: palette.inactive,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ],
                     ),
                   ),

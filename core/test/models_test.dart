@@ -181,8 +181,35 @@ void main() {
       expect(wish.price, closeTo(19.90, 0.001));
       expect(wish.coverUrl, 'https://img/book.png');
       expect(wish.status, WishStatus.reserved);
+      expect(wish.reservedByMe, isFalse);
       expect(wish.wishlists, isEmpty);
       expect(wish.copiedFrom, 9);
+    });
+
+    test('reservedByMe is only the caller flag', () {
+      final wish = WishModel.fromJson({
+        'id': 2,
+        'ownerId': 1,
+        'name': 'Book',
+        'status': 'reserved',
+        'reservedByMe': true,
+        'reservedBy': 99,
+      });
+
+      expect(wish.reservedByMe, isTrue);
+      expect(wish.toJson()['reservedByMe'], isTrue);
+      expect(wish.toJson().containsKey('reservedBy'), isFalse);
+
+      final row = WishModel.fromRow({
+        'id': 2,
+        'owner_id': 1,
+        'name': 'Book',
+        'status': 'reserved',
+        'reserved_by_me': true,
+        'reserved_by': 99,
+      });
+      expect(row.reservedByMe, isTrue);
+      expect(row.toJson().containsKey('reservedBy'), isFalse);
     });
 
     test('fromJson keeps the wishlists that contain the wish', () {

@@ -150,6 +150,9 @@ RETURNING $_columns
     if (status != null) {
       sets.add('status = CAST(@status AS wish_status)');
       params['status'] = status.name;
+      if (status != WishStatus.reserved) {
+        sets.add('reserved_by = NULL');
+      }
     }
 
     final row = await _db.querySingle(
@@ -213,4 +216,80 @@ RETURNING $_columns
     );
     return row == null ? null : WishModel.fromRow(row);
   }
+
+  /// Owner, status and the internal reserver id. Not a client payload.
+  Future<WishReservationState?> findReservation(int id) async {
+    final row = await _db.querySingle(
+      '''
+SELECT owner_id, status::text AS status, reserved_by
+FROM wishes
+WHERE id = @id
+''',
+      {'id': id},
+    );
+    if (row == null) {
+      return null;
+    }
+    final reservedBy = row['reserved_by'];
+    return WishReservationState(
+      ownerId: (row['owner_id'] as num).toInt(),
+      status: WishStatus.fromName(row['status']),
+      reservedBy: reservedBy == null ? null : (reservedBy as num).toInt(),
+    );
+  }
+
+  /// Marks [userId] as the reserver.
+  /// Returns null when the row no longer matches.
+  Future<WishModel?> claimReservation({
+    required int id,
+    required int userId,
+  }) async {
+    final row = await _db.querySingle(
+      '''
+UPDATE wishes
+SET status = CAST('reserved' AS wish_status),
+    reserved_by = @userId,
+    updated_at = now()
+WHERE id = @id
+  AND owner_id <> @userId
+  AND status = CAST('free' AS wish_status)
+  AND reserved_by IS NULL
+RETURNING $_columns, TRUE AS reserved_by_me
+''',
+      {'id': id, 'userId': userId},
+    );
+    return row == null ? null : WishModel.fromRow(row);
+  }
+
+  /// Clears a reservation held by [userId]. Returns null when it is not theirs.
+  Future<WishModel?> releaseReservation({
+    required int id,
+    required int userId,
+  }) async {
+    final row = await _db.querySingle(
+      '''
+UPDATE wishes
+SET status = CAST('free' AS wish_status),
+    reserved_by = NULL,
+    updated_at = now()
+WHERE id = @id AND reserved_by = @userId
+RETURNING $_columns, FALSE AS reserved_by_me
+''',
+      {'id': id, 'userId': userId},
+    );
+    return row == null ? null : WishModel.fromRow(row);
+  }
+}
+
+/// Server-side reservation. Never send [reservedBy] to a client.
+class WishReservationState {
+  const WishReservationState({
+    required this.ownerId,
+    required this.status,
+    this.reservedBy,
+  });
+
+  final int ownerId;
+  final WishStatus status;
+  final int? reservedBy;
 }

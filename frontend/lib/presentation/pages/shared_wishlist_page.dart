@@ -226,6 +226,7 @@ class _LoadedShared extends StatelessWidget {
     final isOwn = myId != null && myId == wishlist.ownerId;
 
     final padding = context.listContentPadding();
+    final items = wishesWithTakenLast(wishlist.items);
     return CustomScrollView(
       slivers: [
         SliverPadding(
@@ -255,7 +256,7 @@ class _LoadedShared extends StatelessWidget {
             ),
           ),
         ),
-        if (wishlist.items.isEmpty)
+        if (items.isEmpty)
           const SliverFillRemaining(
             hasScrollBody: false,
             child: EmptyPlaceholderWidget(),
@@ -264,9 +265,9 @@ class _LoadedShared extends StatelessWidget {
           SliverPadding(
             padding: padding.copyWith(top: 0),
             sliver: SliverList.builder(
-              itemCount: wishlist.items.length,
+              itemCount: items.length,
               itemBuilder: (context, index) {
-                final wish = wishlist.items[index];
+                final wish = items[index];
                 return WishTile(
                   wishModel: wish,
                   onTap: () => context.pushNamed(

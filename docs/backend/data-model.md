@@ -180,6 +180,7 @@ CREATE TABLE wishes (
   description  TEXT,
   cover_url    TEXT,
   status       wish_status NOT NULL DEFAULT 'free',         -- 20
+  reserved_by  BIGINT REFERENCES users(id) ON DELETE SET NULL,   -- кто забронировал; в API только reservedByMe
   copied_from  BIGINT REFERENCES wishes(id) ON DELETE SET NULL,  -- 4.3, 13
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()

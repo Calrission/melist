@@ -95,7 +95,7 @@ class ProfileService {
     }
     final itemsByList = await _wishlists(_db).listItemsFor([
       for (final list in lists) list.id,
-    ]);
+    ], viewerId: viewer.id);
     return PublicProfileModel(
       user: user,
       wishlists: [

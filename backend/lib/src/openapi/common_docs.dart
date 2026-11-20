@@ -128,6 +128,12 @@ const wishSchema = <String, Object?>{
       'type': 'string',
       'enum': ['draft', 'free', 'reserved'],
     },
+    'reservedByMe': {
+      'type': 'boolean',
+      'description':
+          'True only when the authenticated caller reserved this wish. '
+          'Does not identify any other reserver.',
+    },
     'wishlists': {
       'type': 'array',
       'items': {

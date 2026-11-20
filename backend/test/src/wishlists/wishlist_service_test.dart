@@ -503,4 +503,95 @@ void main() {
       );
     });
   });
+
+  group('WishlistService shared reservation', () {
+    const third = AuthUser(id: 9, username: 'cara');
+
+    Future<({WishlistModel list, String token, WishModel wish})>
+    sharedWish() async {
+      final list = await service.create(
+        owner,
+        name: 'Gifts',
+        visibility: 'link',
+      );
+      final wish = await service.addWish(
+        owner,
+        list.id,
+        wish: {'name': 'Book'},
+      );
+      final token = await service.share(owner, list.id);
+      return (list: list, token: token, wish: wish);
+    }
+
+    test('tells only the caller whether they reserved the wish', () async {
+      final (list: _, :token, :wish) = await sharedWish();
+
+      final reserved = await service.reserveSharedWish(
+        stranger,
+        token,
+        wish.id,
+      );
+      expect(reserved.status, WishStatus.reserved);
+      expect(reserved.reservedByMe, isTrue);
+      expect(reserved.toJson().containsKey('reservedBy'), isFalse);
+
+      final mine = await service.getShared(stranger, token);
+      expect(mine.items.single.reservedByMe, isTrue);
+      expect(mine.items.single.toJson().containsKey('reservedBy'), isFalse);
+
+      final other = await service.getShared(third, token);
+      expect(other.items.single.status, WishStatus.reserved);
+      expect(other.items.single.reservedByMe, isFalse);
+      expect(other.items.single.toJson().containsKey('reservedBy'), isFalse);
+
+      final ownerView = await service.getShared(owner, token);
+      expect(ownerView.items.single.reservedByMe, isFalse);
+      expect(ownerView.items.single.status, WishStatus.reserved);
+    });
+
+    test('rejects a second claim, the owner, and a foreign cancel', () async {
+      final (list: _, :token, :wish) = await sharedWish();
+      await service.reserveSharedWish(stranger, token, wish.id);
+
+      await expectLater(
+        service.reserveSharedWish(third, token, wish.id),
+        throwsA(
+          isA<ConflictException>().having(
+            (error) => error.message,
+            'message',
+            'Wish is already reserved',
+          ),
+        ),
+      );
+      await expectLater(
+        service.reserveSharedWish(owner, token, wish.id),
+        throwsA(isA<ForbiddenException>()),
+      );
+      await expectLater(
+        service.cancelSharedReservation(third, token, wish.id),
+        throwsA(
+          isA<ConflictException>().having(
+            (error) => error.message,
+            'message',
+            'Wish is not reserved by you',
+          ),
+        ),
+      );
+
+      final again = await service.reserveSharedWish(stranger, token, wish.id);
+      expect(again.reservedByMe, isTrue);
+
+      final released = await service.cancelSharedReservation(
+        stranger,
+        token,
+        wish.id,
+      );
+      expect(released.status, WishStatus.free);
+      expect(released.reservedByMe, isFalse);
+
+      final after = await service.getShared(stranger, token);
+      expect(after.items.single.status, WishStatus.free);
+      expect(after.items.single.reservedByMe, isFalse);
+    });
+  });
 }

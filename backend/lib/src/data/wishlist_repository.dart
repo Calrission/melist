@@ -289,25 +289,37 @@ VALUES (@wishlistId, @wishId, @position)
     }
   }
 
-  Future<List<WishModel>> listItems(int wishlistId) async {
-    final grouped = await listItemsFor([wishlistId]);
+  Future<List<WishModel>> listItems(int wishlistId, {int? viewerId}) async {
+    final grouped = await listItemsFor([wishlistId], viewerId: viewerId);
     return grouped[wishlistId] ?? const [];
   }
 
   /// Wishes of many wishlists, keyed by wishlist id, ordered by `position`.
-  Future<Map<int, List<WishModel>>> listItemsFor(List<int> wishlistIds) async {
+  ///
+  /// [viewerId] only affects `reservedByMe`. The reserver id is not selected.
+  Future<Map<int, List<WishModel>>> listItemsFor(
+    List<int> wishlistIds, {
+    int? viewerId,
+  }) async {
     if (wishlistIds.isEmpty) {
       return const {};
     }
+    final reservedByMe = viewerId == null
+        ? 'FALSE'
+        : '(w.reserved_by = @viewerId)';
+    final params = <String, Object?>{'wishlistIds': wishlistIds};
+    if (viewerId != null) {
+      params['viewerId'] = viewerId;
+    }
     final rows = await _db.query(
       '''
-SELECT ww.wishlist_id, $_wishColumns
+SELECT ww.wishlist_id, $_wishColumns, $reservedByMe AS reserved_by_me
 FROM wishes w
 JOIN wishlist_wishes ww ON ww.wish_id = w.id
 WHERE ww.wishlist_id = ANY(@wishlistIds)
 ORDER BY ww.wishlist_id, ww.position, w.id
 ''',
-      {'wishlistIds': wishlistIds},
+      params,
     );
     final grouped = <int, List<WishModel>>{};
     for (final row in rows) {

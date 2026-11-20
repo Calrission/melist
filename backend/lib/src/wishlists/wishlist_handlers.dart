@@ -311,3 +311,30 @@ Future<Response> handleSharedWishlist(
     return appError(error);
   }
 }
+
+Future<Response> handleSharedWishReservation(
+  RequestContext context,
+  String token,
+  String wishId,
+) async {
+  final rejected = rejectUnlessMethod(context, {
+    HttpMethod.post,
+    HttpMethod.delete,
+  });
+  if (rejected != null) {
+    return rejected;
+  }
+
+  final user = context.read<AuthUser>();
+  final wishlists = context.read<WishlistService>();
+
+  try {
+    final id = parsePathId(wishId, field: 'wishId');
+    final wish = context.request.method == HttpMethod.delete
+        ? await wishlists.cancelSharedReservation(user, token, id)
+        : await wishlists.reserveSharedWish(user, token, id);
+    return Response.json(body: wish.toJson());
+  } on AppException catch (error) {
+    return appError(error);
+  }
+}

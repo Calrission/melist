@@ -39,7 +39,8 @@ class FavoriteService {
   Future<List<WishlistModel>> list(AuthUser user) async {
     final lists = await _repo.listWishlists(user.id);
     return [
-      for (final list in lists) await _withVisibleItems(list),
+      for (final list in lists)
+        await _withVisibleItems(list, viewerId: user.id),
     ];
   }
 
@@ -76,7 +77,11 @@ class FavoriteService {
         wishlistId: wishlist.id,
         position: position,
       );
-      return _withVisibleItems(wishlist, wishlists: wishlists);
+      return _withVisibleItems(
+        wishlist,
+        viewerId: user.id,
+        wishlists: wishlists,
+      );
     });
   }
 
@@ -115,9 +120,13 @@ class FavoriteService {
 
   Future<WishlistModel> _withVisibleItems(
     WishlistModel wishlist, {
+    required int viewerId,
     WishlistRepository? wishlists,
   }) async {
-    final items = await (wishlists ?? _wishlists(_db)).listItems(wishlist.id);
+    final items = await (wishlists ?? _wishlists(_db)).listItems(
+      wishlist.id,
+      viewerId: viewerId,
+    );
     return wishlist.copyWith(items: items);
   }
 

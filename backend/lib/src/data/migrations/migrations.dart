@@ -5,6 +5,7 @@ import 'package:melist_backend/src/data/migrations/m0003_wishlist_cover.dart';
 import 'package:melist_backend/src/data/migrations/m0004_drop_wishlist_color.dart';
 import 'package:melist_backend/src/data/migrations/m0005_user_nickname.dart';
 import 'package:melist_backend/src/data/migrations/m0006_drop_wishlist_cover.dart';
+import 'package:melist_backend/src/data/migrations/m0007_wish_reserved_by.dart';
 
 /// Every migration the application knows about, in version order.
 ///
@@ -18,4 +19,5 @@ const allMigrations = <Migration>[
   m0004DropWishlistColor,
   m0005UserNickname,
   m0006DropWishlistCover,
+  m0007WishReservedBy,
 ];

@@ -22,6 +22,37 @@ class SharedWishlistController extends BaseController<WishlistModel> {
   String? _token;
   String? get token => _token;
 
+  Future<void> reserveWish(int wishId) async {
+    final token = _token;
+    if (token == null || token.isEmpty) {
+      return;
+    }
+    _replaceItem(await _wishlistRepository.reserveSharedWish(token, wishId));
+  }
+
+  Future<void> cancelReservation(int wishId) async {
+    final token = _token;
+    if (token == null || token.isEmpty) {
+      return;
+    }
+    _replaceItem(
+      await _wishlistRepository.cancelSharedWishReservation(token, wishId),
+    );
+  }
+
+  void _replaceItem(WishModel wish) {
+    final current = data;
+    if (current == null) {
+      return;
+    }
+    data = current.copyWith(
+      items: [
+        for (final item in current.items)
+          if (item.id == wish.id) wish else item,
+      ],
+    );
+  }
+
   Future<void> loadByToken(String token) async {
     _token = token;
     emit(ControllerState.loading);
