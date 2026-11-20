@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
@@ -267,7 +266,8 @@ class _WishFormPageState extends State<WishFormPage> {
 
     if (!mounted) return;
     if (isSuccess) {
-      context.pop();
+      final saved = controller.data;
+      context.pop(saved);
       controller.reset();
     } else {
       setState(() => _saving = false);
@@ -328,29 +328,40 @@ class _WishFormPageState extends State<WishFormPage> {
                                       ),
                                     ),
                                   )
-                                : CachedNetworkImage(
-                                    imageUrl: _coverUrlController.text,
+                                : Image.network(
+                                    _coverUrlController.text,
                                     height: 400,
                                     fit: BoxFit.fitHeight,
-                                    placeholder: (context, url) => SizedBox(
-                                      height: 400,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          color: context.palette.textOnAccent,
-                                        ),
-                                      ),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        SizedBox(
-                                          height: 400,
-                                          child: Center(
-                                            child: Icon(
-                                              Icons.broken_image,
-                                              color:
-                                                  context.palette.textOnAccent,
+                                    webHtmlElementStrategy:
+                                        WebHtmlElementStrategy.fallback,
+                                    loadingBuilder:
+                                        (context, child, progress) =>
+                                            progress == null
+                                            ? child
+                                            : SizedBox(
+                                                height: 400,
+                                                child: Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        color: context
+                                                            .palette
+                                                            .textOnAccent,
+                                                      ),
+                                                ),
+                                              ),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            SizedBox(
+                                              height: 400,
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.broken_image,
+                                                  color: context
+                                                      .palette
+                                                      .textOnAccent,
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                   ),
                           ),
                         ),
@@ -361,9 +372,7 @@ class _WishFormPageState extends State<WishFormPage> {
                     label: "Название",
                     hint: "Введите название",
                     controller: _nameController,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(255),
-                    ],
+                    inputFormatters: [LengthLimitingTextInputFormatter(255)],
                   ),
                   LabeledTextField(
                     label: "Описание",

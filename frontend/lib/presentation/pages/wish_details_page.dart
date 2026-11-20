@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -6,6 +5,8 @@ import 'package:melist/domain/interfaces/i_wish_repository.dart';
 import 'package:melist/presentation/controllers/base_controller.dart';
 import 'package:melist/presentation/controllers/profile_controller.dart';
 import 'package:melist/presentation/controllers/shared_wishlist_controller.dart';
+import 'package:melist/presentation/controllers/wishes_controller.dart';
+import 'package:melist/presentation/controllers/wishlist_controller.dart';
 import 'package:melist/presentation/controllers/wishlist_list_controller.dart';
 import 'package:melist/presentation/extensions/context_extension.dart';
 import 'package:melist/presentation/extensions/error_extension.dart';
@@ -106,9 +107,26 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
     WishStatus.reserved => "Зарезервировано",
   };
 
-  WishModel? _shownWish(List<WishModel>? sharedItems) {
+  WishModel? _shownWish({
+    required List<WishModel>? catalog,
+    required List<WishModel>? activeItems,
+    required List<WishlistModel>? lists,
+    required List<WishModel>? sharedItems,
+    required int? profileId,
+  }) {
     final wish = _wish;
-    if (wish == null || sharedItems == null) {
+    if (wish == null) {
+      return null;
+    }
+    if (profileId != null && wish.ownerId == profileId) {
+      return _newestOwnerCopy(
+        wish,
+        catalog: catalog,
+        activeItems: activeItems,
+        lists: lists,
+      );
+    }
+    if (sharedItems == null) {
       return wish;
     }
     for (final item in sharedItems) {
@@ -117,6 +135,43 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
       }
     }
     return wish;
+  }
+
+  /// The page is opened with a snapshot. Saving updates the catalog and the
+  /// open wishlist in place, so the owner's screen follows the newest copy.
+  WishModel _newestOwnerCopy(
+    WishModel wish, {
+    required List<WishModel>? catalog,
+    required List<WishModel>? activeItems,
+    required List<WishlistModel>? lists,
+  }) {
+    var latest = wish;
+    latest = _newer(latest, catalog);
+    latest = _newer(latest, activeItems);
+    if (lists != null) {
+      for (final wishlist in lists) {
+        latest = _newer(latest, wishlist.items);
+      }
+    }
+    return latest;
+  }
+
+  WishModel _newer(WishModel current, List<WishModel>? candidates) {
+    if (candidates == null) {
+      return current;
+    }
+    var latest = current;
+    for (final candidate in candidates) {
+      if (candidate.id != latest.id) {
+        continue;
+      }
+      final currentAt = latest.updatedAt;
+      final nextAt = candidate.updatedAt;
+      if (currentAt != null && nextAt != null && nextAt.isAfter(currentAt)) {
+        latest = candidate;
+      }
+    }
+    return latest;
   }
 
   WishBooking _bookingOf(WishModel wish) {
@@ -131,9 +186,14 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final sharedItems = context.watch<SharedWishlistController>().data?.items;
-    final wish = _shownWish(sharedItems);
     final profileId = context.watch<ProfileController>().profile?.id;
+    final wish = _shownWish(
+      catalog: context.watch<WishesController>().data,
+      activeItems: context.watch<WishlistController>().data?.items,
+      lists: context.watch<WishlistListController>().data,
+      sharedItems: context.watch<SharedWishlistController>().data?.items,
+      profileId: profileId,
+    );
     final isOwner =
         wish != null && profileId != null && wish.ownerId == profileId;
     final booking =
@@ -152,10 +212,16 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
             IconButton(
               tooltip: "Редактировать",
               icon: Icon(MelistIcons.edit),
-              onPressed: () => context.pushNamed<void>(
-                wishEditGoKey,
-                pathParameters: {'id': wish.id.toString()},
-              ),
+              onPressed: () async {
+                final saved = await context.pushNamed<WishModel>(
+                  wishEditGoKey,
+                  pathParameters: {'id': wish.id.toString()},
+                );
+                if (!mounted || saved == null) {
+                  return;
+                }
+                setState(() => _wish = saved);
+              },
             ),
         ],
       ),
@@ -225,15 +291,20 @@ class _WishDetailsPageState extends State<WishDetailsPage> {
                 ),
               ),
             )
-          : CachedNetworkImage(
-              imageUrl: wish.coverUrl!,
+          : Image.network(
+              wish.coverUrl!,
               height: 400,
               fit: BoxFit.fitHeight,
-              placeholder: (context, url) => SizedBox(
-                height: 400,
-                child: Center(child: CircularProgressIndicator(color: accent)),
-              ),
-              errorWidget: (context, url, error) => SizedBox(
+              webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
+              loadingBuilder: (context, child, progress) => progress == null
+                  ? child
+                  : SizedBox(
+                      height: 400,
+                      child: Center(
+                        child: CircularProgressIndicator(color: accent),
+                      ),
+                    ),
+              errorBuilder: (context, error, stackTrace) => SizedBox(
                 height: 400,
                 child: Center(
                   child: Icon(

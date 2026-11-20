@@ -128,6 +128,7 @@ class WishTile extends StatelessWidget {
                   color: palette.subText.withValues(alpha: 0.12),
                   child: Icon(Icons.broken_image, color: palette.subText),
                 ),
+                webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
               ),
       ),
     );
@@ -153,7 +154,8 @@ class WishTile extends StatelessWidget {
                           : palette.container,
                       borderRadius: radius,
                       border: Border.all(
-                        color: selected == true ||
+                        color:
+                            selected == true ||
                                 (borderWhenReservedByMe &&
                                     wishModel.reservedByMe)
                             ? palette.accent

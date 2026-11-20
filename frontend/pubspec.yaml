@@ -21,7 +21,6 @@ dependencies:
   dio: ^5.11.1
   provider: ^6.1.5+1
   flutter_telegram_miniapp: ^0.1.2
-  cached_network_image: ^4.0.4
   melist_core:
 
   material_ui: ^1.4.0

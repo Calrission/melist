@@ -304,6 +304,7 @@ class _WishlistItemPreview extends StatelessWidget {
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) =>
                     const ColoredBox(color: Colors.white),
+                webHtmlElementStrategy: WebHtmlElementStrategy.fallback,
               ),
       ),
     );
